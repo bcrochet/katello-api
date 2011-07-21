@@ -1,0 +1,27 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Katello API Test Suite">
+
+	<!-- the hudson.groovy script already includes these listeners
+	<listeners>
+  		<listener class-name="com.redhat.qe.auto.testng.TestNGListener" />
+  		<listener class-name="com.redhat.qe.auto.bugzilla.BugzillaTestNGListener" />
+	</listeners>
+	-->
+	
+	<test name="All_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.api.tests.A_ConsumersTest"/>
+			<class name="com.redhat.qe.katello.api.tests.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.api.tests.ProvidersTest"/>
+			<class name="com.redhat.qe.katello.api.tests.Z_InitScriptLSBTest"/> <!-- ALWAYS, should be the last script to run -->		
+		</classes>
+	</test>
+	
+	<test name="Smoke_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.api.tests.EnvironmentsTest"/>
+			<class name="com.redhat.qe.katello.api.tests.ProvidersTest"/>	
+		</classes>
+	</test>
+</suite>
