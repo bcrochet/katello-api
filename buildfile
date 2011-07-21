@@ -30,8 +30,8 @@ Project.local_task :install_katello
 Project.local_task :db_cleanup_katello
 Project.local_task :beaker_reservesys
 
-desc "The Katello-cli project"
-define "katello-cli" do
+desc "The Katello-api project"
+define "katello-api" do
   project.version = VERSION_NUMBER
   project.group = GROUP
   manifest["Implementation-Vendor"] = COPYRIGHT
