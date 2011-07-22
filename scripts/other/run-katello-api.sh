@@ -36,15 +36,12 @@ then
 fi
 console "Using: [`gem list | grep buildr`]"
 
-pushd ~/ > /dev/null
-console "Retrieving: [katello-api] to: [`pwd`/katello-api]"
-rm -rf `pwd`/katello-api
-git clone git://git.engineering.redhat.com/users/gkhachik/katello-api.git > /dev/null 2>&1
+SELF_DIR=$(dirname `readlink -f $0`)
+pushd $SELF_DIR/../../ > /dev/null
 
 # running the tests
 KATELLO_SERVER_HOSTNAME="$1"
 KATELLO_SSH_PASS="$2"
-cd katello-api/
 cp ./katello-automation.properties ./automation.properties
 sed -i '/katello.server.hostname/ d' ./automation.properties
 echo "katello.server.hostname=$KATELLO_SERVER_HOSTNAME" >> ./automation.properties
