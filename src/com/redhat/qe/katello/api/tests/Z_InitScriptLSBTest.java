@@ -27,7 +27,7 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 		scpRunner.sendFile("scripts/other/helper-katello.sh", "/tmp/");
 		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
 		servertasks.execute_remote("useradd testuserqa");
-		servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
+		servertasks.execute_remote(String.format("export KATELLO_HOME=/usr/lib/katello; service %s start",KATELLO_SERVICENAME));
 		servertasks.execute_remote("pushd /tmp; chmod +x *.sh; " +
 		". helper-katello.sh; waitfor_katello; popd");
 	}
@@ -44,11 +44,11 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 	public void test_serviceStart(){
 		SSHCommandResult res;
 		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
-		res = servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
+		res = servertasks.execute_remote(String.format("export KATELLO_HOME=/usr/lib/katello; service %s start",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Service must start without problem");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Then Status command");
-		res = servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
+		res = servertasks.execute_remote(String.format("export KATELLO_HOME=/usr/lib/katello; service %s start",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Already started service");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Again status command");		
@@ -65,7 +65,7 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Status command");
 		// restart service from the started mode
 		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
-		servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
+		servertasks.execute_remote(String.format("export KATELLO_HOME=/usr/lib/katello; service %s start",KATELLO_SERVICENAME));
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from started mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
