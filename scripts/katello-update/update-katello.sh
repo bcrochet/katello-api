@@ -15,6 +15,7 @@ yum update -y pulp* katello candlepin*
 
 # -------------------------------------------------------------------------------------------------------
 # *** start services 
+export KATELLO_HOME=/usr/lib/katello #it's just a workaround.
 service tomcat6 start
 service pulp-server start
 service katello start
