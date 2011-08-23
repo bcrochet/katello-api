@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.api.tests;
+package com.redhat.qe.katello.tests.api;
 
 import java.util.logging.Logger;
 

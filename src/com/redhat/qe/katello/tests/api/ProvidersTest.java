@@ -1,4 +1,4 @@
-package com.redhat.qe.katello.api.tests;
+package com.redhat.qe.katello.tests.api;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

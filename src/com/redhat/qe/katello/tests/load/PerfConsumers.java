@@ -2,9 +2,9 @@ package com.redhat.qe.katello.tests.load;
 
 import org.testng.annotations.Test;
 
-import com.redhat.qe.katello.api.tests.A_ConsumersTest;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloDBCleaner;
+import com.redhat.qe.katello.tests.api.A_ConsumersTest;
 
 public class PerfConsumers  extends KatelloTestScript{
 
