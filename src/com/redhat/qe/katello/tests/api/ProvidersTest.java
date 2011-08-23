@@ -230,7 +230,7 @@ public class ProvidersTest extends KatelloTestScript {
 		
 		String provider_id = ((Long)servertasks.getProvider(providerName).get("id")).toString();
 		String sout = servertasks.deleteProvider(providerName);
-		Assert.assertEquals(sout, "Deleted provider '"+provider_id+"'","Check: message returned by the API call");
+		Assert.assertEquals(sout, "Deleted provider [ "+providerName+" ]","Check: message returned by the API call");
 		JSONObject obj_del = servertasks.getProvider(providerName);
 		Assert.assertNull(obj_del, "Check: returned getProvider() is null");
 	}
