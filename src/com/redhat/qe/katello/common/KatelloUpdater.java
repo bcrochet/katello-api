@@ -38,8 +38,8 @@ public class KatelloUpdater {
 			sshRunner.runCommandAndWait( //enables run of scp
 					"yum -y install openssh-clients", true);
 			scpRunner.sendFile("scripts/other/install_python-katello.sh", "/tmp"); // to install python-katello
-			sshRunner.runCommandAndWait("pushd /tmp; chmod +x install_python-katello.sh; " +
-							"install_python-katello.sh; katello-update -dr; popd", true);
+			sshRunner.runCommandAndWait("pushd /tmp; chmod +x ./install_python-katello.sh; " +
+							"./install_python-katello.sh; katello-update -dr; popd", true);
 		}catch(Exception ex){
 			log.severe(ex.getMessage());
 			System.exit(1);
