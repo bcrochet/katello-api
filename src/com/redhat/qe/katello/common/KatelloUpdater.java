@@ -37,10 +37,9 @@ public class KatelloUpdater {
 		try{
 			sshRunner.runCommandAndWait( //enables run of scp
 					"yum -y install openssh-clients", true);
-			scpRunner.sendFile(PATH_TO_SHELL, "/tmp");
-			scpRunner.sendFile("scripts/other/helper-katello.sh", "/tmp/");
-			sshRunner.runCommandAndWait("pushd /tmp; chmod +x *.sh; " +
-							"./update-katello.sh; popd", true);
+			scpRunner.sendFile("scripts/other/install_python-katello.sh", "/tmp"); // to install python-katello
+			sshRunner.runCommandAndWait("pushd /tmp; chmod +x install_python-katello.sh; " +
+							"install_python-katello.sh; katello-update -dr; popd", true);
 		}catch(Exception ex){
 			log.severe(ex.getMessage());
 			System.exit(1);
