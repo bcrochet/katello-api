@@ -111,13 +111,10 @@ config_pulp()
   sed -i "s/localhost/`hostname`/g" /etc/pulp/client.conf
   
   # set ServerName in httpd conf
-  APACHE_SERVERNAME="Servername `hostname`"
-  if [ "`grep "#ServerName" /etc/httpd/conf/httpd.conf`" != "" ]
+  APACHE_SERVERNAME="\nServerName `hostname`"
+  if [ "`grep "^ServerName " /etc/httpd/conf/httpd.conf`" == "" ]
   then
-    if [ "`grep "$APACHE_SERVERNAME" /etc/httpd/conf/httpd.conf`" == "" ]
-    then
-      echo $APACHE_SERVERNAME >> /etc/httpd/conf/httpd.conf
-    fi
+    echo -e $APACHE_SERVERNAME >> /etc/httpd/conf/httpd.conf
   fi
 }
 
