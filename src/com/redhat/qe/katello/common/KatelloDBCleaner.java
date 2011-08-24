@@ -5,6 +5,12 @@ import com.redhat.qe.auto.testng.TestScript;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandRunner;
 
+/**
+ * Cleanup the Katello DBs (all: pulp, candlepin, katello).<BR>
+ * Using the package under: [https://github.com/gkhachik/python-katello]
+ * @author gkhachik
+ *
+ */
 public class KatelloDBCleaner {
 	public static final String PATH_TO_SHELL = 
 		"scripts/katello-update/db-cleanup-katello.sh";
@@ -39,7 +45,7 @@ public class KatelloDBCleaner {
 					"yum -y install openssh-clients", true);
 			scpRunner.sendFile("scripts/other/install_python-katello.sh", "/tmp"); // to install python-katello
 			sshRunner.runCommandAndWait("pushd /tmp; chmod +x install_python-katello.sh; " +
-							"./install_python-katello.sh; katello-update -dr; popd", true);
+							"./install_python-katello.sh; katello-update -d; popd", true);
 		}catch(Exception ex){
 			log.severe(ex.getMessage());
 			System.exit(1);
