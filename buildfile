@@ -15,7 +15,7 @@ repositories.remote << "http://download.java.net/maven/2/"
 
 WEBUI_FRAMEWORK = ['webui-framework:webui-framework:jar:1.0.2-SNAPSHOT'] # <--- (v1.0.2) works with (testng v6.0)
 SIMPLE_JSON = ['com.googlecode.json-simple:json-simple:jar:1.1']
-TESTNG = ['org.testng:testng:jar:6.0','com.beust:jcommander:jar:1.13','com.mycila.com.google.inject:guice:jar:3.0-20100907','javax.inject:javax.inject:jar:1','bsh:bsh:jar:1.3.0']
+TESTNG = ['org.testng:testng:jar:6.0','com.beust:jcommander:jar:1.13','com.mycila.com.google.inject:guice:jar:3.0-20100907','javax.inject:javax.inject:jar:1','bsh:bsh:jar:1.3.0','org.uncommons:reportng:jar:1.1.2','velocity:velocity:jar:1.4','commons-collections:commons-collections:jar:3.2','logkit:logkit:jar:1.0.1']
 SELENIUM = ['org.seleniumhq.selenium.client-drivers:selenium-java-client-driver:jar:1.0.2']
 SSH2 = ['com.trilead:trilead-ssh2:jar:build213-svnkit-1.3-patch']
 
@@ -37,7 +37,7 @@ define "katello-api" do
   manifest["Implementation-Vendor"] = COPYRIGHT
   
   task(:testng) do
-     cmd_args = ['-testnames',TESTNG_RUN_LIST,'-listener','com.redhat.qe.auto.testng.TestNGListener']
+     cmd_args = ['-testnames',TESTNG_RUN_LIST,'-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter']
      Java::Commands.java "org.testng.TestNG", TESTNG_XML, cmd_args,
      :classpath => [ CP_ALL, JAVAC_CLASSES ]
   end
