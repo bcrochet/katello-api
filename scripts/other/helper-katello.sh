@@ -147,7 +147,6 @@ prepare_katelloPostgresDB()
 
 services_restart()
 {
-  export KATELLO_HOME=/usr/lib/katello #it's just a workaround.
   service tomcat6 restart
   service pulp-server restart
   service katello restart
