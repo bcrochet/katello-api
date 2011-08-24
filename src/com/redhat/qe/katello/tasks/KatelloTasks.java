@@ -774,4 +774,8 @@ public class KatelloTasks {
 		return dfPulpRepos;
 	}
 	
+	public void waitfor_katello(){
+		execute_remote("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
+	}
+	
 }

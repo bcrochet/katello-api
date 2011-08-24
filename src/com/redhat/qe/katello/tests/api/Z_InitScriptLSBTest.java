@@ -19,25 +19,17 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 	
 	@BeforeClass
 	public void setUp(){
-		SCPTools scpRunner = new SCPTools(katelloInfo.getServername(),
-				katelloInfo.getUsernameSSH(), 
-				katelloInfo.getSshKeyPrivate(),
-				katelloInfo.getPasswordSSH());
-
-		scpRunner.sendFile("scripts/other/helper-katello.sh", "/tmp/");
-		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
+		servertasks.execute_remote(String.format("service %s stop; killall -9 ruby",KATELLO_SERVICENAME));
 		servertasks.execute_remote("useradd testuserqa");
 		servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
-		servertasks.execute_remote("pushd /tmp; chmod +x *.sh; " +
-		". helper-katello.sh; waitfor_katello; popd");
+		servertasks.waitfor_katello();
 	}
 	
 	@AfterClass(alwaysRun=true)
 	public void tearDown(){
 		servertasks.execute_remote("userdel -fr testuserqa");
-		servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
-		servertasks.execute_remote("pushd /tmp; chmod +x *.sh; " +
-		". helper-katello.sh; waitfor_katello; popd"); // the helper file should be there, see @BeforeClass
+		servertasks.execute_remote(String.format("killall -9 ruby; service %s start",KATELLO_SERVICENAME));
+		servertasks.waitfor_katello();
 	}
 
 	@Test(description="Katello service start", enabled=false) // BZ: https://bugzilla.redhat.com/show_bug.cgi?id=678090#c11
@@ -58,18 +50,18 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 	public void test_serviceRestart(){
 		SSHCommandResult res;
 		// restart service from the stopped mode
-		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
+		servertasks.execute_remote(String.format("service %s stop; killall -9 ruby",KATELLO_SERVICENAME));
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from stopped mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
 		// restart service from the started mode
-		servertasks.execute_remote(String.format("service %s stop",KATELLO_SERVICENAME));
+		servertasks.execute_remote(String.format("service %s stop; killall -9 ruby",KATELLO_SERVICENAME));
 		servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from started mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
-		Assert.assertEquals(res.getExitCode(), new Integer(0),"Status command");
+		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
 	}
 	
 	@Test(description="Katello service stop")
