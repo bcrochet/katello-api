@@ -69,7 +69,7 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from started mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
-		Assert.assertEquals(res.getExitCode(), new Integer(0),"Status command");
+		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
 	}
 	
 	@Test(description="Katello service stop")
