@@ -5,6 +5,11 @@ import com.redhat.qe.auto.testng.TestScript;
 import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandRunner;
 
+/**
+ * Updates Katello packages (pulp*, candlepin* katello) and then does empties the DB.
+ * @author gkhachik
+ *
+ */
 public class KatelloUpdater {
 	public static final String PATH_TO_SHELL = 
 		"scripts/katello-update/update-katello.sh";
