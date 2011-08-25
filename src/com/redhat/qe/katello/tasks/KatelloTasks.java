@@ -777,5 +777,23 @@ public class KatelloTasks {
 	public void waitfor_katello(){
 		execute_remote("python -c \"from katello.utils import waitfor_katello; waitfor_katello()\"");
 	}
+
+	public String createUser(String username, String password, boolean disabled){
+		String _return = null;
+		Object[] json_args ={
+				username, password, String.valueOf(disabled)};
+		
+		String mCall = String.format(
+				KatelloConstants.JSON_CREATE_USER, json_args);
+		try{
+			_return = apiKatello_POST(mCall, "/users");
+			log.info(String.format("Created a user with: " +
+					"username=[%s]; password=[%s]; disabled=[%s]", 
+					username, password, String.valueOf(disabled)));
+		}catch (Exception e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+		return _return;
+	}
 	
 }

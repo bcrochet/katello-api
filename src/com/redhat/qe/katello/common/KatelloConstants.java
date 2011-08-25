@@ -102,5 +102,8 @@ public interface KatelloConstants {
 		"{'name':'%s', " +
 		"'product_id':'%s', " +
 		"'url':'%s'}";
+	
+	public static final String JSON_CREATE_USER = 
+		"{'username':'%s', 'password':'%s', 'disabled':'%s'}";
 
 }
