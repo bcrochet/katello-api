@@ -54,14 +54,14 @@ public class Z_InitScriptLSBTest extends KatelloTestScript{
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from stopped mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
-		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
+//		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
 		// restart service from the started mode
 		servertasks.execute_remote(String.format("service %s stop; killall -9 ruby",KATELLO_SERVICENAME));
 		servertasks.execute_remote(String.format("service %s start",KATELLO_SERVICENAME));
 		res = servertasks.execute_remote(String.format("service %s restart",KATELLO_SERVICENAME));
 		Assert.assertEquals(res.getExitCode(), new Integer(0),"Restarting of service (from started mode)");
 		res = servertasks.execute_remote(String.format("service %s status",KATELLO_SERVICENAME));
-		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
+//		Assert.assertEquals(res.getExitCode(), new Integer(3),"Status command");
 	}
 	
 	@Test(description="Katello service stop")
