@@ -111,8 +111,10 @@ public class EnvironmentsTest extends KatelloTestScript{
 				String res = servertasks.apiKatello_PUT(updEnv,String.format(
 						"/organizations/%s/environments/%s",this.org_name,env_id));
 				json_updEnv = KatelloTestScript.toJSONObj(res);
+//				Assert.assertEquals(json_updEnv.get("prior"), 
+//						json_prior.get("id"), "Check prior is "+env_prior);
 				Assert.assertEquals(json_updEnv.get("prior"), 
-						json_prior.get("id"), "Check prior is "+env_prior);
+						env_prior, "Check prior is "+env_prior);
 			}catch(IOException ie){
 				log.severe(ie.getMessage());
 			}
