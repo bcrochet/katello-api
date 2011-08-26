@@ -26,6 +26,7 @@ public class UsersTest extends KatelloTestScript {
 
 	@Test(groups = { "testUsers" }, description = "Create user (disabled)")
 	public void test_createUserDisabled(){
+		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_disabled = "user_"+pid;
 		String s = servertasks.createUser(this.username_disabled, "redhat", true);
@@ -40,6 +41,7 @@ public class UsersTest extends KatelloTestScript {
 	
 	@Test(groups = { "testUsers" }, description = "Create user (enabled)")
 	public void test_createUserEnabled(){
+		try{Thread.sleep(1000L);}catch(InterruptedException iex){} // to get new unique id.
 		String pid = KatelloTestScript.getUniqueID();
 		this.username_enabled = "user_"+pid;
 		String s = servertasks.createUser(this.username_enabled, "redhat", false);
