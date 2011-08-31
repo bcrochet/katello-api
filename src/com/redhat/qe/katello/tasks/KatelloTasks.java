@@ -385,7 +385,7 @@ public class KatelloTasks {
 		return _return;
 	}
 	
-	public String createProduct(String provider_name, 
+	public String createProduct(String org_name, String provider_name, 
 			String product_name, String product_descr, String product_url){
 		String _return = null;
 		Object[] json_args ={
@@ -394,7 +394,7 @@ public class KatelloTasks {
 		String mCall = String.format(
 				KatelloConstants.JSON_CREATE_PRODUCT_WITH_URL, json_args);
 		try{
-			String provider_id = ((Long)getProvider(provider_name).get("id")).toString();
+			String provider_id = ((Long)getProvider(org_name, provider_name).get("id")).toString();
 			_return = apiKatello_POST(mCall, "/providers/"+provider_id+"/product_create");
 			log.info(String.format("Created a product for provider: [%s] with: " +
 					"name=[%s]; description=[%s]; " +
@@ -469,10 +469,10 @@ public class KatelloTasks {
 		return null;
 	}
 	
-	public JSONObject getProductByProvider(String providerName, String productName){
+	public JSONObject getProductByProvider(String orgName, String providerName, String productName){
 		JSONObject prod =null;
 		try{
-			String provider_id = ((Long)getProvider(providerName).get("id")).toString();
+			String provider_id = ((Long)getProvider(orgName, providerName).get("id")).toString();
 			JSONArray jproducts = KatelloTestScript.toJSONArr(apiKatello_GET("/providers/"+provider_id+"/products")); 
 			if(jproducts ==null) return null;
 			log.info(String.format("Get product: name=[%s]",productName));
@@ -526,20 +526,20 @@ public class KatelloTasks {
 		return _return;		
 	}
 	
-	/**
-	 * Returns the JSON String of all providers of Katello 
-	 * @return
-	 */
-	public String getProviders(){
-		String _return=null;
-		try{
-			_return = apiKatello_GET("/providers");
-			log.info("Return list of all providers");
-		}catch (Exception e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
-		}
-		return _return;
-	}
+//	/**
+//	 * Returns the JSON String of all providers of Katello 
+//	 * @return
+//	 */
+//	public String getProviders(){
+//		String _return=null;
+//		try{
+//			_return = apiKatello_GET("/providers");
+//			log.info("Return list of all providers");
+//		}catch (Exception e) {
+//			log.log(Level.SEVERE, e.getMessage(), e);
+//		}
+//		return _return;
+//	}
 	
 	/**
 	 * Returns the JSON String of all providers of Katello by specific organization 
@@ -557,16 +557,16 @@ public class KatelloTasks {
 		return _return;
 	}
 
-	public JSONObject getProvider(String byName){
-		JSONArray providers = KatelloTestScript.toJSONArr(getProviders());
-		JSONObject tmpProv;
-		for(int i=0;i<providers.size();i++){
-			tmpProv = (JSONObject)providers.get(i);
-			if(tmpProv.get("name").equals(byName))
-				return tmpProv;
-		}
-		return null;
-	}
+//	public JSONObject getProvider(String org_name, String byName){
+//		JSONArray providers = KatelloTestScript.toJSONArr(getProviders());
+//		JSONObject tmpProv;
+//		for(int i=0;i<providers.size();i++){
+//			tmpProv = (JSONObject)providers.get(i);
+//			if(tmpProv.get("name").equals(byName))
+//				return tmpProv;
+//		}
+//		return null;
+//	}
 
 	public JSONObject getProvider(String org_name, String byName){
 		JSONArray providers = KatelloTestScript.toJSONArr(getProviders(org_name));
@@ -579,9 +579,9 @@ public class KatelloTasks {
 		return null;
 	}
 
-	public String deleteProvider(String providerName){
+	public String deleteProvider(String orgName, String providerName){
 		String _return=null;
-		String provider_id = ((Long)getProvider(providerName).get("id")).toString();
+		String provider_id = ((Long)getProvider(orgName, providerName).get("id")).toString();
 		try{
 			_return = apiKatello_DELETE("/providers/"+provider_id);
 			log.info("Delete provider: name=["+providerName+"]; id=["+provider_id+"]");

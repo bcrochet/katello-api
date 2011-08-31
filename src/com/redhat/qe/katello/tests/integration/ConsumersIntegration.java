@@ -53,7 +53,7 @@ public class ConsumersIntegration extends KatelloTestScript{
 		
 		// == Create a product ==
 		JSONObject prod = KatelloTestScript.toJSONObj(
-				servertasks.createProduct(provider_name, product_name, "", "http://download.fedoraproject.org"));
+				servertasks.createProduct(org_name, provider_name, product_name, "", "http://download.fedoraproject.org"));
 		
 		// == Create a repo ==
 		String product_id = (String)prod.get("cp_id"); // it's actually Candlepin id stored in cp_id field of /product_create call result.

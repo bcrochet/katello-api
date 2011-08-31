@@ -129,7 +129,7 @@ public class A_ConsumersTest extends KatelloTestScript {
 		log.info("Check if there was another import of export.zip before.");
 		if(servertasks.getProductByOrg(org_name, AWESOME_SERVER_BASIC)==null){ // there is no export.zip processed, FINE~
 			try{
-				String provider_id = ((Long)servertasks.getProvider(prov_MF).get("id")).toString();
+				String provider_id = ((Long)servertasks.getProvider(org_name, prov_MF).get("id")).toString();
 				int prods_before = ((JSONArray)KatelloTestScript.toJSONArr(servertasks.getProducts(org_name))).size();
 				String ret = servertasks.apiKatello_POST_manifest(EXPORT_ZIP_PATH, "/providers/"+provider_id+"/import_manifest");
 				int prods_after = ((JSONArray)KatelloTestScript.toJSONArr(servertasks.getProducts(org_name))).size();

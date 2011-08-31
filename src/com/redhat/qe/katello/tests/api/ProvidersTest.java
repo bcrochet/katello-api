@@ -152,7 +152,7 @@ public class ProvidersTest extends KatelloTestScript {
 		sProducts = sProducts.replaceAll("\\$\\{content_url\\}", repoUrl);
 		sProducts = sProducts.replaceAll("\\$\\{product_create_ts\\}", sTS);
 		log.finest("Replaced data/products.json: ["+sProducts+"]");
-		JSONObject json_prov=servertasks.getProvider(this.provider_name);
+		JSONObject json_prov=servertasks.getProvider(org_name, this.provider_name);
 		String prov_id = ((Long)json_prov.get("id")).toString();
 		String s = servertasks.import_products(prov_id, sProducts);
 //		Assert.assertEquals(s.startsWith("{\"name\":"), true,"Returned output should start with: {\"name\":");
@@ -162,7 +162,7 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="Update Provider Properties", dependsOnMethods="test_createProvider")
 	public void test_updateProvider(){
 		Date dupBefore, dupAfter;
-		JSONObject json_updProv = servertasks.getProvider(provider_name);
+		JSONObject json_updProv = servertasks.getProvider(org_name, provider_name);
 		String upd_repo_url = "https://localhost";
 		try{
 			dupBefore = parseKatelloDate((String)json_updProv.get("updated_at"));
@@ -202,7 +202,7 @@ public class ProvidersTest extends KatelloTestScript {
 	@Test (groups={"testProviders"}, description="List all providers", dependsOnMethods="test_updateProvider")
 	public void test_listProviders(){
 		// Get providers json string
-		String s_json_provs = servertasks.getProviders();
+		String s_json_provs = servertasks.getProviders(org_name);
 		JSONArray arr_provs = KatelloTestScript.toJSONArr(s_json_provs) ;
 		Assert.assertMore(arr_provs.size(), 0, "Check: providers count >0");
 		JSONObject json_prov;
@@ -228,10 +228,10 @@ public class ProvidersTest extends KatelloTestScript {
 		JSONObject json_prov = KatelloTestScript.toJSONObj(str_json);
 		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
 		
-		String provider_id = ((Long)servertasks.getProvider(providerName).get("id")).toString();
-		String sout = servertasks.deleteProvider(providerName);
+		String provider_id = ((Long)servertasks.getProvider(org_name, providerName).get("id")).toString();
+		String sout = servertasks.deleteProvider(org_name, providerName);
 		Assert.assertEquals(sout, "Deleted provider [ "+providerName+" ]","Check: message returned by the API call");
-		JSONObject obj_del = servertasks.getProvider(providerName);
+		JSONObject obj_del = servertasks.getProvider(org_name, providerName);
 		Assert.assertNull(obj_del, "Check: returned getProvider() is null");
 	}
 	
@@ -239,7 +239,7 @@ public class ProvidersTest extends KatelloTestScript {
 		JSONObject _return = null; String retStr;
 		String updProv = String.format("'provider':{'%s':'%s'}",
 				component,updValue);
-		String provider_id = ((Long)servertasks.getProvider(this.provider_name).get("id")).toString();
+		String provider_id = ((Long)servertasks.getProvider(org_name, this.provider_name).get("id")).toString();
 		try{Thread.sleep(1000);}catch(Exception ex){} // for the "update_at" checks
 		try{
 			retStr = servertasks.apiKatello_PUT(updProv,String.format(
