@@ -35,11 +35,16 @@ public class KatelloTestScript
 		super();
 		try {
 			katelloInfo = KatelloInfo.getInstance();
-			SSHCommandRunner sshRunner = new SSHCommandRunner(
-					katelloInfo.getServername(), katelloInfo.getUsernameSSH(), 
-					katelloInfo.getPasswordSSH(), 
-					katelloInfo.getSshKeyPrivate(), 
-					katelloInfo.getSshKeyPassphrase(), null);
+			SSHCommandRunner sshRunner = null;
+			try{
+				sshRunner = new SSHCommandRunner(
+						katelloInfo.getServername(), katelloInfo.getUsernameSSH(), 
+						katelloInfo.getPasswordSSH(), 
+						katelloInfo.getSshKeyPrivate(), 
+						katelloInfo.getSshKeyPassphrase(), null);				
+			}catch(Throwable t){
+				log.warning("Warning: Could not initialize SSHCommandRunner.");
+			}
 			ExecCommands localRunner = new ExecCommands();
 			servertasks = new KatelloTasks(sshRunner, localRunner);
 			
