@@ -39,9 +39,10 @@ public class KatelloTasks {
 		setSSHCommandRunner(sshRunner);
 		setLocalCommandRunner(localRunner);
 		katelloInfo = KatelloInfo.getInstance();
-		if(execute_remote("grep \"use_ssl: true\" /etc/katello/katello.yml").getExitCode().intValue()==0){
-			this.useSSL = true; // Katello server is running in SSL mode.
-		}
+		Boolean ssl = ifUsingSsl();
+		if(ssl != null){
+			this.useSSL = ssl.booleanValue();
+		} // what if null ? (Katello is stopped)... maybe logging ? TODO 
 	}
 
 	public void setSSHCommandRunner(SSHCommandRunner runner) {
@@ -728,7 +729,7 @@ public class KatelloTasks {
 		}
 		return out;
 	}
-
+	
 	public SSHCommandResult execute_remote(String command){
 		SSHCommandResult cmd_res = this.sshCommandRunner.runCommandAndWait(command);
 		return cmd_res;
@@ -794,6 +795,14 @@ public class KatelloTasks {
 			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 		return _return;
+	}
+	
+	private Boolean ifUsingSsl(){
+		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+":3000 &> /dev/null; echo $?;");
+		if(exitCode.trim().equals("0")) return new Boolean(false);
+		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+":3000 &> /dev/null; echo $?;");
+		if(exitCode.trim().equals("0")) return new Boolean(true);
+		return null;
 	}
 	
 }
