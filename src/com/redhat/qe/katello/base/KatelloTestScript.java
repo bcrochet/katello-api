@@ -19,10 +19,7 @@ import com.redhat.qe.tools.SSHCommandRunner;
 public class KatelloTestScript 
 	extends com.redhat.qe.auto.testng.TestScript 
 	implements KatelloConstants {
-	
-	/** The default org - being prepared during "rake setup" */
-//	public static final String ORG_ONE = "admin";// 
-	
+		
 	protected static Logger log = Logger.getLogger(KatelloTestScript.class.getName());
 	
 	protected KatelloInfo katelloInfo;
