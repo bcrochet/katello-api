@@ -66,6 +66,13 @@ define "katello-api" do
      Java::Commands.java "com.redhat.qe.katello.common.KatelloReservesys", cmd_args,
      :classpath => [ CP_ALL, JAVAC_CLASSES ]
   end
+
+  task :beaker_reservesys_new => :compile do
+     cmd_args = []
+     Java::Commands.java "com.redhat.qe.katello.common.KatelloInBeaker", cmd_args,
+     :classpath => [ CP_ALL, JAVAC_CLASSES ]
+  end
+
   
   compile.using(:javac)
   compile.from(JAVAC_SRC)
