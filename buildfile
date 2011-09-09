@@ -29,6 +29,7 @@ Project.local_task :update_katello
 Project.local_task :install_katello
 Project.local_task :db_cleanup_katello
 Project.local_task :beaker_reservesys
+Project.local_task :beaker_reservesys_new
 
 desc "The Katello-api project"
 define "katello-api" do
