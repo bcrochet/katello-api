@@ -106,4 +106,32 @@ public interface KatelloConstants {
 	public static final String JSON_CREATE_USER = 
 		"{'username':'%s', 'password':'%s', 'disabled':'%s'}";
 
+// # Katello-CLI constants #
+// # ===================== #
+	public static final String YUM_REPO_FEDORA_KATELLO=
+		"http://repos.fedorapeople.org/repos/katello/katello/fedora-katello.repo";
+	public static final String YUM_REPO_RHEL_KATELLO=
+		"http://repos.fedorapeople.org/repos/katello/katello/epel-katello.repo";
+	/**
+	 * positions:<BR>
+	 * &nbsp;&nbsp;[0] - String to match from `python -c "platofrm()"` string - indicates platform<br>
+	 * &nbsp;&nbsp;[1] - Human readable name of the platform to display<br>
+	 * &nbsp;&nbsp;[2] - Katello yum repo url 
+	 */
+	public static final String[][] CLIENT_PLATFORMS_ALLOWED = {
+		{"x86_64-x86_64-with-fedora-15","Fedora 15 (64 bit)",YUM_REPO_FEDORA_KATELLO},
+		{"x86_64-x86_64-with-fedora-14","Fedora 14 (64 bit))",YUM_REPO_FEDORA_KATELLO},
+		{"x86_64-x86_64-with-redhat-6","RHEL 6.x (64 bit)",YUM_REPO_RHEL_KATELLO}
+	};
+	
+	public static final String BKR_RESERVESYS_CMD =
+			"bkr workflow-simple " +
+			"--username=%s " +
+			"--password=%s " +
+			"--distro=%s " +
+			"--whiteboard=\"%s\" " +
+			"--arch=%s " +
+			"--keyvalue=\"MEMORY>2047\" " +
+			"--keyvalue=\"DISK>7999\" " +
+			"--task=/distribution/reservesys";
 }
