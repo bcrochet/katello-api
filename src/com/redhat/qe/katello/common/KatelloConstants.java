@@ -127,7 +127,7 @@ public interface KatelloConstants {
 	public static final String BKR_RESERVESYS_CMD =
 			"bkr workflow-simple " +
 			"--username=%s " +
-			"--password=%s " +
+			"--password=\"%s\" " +
 			"--distro=%s " +
 			"--whiteboard=\"%s\" " +
 			"--arch=%s " +

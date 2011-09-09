@@ -69,7 +69,7 @@ public class KatelloInBeaker implements KatelloConstants {
 	 */
 	public void reserveBeakerSystems(){
 		try{
-			String distrArchList = System.getProperty("BKR_DISTRO_ARCH");
+			String distrArchList = System.getenv("BKR_DISTRO_ARCH");
 			
 			String[] distros = distrArchList.split(",");
 			/** 
@@ -78,7 +78,7 @@ public class KatelloInBeaker implements KatelloConstants {
 			 * [i][2] = job_id
 			 * [i][3] = BKR_STATUS 
 			 */
-			String[][] hmDA = new String[distros.length][3];
+			String[][] hmDA = new String[distros.length][4];
 			for(int i=0;i<distros.length;i++){
 				String distro = distros[i].substring(0, distros[i].indexOf("(")).trim();
 				String arch = distros[i].substring(distros[i].indexOf("(")+1,distros[i].length()-1).trim();
@@ -122,7 +122,7 @@ public class KatelloInBeaker implements KatelloConstants {
 			log.info("# ======================================================");
 			if(!atLeastOneDone){
 				// ALL is bad - exit with non-zero status
-				log.severe("ERROR: Unable to provision any platform there.");
+				log.info("# ERROR: Unable to provision any platform there.");
 				log.info("# ======================================================");
 				System.exit(99);
 			}
@@ -159,12 +159,13 @@ public class KatelloInBeaker implements KatelloConstants {
 				"\"Katello Installer by Jenkins - ["+System.getenv("BUILD_TAG")+"]\"",
 				arch);
 		String out = KatelloTasks.run_local(false, bkr_reserveCmd);
-		if(! out.startsWith("Submitted: ['j:")){
+		if(! out.startsWith("Submitted: ['J:")){
 			log.severe(String.format("Failed to apply `bkr workflow-simple` for: [%s (%s)]",distro,arch));
+			log.severe("Output: "+out);
 			System.exit(1);
 		}
 		return out.substring(
-				out.indexOf("Submitted: ['j:")+"Submitted: ['j:".length(), 
+				out.indexOf("Submitted: ['J:")+"Submitted: ['J:".length(), 
 				out.lastIndexOf("']"));
 	}
 	
