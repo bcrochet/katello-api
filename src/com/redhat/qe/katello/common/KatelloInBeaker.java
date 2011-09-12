@@ -155,7 +155,7 @@ public class KatelloInBeaker implements KatelloConstants {
 				System.getenv("BKR_USER"),
 				System.getenv("BKR_PASS"),
 				distro,
-				"\"Katello Installer by Jenkins - ["+System.getenv("BUILD_TAG")+"]\"",
+				"Katello Installer by Jenkins - ["+System.getenv("BUILD_TAG")+"]",
 				arch);
 		String out = KatelloTasks.run_local(false, bkr_reserveCmd);
 		if(! out.startsWith("Submitted: ['J:")){
