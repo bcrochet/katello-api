@@ -132,7 +132,7 @@ public class KatelloInBeaker implements KatelloConstants {
 			bw.write("beaker_job_id="+beaker_info.get("beaker_job_id")+"\n");
 			bw.write("beaker_reserve_time="+beaker_info.get("beaker_reserve_time")+"\n");
 			// Sysout the content.
-			log.info("*** `cat "+HUDSON_BUFFER+"` ***");
+			log.info("# Output of: ["+HUDSON_BUFFER+"]:");
 			log.info("# beaker_hostname="+beaker_info.get("beaker_hostname"));
 			log.info("# beaker_job_id="+beaker_info.get("beaker_job_id"));
 			log.info("# beaker_reserve_time="+beaker_info.get("beaker_reserve_time"));
@@ -213,7 +213,7 @@ public class KatelloInBeaker implements KatelloConstants {
 		try{
 			sshRunner = new SSHCommandRunner(
 					servername, "root", System.getenv("BKR_SYS_PWD"),"","", null);
-			sshRunner.runCommandAndWait("touch ~/.ssh/authorized_keys; echo -e \""+this.pk_file+"\" >> ~/.ssh/authorized_keys");
+			sshRunner.runCommandAndWait("mkdir ~/.ssh/; touch ~/.ssh/authorized_keys; echo -e \""+this.pk_file+"\" >> ~/.ssh/authorized_keys");
 		}catch(IOException iex){
 			log.finest("Unable to import public key of Hudson to: ["+servername+"]");
 			log.finest("ERROR: "+iex.getMessage());
