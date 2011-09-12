@@ -20,8 +20,9 @@ public interface KatelloConstants {
 	
 	/** curl -s -u {username}:{password} 
 	 * http://${servername}:${port}/api${call} */
-	public static final String KATELLO_HTTP_GET = 
-		"curl -s -u {0}:{1} http://{2}:{3}/api{4}";
+	public static final String KATELLO_HTTP_GET =
+		"curl -s -u {0}:{1} http://{2}/katello/api{4}";
+		//"curl -s -u {0}:{1} http://{2}:{3}/api{4}";
 	
 	/** curl -s -u ${username}:${password} 
 	 * -H \"Accept: application/json\" -H \"content-type: application/json\" 
@@ -29,7 +30,8 @@ public interface KatelloConstants {
 	public static final String KATELLO_HTTP_PUT = 
 		"curl -s -u {0}:{1} -H \"Accept: application/json\" " +
 		"-H \"content-type: application/json\" -d \"{2}\" " +
-		"-X PUT http://{3}:{4}/api{5}";
+		"-X PUT http://{3}/katello/api{5}";
+		//"-X PUT http://{3}:{4}/api{5}";
 	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
 	 * -H \"content-type: application/json\" -d \"${content}\" 
@@ -37,17 +39,20 @@ public interface KatelloConstants {
 	public static final String KATELLO_HTTP_POST = 
 		"curl -s -u{0}:{1} -H \"Accept: application/json\" " +
 		"-H \"content-type: application/json\" -d \"{2}\" " +
-		"-X POST http://{3}:{4}/api{5}";
+		"-X POST http://{3}/katello/api{5}";
+		//"-X POST http://{3}:{4}/api{5}";
 
 	public static final String KATELLO_HTTP_POST_MANIFEST = 
 		"curl -s -u{0}:{1} -H \"Accept: application/json\" -# " +
-		"-X POST -F import=@{2} http://{3}:{4}/api{5}";	
+		"-X POST -F import=@{2} http://{3}/katello/api{5}";
+		//"-X POST -F import=@{2} http://{3}:{4}/api{5}";	
 	
 	/** curl -s -u ${username}:${password} -H \"Accept: application/json\" 
 	 * -X DELETE http://${servername}:${port}/api${call}*/
 	public static final String KATELLO_HTTP_DELETE = 
 		"curl -s -u {0}:{1} -H \"Accept: application/json\" " +
-		"-X DELETE http://{2}:{3}/api{4}";
+		"-X DELETE http://{2}/katello/api{4}";
+		//"-X DELETE http://{2}:{3}/api{4}";
 
 	/** curl -s -k -u {username}:{password} 
 	 * https://${servername}:${port}/candlepin${call} */
@@ -134,4 +139,10 @@ public interface KatelloConstants {
 			"--keyvalue=\"MEMORY>2047\" " +
 			"--keyvalue=\"DISK>7999\" " +
 			"--task=/distribution/reservesys";
+	
+	public static final String JENKINS_SSH_PUBKEY = 
+		System.getenv("HOME")+"/.ssh/id_dsa.pub";
+	public static final String JENKINS_SSH_PRIVKEY =
+		System.getenv("HOME")+"/.ssh/id_dsa";
+	
 }
