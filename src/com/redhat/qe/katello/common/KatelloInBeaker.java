@@ -129,6 +129,7 @@ public class KatelloInBeaker implements KatelloConstants {
 			bw.write("beaker_hostname="+beaker_info.get("beaker_hostname")+"\n");
 			bw.write("beaker_job_id="+beaker_info.get("beaker_job_id")+"\n");
 			bw.write("beaker_reserve_time="+beaker_info.get("beaker_reserve_time")+"\n");
+			bw.flush(); bw.close();
 			// Sysout the content.
 			log.info("# Output of: ["+HUDSON_BUFFER+"]:");
 			log.info("# beaker_hostname="+beaker_info.get("beaker_hostname"));
