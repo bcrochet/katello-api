@@ -2,11 +2,9 @@ package com.redhat.qe.katello.common;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.logging.Logger;
 import com.redhat.qe.auto.testng.TestScript;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -37,14 +35,14 @@ public class KatelloInBeaker implements KatelloConstants {
 			String hostname = KatelloTasks.run_local(false, "hostname");
 			// CHECK & fail if there is no private ssh key file.
 			String sshKeysDir = System.getenv("HOME")+"/.ssh";   
-			File f_priv = new File(sshKeysDir+"/id_rsa");
-			File f_pub = new File(sshKeysDir+"/id_rsa.pub");
+			File f_priv = new File(sshKeysDir+"/id_dsa");
+			File f_pub = new File(sshKeysDir+"/id_dsa.pub");
 			if (!f_priv.exists() || !f_pub.exists()){
 				throw new RuntimeException(String.format(
 						"ERROR: There are missing private/public key pairs on your running server: [%s]",
 						hostname));
 			}
-			this.pk_file = KatelloTasks.run_local(false, "cat "+sshKeysDir+"/id_rsa.pub");
+			this.pk_file = KatelloTasks.run_local(false, "cat "+sshKeysDir+"/id_dsa.pub");
 		}
 		catch (Exception e) {
 			log.severe(e.getMessage());
