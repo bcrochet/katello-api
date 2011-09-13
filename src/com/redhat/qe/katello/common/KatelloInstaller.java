@@ -1,32 +1,25 @@
 package com.redhat.qe.katello.common;
 
-import java.io.File;
 import java.util.logging.Logger;
 import com.redhat.qe.auto.testng.TestScript;
-import com.redhat.qe.tools.SCPTools;
-import com.redhat.qe.tools.SSHCommandRunner;
+import com.redhat.qe.katello.tasks.KatelloTasks;
 
-public class KatelloInstaller {
+public class KatelloInstaller implements KatelloConstants {
+	public static final String ENV_KATELLO_INSTALL_SERVERS = "KATELLO_INSTALL_SERVERS";
 	private Logger log = Logger.getLogger(KatelloUpdater.class.getName());
-	private SSHCommandRunner sshRunner;
-	private SCPTools scpRunner;
 	
-	private String servername;
-	private String password;
-	private String dirToShell; // e.g: full path of "scripts/katello-install/
-	private String dbType;
-	private String railsEnv; // e.g. {development,production}
+	private String[] servers;
 
-	public KatelloInstaller(String server, String pass, String files, String dbType, String railsEnv){
+	public KatelloInstaller(){
 		try {
-			this.servername = server;
-			this.password = pass;
-			this.dirToShell = files;
-			this.dbType = dbType;
-			this.railsEnv = railsEnv;
-			if(this.railsEnv==null) this.railsEnv = "development";
-			sshRunner = new SSHCommandRunner(
-					servername, "root", password,"","", null);
+			String servs = System.getenv(ENV_KATELLO_INSTALL_SERVERS);
+			if(servs == null){
+				log.severe("Please provide system env: ["+ENV_KATELLO_INSTALL_SERVERS+"]");
+				System.exit(1);
+			}
+			this.servers = servs.split(",");
+			for(int i=0;i<this.servers.length;i++)
+				this.servers[i] = this.servers[i].trim(); // trim possible spaces.
 		}
 		catch (Exception e) {
 			log.severe(e.getMessage());
@@ -34,28 +27,50 @@ public class KatelloInstaller {
 		}
 	}
 
-	public void doInstall(){
+	public void run_setup_rpmInstaller(){
+		String servername;
 		try{
-			sshRunner.runCommandAndWait( //enables run of scp
-					"yum -y install openssh-clients", true);
-			File dirShell = new File(this.dirToShell);
-			scpRunner = new SCPTools(servername,"root","",password);
-			if(dirShell.isDirectory()){
-				File[] files = dirShell.listFiles();
-				for(int i=0;i<files.length;i++){
-					if(files[i].getAbsolutePath().toString().endsWith(".sh")){
-						scpRunner.sendFile(files[i].getAbsolutePath(), "/tmp/");
-					}
+			for(int i=0;i<this.servers.length;i++){
+				servername = servers[i];
+				log.info("Installing Katello on: ["+servername+"]");
+				String server_platform = run_trusted(servername,
+						"python -c 'from platform import platform; print platform();'");
+				// STEP 0: install epel (if RHEL6)
+				if(server_platform.contains("redhat-6")){ // For RHEL6 we need EPEL
+					log.fine("Setup EPEL repository");
+					run_trusted(servername,
+						"yum -y install http://download.fedoraproject.org/pub/epel/6/`uname -i`/epel-release-6-5.noarch.rpm");
 				}
-				scpRunner.sendFile("scripts/other/helper-katello.sh", "/tmp/");
-				scpRunner.close();
-				sshRunner.runCommandAndWait("pushd /tmp; chmod u+x *.sh;" +
-						"export RAILS_ENV="+this.railsEnv+"; ./install-katello.sh "+this.dbType+"; popd;", true);
-			}else{
-				log.severe(String.format(
-						"Wrong scripts directory specified: [%s]",
-						this.dirToShell));
-				System.exit(1);
+				// STEP 1: install git, tito
+				log.fine("Yum install tito git");
+				run_trusted(servername,
+					"yum -y install git tito");
+				// STEP 2: clone the python-katello
+				log.fine("Git clone python-katello repo");
+				run_trusted(servername,
+					"rm -rf python-katello/; git clone git://github.com/gkhachik/python-katello.git");
+				// STEP 3: install python_katello
+				log.fine("Install python_katello.rpm");
+				run_trusted(servername, 
+					"cd python-katello/src/; tito build --srpm --test --output /tmp/tito/python_katello; "+
+					"yum-builddep -y \\$(ls /tmp/tito/python_katello/*.src.rpm); "+
+					"tito build --test --rpm --output /tmp/tito/python_katello; "+
+					"yum -y localinstall \\$(ls /tmp/tito/python_katello/noarch/python_katello*noarch.rpm) --nogpgcheck");
+				// assert - check if the python_katello is installed
+				log.fine("Check: if python_katello is installed on: ["+servername+"]");
+				String ret = run_trusted(servername, 
+					"rpm -q python_katello");
+				if(!ret.contains("python_katello")){
+					log.severe("python_katello does not get installed on: ["+servername+"]");
+					System.exit(2);
+				}
+				// STEP 4: Katello Install 
+				log.fine("Install Katello: [katello-setup --db postgresql --use_ssl]");
+				ret = run_trusted(servername, "katello-setup --db postgresql --use_ssl; echo \\$?");
+				String out[] = ret.split("\n");
+				ret = out[out.length-1];
+				log.fine("Exit installation on: ["+servername+"] with status: ["+ret+"]");
+				System.exit(Integer.parseInt(ret));
 			}
 		}catch(Exception ex){
 			log.severe(ex.getMessage());
@@ -63,9 +78,16 @@ public class KatelloInstaller {
 		}		
 	}
 	
+	public String run_trusted(String servername,String cmd){
+		return KatelloTasks.run_local(true, "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i "+
+				JENKINS_SSH_PRIVKEY+" root@"+servername+" \""+cmd+"\""); 
+	}
+	
 	public static void main(String[] args) {
 		new TestScript(); // should initialize the ~/automation.properties
-		KatelloInstaller katelloInstall = new KatelloInstaller(args[0],args[1],args[2],args[3],args[4]);
-		katelloInstall.doInstall();
+		KatelloInstaller katelloInstall = new KatelloInstaller();
+		katelloInstall.run_setup_rpmInstaller();
 	}
+	
+	
 }
