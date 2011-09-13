@@ -7,11 +7,8 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloInfo;
@@ -591,7 +588,6 @@ public class KatelloTasks {
 		return _return;
 	}
 
-	@SuppressWarnings("unchecked")
 	public String createConsumer(
 			String orgName, String hostname, String uuid, String json_filename){
 		String _return=null;
@@ -798,9 +794,9 @@ public class KatelloTasks {
 	}
 	
 	private Boolean ifUsingSsl(){
-		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+":3000 &> /dev/null; echo $?;");
+		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
 		if(exitCode.trim().equals("0")) return new Boolean(false);
-		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+":3000 &> /dev/null; echo $?;");
+		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
 		if(exitCode.trim().equals("0")) return new Boolean(true);
 		return null;
 	}
