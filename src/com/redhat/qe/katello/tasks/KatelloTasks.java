@@ -794,9 +794,9 @@ public class KatelloTasks {
 	}
 	
 	private Boolean ifUsingSsl(){
-		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
+		String exitCode = run_local(false, "curl -sk http://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
 		if(exitCode.trim().equals("0")) return new Boolean(false);
-		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
+		exitCode = run_local(false, "curl -sk https://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
 		if(exitCode.trim().equals("0")) return new Boolean(true);
 		return null;
 	}
