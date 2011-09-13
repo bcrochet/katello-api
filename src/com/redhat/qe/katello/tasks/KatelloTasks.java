@@ -794,9 +794,11 @@ public class KatelloTasks {
 	}
 	
 	private Boolean ifUsingSsl(){
-		String exitCode = run_local(false, "curl -sk http://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
+		String exitCode = run_local(false, "curl -sk http://"+katelloInfo.getServername()+"/katello | grep Katello &> /dev/null; echo $?;");
+		log.finest("Checking use_ssl. Requesting http: ["+exitCode.trim()+"]");
 		if(exitCode.trim().equals("0")) return new Boolean(false);
-		exitCode = run_local(false, "curl -sk https://"+katelloInfo.getServername()+" | grep Katello &> /dev/null; echo $?;");
+		exitCode = run_local(false, "curl -sk https://"+katelloInfo.getServername()+"/katello | grep Katello &> /dev/null; echo $?;");
+		log.finest("Checking use_ssl. Requesting https: ["+exitCode.trim()+"]");
 		if(exitCode.trim().equals("0")) return new Boolean(true);
 		return null;
 	}
