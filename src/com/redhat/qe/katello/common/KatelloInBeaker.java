@@ -10,7 +10,7 @@ import com.redhat.qe.auto.testng.TestScript;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandRunner;
 
-public class KatelloInBeaker implements KatelloConstants {
+public class KatelloInBeaker implements KatelloConstants {	
 	private enum BKR_STATUS {RUNNING, RESERVED, FAILED, CANCELLED};
 
 	private Logger log = Logger.getLogger(KatelloInBeaker.class.getName());
