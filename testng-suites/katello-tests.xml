@@ -26,4 +26,11 @@
 			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
 		</classes>
 	</test>
+	
+	<test name="CLI_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
+		</classes>
+	</test>
+	
 </suite>
