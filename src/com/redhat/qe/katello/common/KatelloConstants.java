@@ -144,5 +144,9 @@ public interface KatelloConstants {
 		System.getenv("HOME")+"/.ssh/id_dsa.pub";
 	public static final String JENKINS_SSH_PRIVKEY =
 		System.getenv("HOME")+"/.ssh/id_dsa";
+	public static final String KATELLO_CLI_CLIENT_CONFIG = 
+		"/etc/katello/client.conf";
+	
+	public static final String ACME_ORG = "ACME_Corporation";
 	
 }
