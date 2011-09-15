@@ -1,0 +1,92 @@
+package com.redhat.qe.katello.tasks;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.common.KatelloInfo;
+import com.redhat.qe.tools.ExecCommands;
+import com.redhat.qe.tools.SSHCommandResult;
+import com.redhat.qe.tools.SSHCommandRunner;
+
+/**
+ * Various utility tasks regarding Katello CLI.
+ * @author gkhachik
+ * @since 02.Sep.2011
+ *
+ */
+public class KatelloCliTasks {
+	protected static Logger log = 
+		Logger.getLogger(KatelloCliTasks.class.getName());
+	private SSHCommandRunner sshCommandRunner = null;
+	private KatelloInfo katelloInfo = null;
+	private boolean useSSL = false;
+	
+// # ************************************************************************* #
+// # PUBLIC section                                                            #
+// # ************************************************************************* #	
+	public KatelloCliTasks(SSHCommandRunner sshRunner, ExecCommands localRunner) {
+		setSSHCommandRunner(sshRunner);
+		katelloInfo = KatelloInfo.getInstance();
+		Boolean ssl = ifUsingSsl();
+		if(ssl != null){
+			this.useSSL = ssl.booleanValue();
+		} // what if null ? (Katello is stopped)... maybe logging ? TODO 
+	}
+
+	public void setSSHCommandRunner(SSHCommandRunner runner) {
+		sshCommandRunner = runner;
+	}
+		
+	public SSHCommandResult execute_remote(String command){
+		SSHCommandResult cmd_res = this.sshCommandRunner.runCommandAndWait(command);
+		return cmd_res;
+	}
+	
+	public SSHCommandResult run_cliCmd(String katelloCliCommand){
+		return this.sshCommandRunner.runCommandAndWait(
+				"katello --username admin --password admin "+katelloCliCommand);
+	}
+	
+	public static String run_local(boolean showLogResults, String command){
+		String out = null; String tmp_cmdFile = "/tmp/katello-"+KatelloTestScript.getUniqueID()+".sh";
+		ExecCommands localRunner = new ExecCommands();
+		try{
+			// cleanup the running buffer file - in case it would exist
+			localRunner.submitCommandToLocalWithReturn(false, 
+					"rm -f "+tmp_cmdFile,"");
+			FileOutputStream fout = 
+				new FileOutputStream(tmp_cmdFile);
+			fout.write((command+"\n").getBytes());fout.flush();fout.close();
+			log.finest(String.format("Executing local: [%s]",command));
+			out = localRunner.submitCommandToLocalWithReturn(
+					false, "sh "+tmp_cmdFile, ""); // HERE is the run
+			
+			if(showLogResults){ // log output if specified so.
+				// split the lines and out each line.
+				String[] split = out.split("\\n");
+				for(int i=0;i<split.length;i++){
+					log.info("Output: "+split[i]);
+				}
+			}
+		}catch(IOException iex){
+			log.log(Level.SEVERE, iex.getMessage(), iex);
+		}finally{
+			// cleanup the running buffer file.
+			try{localRunner.submitCommandToLocalWithReturn(false, 
+					"rm -f "+tmp_cmdFile,"");
+			}catch(IOException ie){log.log(Level.SEVERE, ie.getMessage(), ie);}
+		}
+		return out;
+	}
+	
+	private Boolean ifUsingSsl(){
+		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+" &> /dev/null; echo $?;");
+		if(exitCode.trim().equals("0")) return new Boolean(false);
+		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+" &> /dev/null; echo $?;");
+		if(exitCode.trim().equals("0")) return new Boolean(true);
+		return null;
+	}
+	
+}
