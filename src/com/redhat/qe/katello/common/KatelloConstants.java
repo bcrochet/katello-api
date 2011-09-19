@@ -148,5 +148,6 @@ public interface KatelloConstants {
 		"/etc/katello/client.conf";
 	
 	public static final String ACME_ORG = "ACME_Corporation";
+	public static final String KATELLO_CLI_USER_DEFAULT_PASSWORD = "testing123";
 	
 }
