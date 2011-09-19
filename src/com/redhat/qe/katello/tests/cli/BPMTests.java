@@ -37,12 +37,18 @@ static{
 	 */
 	// System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 }
+	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
+		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
+	
+	private SSHCommandResult exec_result;
+
+	// Katello objects below
 	private String org_name;
 	private String user_name; // not used still: `roles` needs to be in place in ordre to give user access to exec commands.
 	private String providerRH_name;
 	private String providerF_name;
 	private String product_name;
-	private SSHCommandResult exec_result;
+	private String repo_name_pulpF15;
 
 	@BeforeTest(description="Generate unique names")
 	public void setUp(){
@@ -52,6 +58,7 @@ static{
 		providerRH_name = "providerBPM_RH_"+uid;
 		providerF_name = "providerBPM_F_"+uid;
 		product_name = "productBPM_"+uid;
+		repo_name_pulpF15 = "repoBPM_pulpF15_"+uid;
 		
 	}
 	
@@ -97,7 +104,19 @@ static{
 	@Test(description="Sync the Red Hat and Fedora Content",
 			dependsOnMethods={"test_createProviderProduct"})
 	public void test_syncRepo(){
-		
+		// Repo create:
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"repo create --org %s --product %s --name %s --url %s",
+				org_name,product_name,repo_name_pulpF15, KATELLO_SYNC_REPO_PULP_F15));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created repository [ "+repo_name_pulpF15+" ]");		
+		// Repo synchronize:
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"provider synchronize --org %s --name %s",
+				org_name,providerF_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		String res[] = exec_result.getStdout().trim().split("\n");
+		Assert.assertEquals(res[res.length-1], "Provider [ "+providerF_name+" ] synchronized");		
 	}
 	
 }
