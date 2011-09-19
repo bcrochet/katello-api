@@ -1,11 +1,29 @@
 package com.redhat.qe.katello.tests.cli;
 
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.tools.SSHCommandResult;
 
+/**
+ * Story 1: Basic Patch Management<BR>
+ * ===============================<BR>
+ * 1) Install katello.<BR>
+ * 2) Create a new Org and create a user who can manage providers, systems and environments.<BR>
+ * 3) Create a Red Hat Provider, and a Custom Provider with a product that mirrors Fedora.<BR>
+ * 4) Sync the Red Hat and Fedora Content.<BR>
+ * 5) Create a new environment, and promote the content to the new environment.<BR>
+ * 6) From both a RH and Fedora machine, register the machine using subscription manager.<BR>
+ * 7) Install a package via yum.<BR>
+ * 8) See the package list and facts for the machine in the UI and command line.<BR>
+ * 9) Resync the RH and Fedora Content, pulling in updated packages.<BR>
+ * 10) Promote the updated content from the locker to the environment.<BR>
+ * 11) Use yum to install the latest content on the machine.<BR>
+ * 12) Unsubsribe the machine, see that the machine no longer subscribed in the UI.<BR>
+ * 13) Verify that yum can no longer access the content.
+ */
 public class BPMTests extends KatelloCliTestScript{
 static{
 	/*
@@ -19,14 +37,26 @@ static{
 	 */
 	// System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 }
+	private String org_name;
+	private String user_name; // not used still: `roles` needs to be in place in ordre to give user access to exec commands.
+	private String providerRH_name;
+	private String providerF_name;
+	private String product_name;
+	private SSHCommandResult exec_result;
+
+	@BeforeTest(description="Generate unique names")
+	public void setUp(){
+		String uid = KatelloTestScript.getUniqueID();
+		org_name = "orgBPM_"+uid;
+		user_name = "userBPMAdmin_"+uid;
+		providerRH_name = "providerBPM_RH_"+uid;
+		providerF_name = "providerBPM_F_"+uid;
+		product_name = "productBPM_"+uid;
+		
+	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
 	public void test_createOrgUser(){
-		SSHCommandResult exec_result;
-		String uid = KatelloTestScript.getUniqueID();
-		String org_name = "orgBPM_"+uid;
-		String user_name = "userBPMAdmin_"+uid;
-		
 		// Create org:
 		exec_result = clienttasks.run_cliCmd("org create --name "+org_name+" --description \"BPM tests\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
@@ -35,6 +65,39 @@ static{
 		exec_result = clienttasks.run_cliCmd("user create --username "+user_name+" --password "+KATELLO_CLI_USER_DEFAULT_PASSWORD);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created user [ "+user_name+" ]");
+	}
+	
+	@Test(description="Create a Red Hat Provider, and a Custom Provider with a product that mirrors Fedora",
+			dependsOnMethods={"test_createOrgUser"})
+	public void test_createProviderProduct(){
+		// Create provider: Red Hat
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"provider create --org %s --name %s --type redhat " +
+				"--url https://cdn.redhat.com --description \"Red Hat provider\"",
+				org_name,providerRH_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created provider [ "+providerRH_name+" ]");
+		
+		// Create provider: Fedora
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"provider create --org %s --name %s --type custom " +
+				"--description \"Fedora provider\"",
+				org_name,providerF_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created provider [ "+providerF_name+" ]");
+		
+		// Create product:
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"product create --org %s --provider %s --name %s",
+				org_name,providerF_name,product_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created product [ "+product_name+" ]");		
+	}
+	
+	@Test(description="Sync the Red Hat and Fedora Content",
+			dependsOnMethods={"test_createProviderProduct"})
+	public void test_syncRepo(){
+		
 	}
 	
 }
