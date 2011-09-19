@@ -59,6 +59,11 @@ implements KatelloConstants {
 
 	@BeforeSuite(description="Prepare katello-cli on the client side", alwaysRun = true)
 	public void setUpKatelloCli(){
+		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
+		if(reuseSystem.equalsIgnoreCase("true")){
+			return;
+		}
+		
 		SSHCommandResult ssh_res;
 		String platform = clienttasks.execute_remote(
 		"python -c 'from platform import platform; print platform();'").getStdout();
