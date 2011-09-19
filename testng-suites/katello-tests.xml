@@ -33,4 +33,10 @@
 		</classes>
 	</test>
 	
+	<test name="BPM_Tests" preserve-order="true">
+		<classes>
+			<class name="com.redhat.qe.katello.tests.cli.BPMTests"/>
+		</classes>
+	</test>
+	
 </suite>
