@@ -35,7 +35,7 @@ static{
 	 *  
 	 *	Or if you are lazy: uncomment the line below: but please push it back again.   
 	 */
-//	 System.setProperty("katello.cli.reuseSystem", "false");  // TODO - /me needs to be commented.
+//	 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 }
 	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
 		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
