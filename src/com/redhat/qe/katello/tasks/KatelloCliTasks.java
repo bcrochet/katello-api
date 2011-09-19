@@ -20,19 +20,12 @@ public class KatelloCliTasks {
 	protected static Logger log = 
 		Logger.getLogger(KatelloCliTasks.class.getName());
 	private SSHCommandRunner sshCommandRunner = null;
-	private KatelloInfo katelloInfo = null;
-	private boolean useSSL = false;
 	
 // # ************************************************************************* #
 // # PUBLIC section                                                            #
 // # ************************************************************************* #	
 	public KatelloCliTasks(SSHCommandRunner sshRunner, ExecCommands localRunner) {
 		setSSHCommandRunner(sshRunner);
-		katelloInfo = KatelloInfo.getInstance();
-		Boolean ssl = ifUsingSsl();
-		if(ssl != null){
-			this.useSSL = ssl.booleanValue();
-		} // what if null ? (Katello is stopped)... maybe logging ? TODO 
 	}
 
 	public void setSSHCommandRunner(SSHCommandRunner runner) {
@@ -79,14 +72,6 @@ public class KatelloCliTasks {
 			}catch(IOException ie){log.log(Level.SEVERE, ie.getMessage(), ie);}
 		}
 		return out;
-	}
-	
-	private Boolean ifUsingSsl(){
-		String exitCode = run_local(false, "curl -k http://"+katelloInfo.getServername()+" &> /dev/null; echo $?;");
-		if(exitCode.trim().equals("0")) return new Boolean(false);
-		exitCode = run_local(false, "curl -k https://"+katelloInfo.getServername()+" &> /dev/null; echo $?;");
-		if(exitCode.trim().equals("0")) return new Boolean(true);
-		return null;
 	}
 	
 }
