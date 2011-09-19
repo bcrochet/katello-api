@@ -159,4 +159,30 @@ static{
 		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");
 	}
 	
+	@Test(description="Check that all needed stuff is installed for subscription-manager",
+			dependsOnMethods={"test_createEnvPromoteContent"})
+	public void test_rhsm_checkEnv(){
+		// we need to run on RHEL6 now.
+		if(!CLIENT_PLATFORMS_ALLOWED[getClientPlatformID()][0].contains("redhat-6")){
+			String err = "RHSM tasks need in having RHEL6. " +
+					"Please adjust: [katello.client.hostname] properly.";
+			log.severe(err);
+			Assert.assertTrue(false, "RHSM client running on proper platform"); // raise error
+		}
+		// we need rpm -q rhsm-python subscription-manager
+		exec_result = clienttasks.execute_remote("rpm -q python-rhsm subscription-manager");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		// we need support of: "--org" and "--environment" properties
+		exec_result = clienttasks.execute_remote("subscription-manager register --help");
+		Assert.assertTrue(exec_result.getStdout().contains("--org=ORG"), "Check: subscription-manager --org");
+		Assert.assertTrue(exec_result.getStdout().contains("--environment=ENVIRONMENT"), "Check: subscription-manager --environment");
+	}
+	
+	@Test(description="Update packages to latest, do configure settings properly",
+			dependsOnMethods={"test_rhsm_checkEnv"})
+	public void test_rhsm_updateLatest(){
+		
+	}
+	
+	
 }
