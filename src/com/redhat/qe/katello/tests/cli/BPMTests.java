@@ -35,7 +35,7 @@ static{
 	 *  
 	 *	Or if you are lazy: uncomment the line below: but please push it back again.   
 	 */
-	// System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+//	 System.setProperty("katello.cli.reuseSystem", "false");  // TODO - /me needs to be commented.
 }
 	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
 		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
@@ -49,6 +49,8 @@ static{
 	private String providerF_name;
 	private String product_name;
 	private String repo_name_pulpF15;
+	private String env_name_Dev, env_name_Prod;
+	private String changeset_name;
 
 	@BeforeTest(description="Generate unique names")
 	public void setUp(){
@@ -59,7 +61,9 @@ static{
 		providerF_name = "providerBPM_F_"+uid;
 		product_name = "productBPM_"+uid;
 		repo_name_pulpF15 = "repoBPM_pulpF15_"+uid;
-		
+		env_name_Dev = "envBPM_Dev_"+uid;
+		env_name_Prod = "envBPM_Prod_"+uid;
+		changeset_name = "changesetBPM_"+uid;
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
@@ -117,6 +121,42 @@ static{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String res[] = exec_result.getStdout().trim().split("\n");
 		Assert.assertEquals(res[res.length-1], "Provider [ "+providerF_name+" ] synchronized");		
+	}
+	
+	@Test(description="Create a new environment, and promote the content to the new environment.",
+			dependsOnMethods={"test_syncRepo"})
+	public void test_createEnvPromoteContent(){
+		// Environment create: Dev
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"environment create --org %s --name %s --prior Locker",
+				org_name,env_name_Dev));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created environment [ "+env_name_Dev+" ]");				
+		// Environment create: Prod
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"environment create --org %s --name %s --prior %s",
+				org_name,env_name_Prod,env_name_Dev));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created environment [ "+env_name_Prod+" ]");
+		// Changeset create: for Dev
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"changeset create --org %s --name %s --environment %s",
+				org_name,changeset_name,env_name_Dev));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created changeset [ "+changeset_name+" ] for environment [ "+env_name_Dev+" ]");
+		// Changeset update: add_product
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"changeset update --org %s --name %s --environment %s --add_product %s",
+				org_name,changeset_name,env_name_Dev,product_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully updated changeset [ "+changeset_name+" ]");
+		// Changeset promote:
+		exec_result = clienttasks.run_cliCmd(String.format(
+				"changeset promote --org %s --name %s --environment %s",
+				org_name,changeset_name,env_name_Dev));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		String res[] = exec_result.getStdout().trim().split("\\[40\\D");
+		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");
 	}
 	
 }
