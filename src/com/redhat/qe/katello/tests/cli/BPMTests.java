@@ -1,10 +1,12 @@
 package com.redhat.qe.katello.tests.cli;
 
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.common.KatelloInfo;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -51,6 +53,45 @@ static{
 	private String repo_name_pulpF15;
 	private String env_name_Dev, env_name_Prod;
 	private String changeset_name;
+	
+	@BeforeSuite(description="Prepare rhsm")
+	public void init_rhsm(){
+		// we need to run on RHEL6 now.
+		if(!CLIENT_PLATFORMS_ALLOWED[getClientPlatformID()][0].contains("redhat-6")){
+			String err = "RHSM tasks need in having RHEL6. " +
+					"Please adjust: [katello.client.hostname] properly.";
+			log.severe(err);
+			Assert.assertTrue(false, "RHSM client running on proper platform"); // raise error
+		}
+		
+		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
+		if(reuseSystem.equalsIgnoreCase("true")){
+			return;
+		}
+
+		String servername = KatelloInfo.getInstance().getServername();
+		clienttasks.execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/*;");
+		exec_result = clienttasks.execute_remote("yum -y install python-rhsm subscription-manager");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
+		clienttasks.execute_remote("sed -i \"s/hostname = subscription.rhn.redhat.com/" +
+				"hostname = "+servername+"/g\" /etc/rhsm/rhsm.conf");
+		clienttasks.execute_remote("sed -i \"s/prefix = \\/subscription/prefix = \\/katello\\/api/g\" /etc/rhsm/rhsm.conf");
+		clienttasks.execute_remote("sed -i \"s/baseurl= https:\\/\\/cdn.redhat.com/" +
+				"baseurl=https:\\/\\/"+servername+"\\/pulp\\/repos\\//g\" /etc/rhsm/rhsm.conf");
+		clienttasks.execute_remote("sed -i \"s/repo_ca_cert = %(ca_cert_dir)sredhat-uep.pem/" +
+				"repo_ca_cert = %(ca_cert_dir)scandlepin-ca.pem/g\" /etc/rhsm/rhsm.conf");
+		clienttasks.execute_remote("sed -i '/sslcacert=\\/etc\\/pki\\/CA\\/certs/ d' /etc/yum.conf");
+		clienttasks.execute_remote("echo \"sslcacert=/etc/pki/CA/certs\" >> /etc/yum.conf");
+		
+		exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
+		String candlepin_ca_crt = exec_result.getStdout().trim();
+		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-ca.crt; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-ca.crt");
+		clienttasks.execute_remote("pushd /etc/rhsm/ca/; " +
+				"openssl x509 -in candlepin-ca.crt -out candlepin-ca.der -outform DER; " +
+				"openssl x509 -in candlepin-ca.der -inform DER -out candlepin-ca.pem -outform PEM; " +
+				"popd;");
+		
+	}
 
 	@BeforeTest(description="Generate unique names")
 	public void setUp(){
