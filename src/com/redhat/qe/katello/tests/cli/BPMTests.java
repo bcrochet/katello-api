@@ -96,6 +96,7 @@ static{
 				"openssl x509 -in candlepin-ca.crt -out candlepin-ca.der -outform DER; " +
 				"openssl x509 -in candlepin-ca.der -inform DER -out candlepin-ca.pem -outform PEM; " +
 				"popd;");
+		
 	}
 
 	@BeforeTest(description="Generate unique names")
@@ -205,6 +206,9 @@ static{
 		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");
 	}
 	
-	
+	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.")
+	public void test_rhsm_register(){
+		
+	}
 	
 }
