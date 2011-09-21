@@ -1,5 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
+import java.util.HashMap;
+import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -39,6 +42,9 @@ static{
 	 */
 //	 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 }
+	protected static Logger log = 
+		Logger.getLogger(BPMTests.class.getName());
+	
 	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
 		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
 	
@@ -54,9 +60,22 @@ static{
 	private String env_name_Dev, env_name_Prod;
 	private String changeset_name;
 	private String consumer_name;
+	private String rhsm_pool_id;
 	
 	@BeforeSuite(description="Prepare rhsm")
 	public void init_rhsm(){
+		/* 
+		 * Once tried on F15 - there was some error on exit code:
+		 * --- 
+		 * subscription-manager register --username admin --password admin --org
+		 * <org> --environment <env> --name `hostname` --force
+		 * The system has been registered with id:
+		 * bf624394-4ce1-4792-8b0e-de858c920c0c
+		 * org.freedesktop.DBus.Error.Spawn.ChildExited: Launch helper exited with 
+		 * unknown return code 1
+		 * ---
+		 *   
+		 */		
 		// we need to run on RHEL6 now.
 		if(!CLIENT_PLATFORMS_ALLOWED[getClientPlatformID()][0].contains("redhat-6")){
 			String err = "RHSM tasks need in having RHEL6. " +
@@ -111,7 +130,8 @@ static{
 		env_name_Dev = "envBPM_Dev_"+uid;
 		env_name_Prod = "envBPM_Prod_"+uid;
 		changeset_name = "changesetBPM_"+uid;
-		consumer_name = uid+"-\\`hostname\\`";
+		consumer_name = uid+"-`hostname`";
+		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
 
 		/* 
 		 * Cleanup the files that make system registered through RHSM:
@@ -223,12 +243,32 @@ static{
 		Assert.assertEquals(res[res.length-1], "Changeset [ "+changeset_name+" ] promoted");
 	}
 	
-	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.")
+	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.",
+			dependsOnMethods={"test_createEnvPromoteContent"})
 	public void test_rhsm_register(){
 		exec_result = clienttasks.execute_remote(String.format("subscription-manager register " +
 				"--username admin --password admin --org %s --environment %s --name %s",org_name, env_name_Dev, consumer_name));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().contains("The system has been registered with id:"),"Check - returned message");
+	}
+	
+	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
+	public void test_rhsm_listAvailableSubscriptions(){
+		// ProductName
+		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep ProductName:");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().contains(product_name), "Check - subscription.ProductName");
+		// Quantity
+		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep Quantity:");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().contains("unlimited"), "Check - subscription.Quantity");
+		
+		// Store poolid
+		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep PoolId:");
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		rhsm_pool_id = exec_result.getStdout().trim().split(":")[1].trim();
+		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
+				product_name,rhsm_pool_id));
 	}
 	
 }
