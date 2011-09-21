@@ -11,3 +11,8 @@ REFERENCES
 https://github.com/weissjeffm/webui-framework
 Eclipse project of katello-api needs this framework as a dependency.  
 CLI run is not needed (it loads from .m2 repository)
+
+NOTES
+=====
+
+ The project *should* live in internal git repository. No more public movements.
