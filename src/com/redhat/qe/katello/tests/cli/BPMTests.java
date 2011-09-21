@@ -53,6 +53,7 @@ static{
 	private String repo_name_pulpF15;
 	private String env_name_Dev, env_name_Prod;
 	private String changeset_name;
+	private String consumer_name;
 	
 	@BeforeSuite(description="Prepare rhsm")
 	public void init_rhsm(){
@@ -95,8 +96,7 @@ static{
 		clienttasks.execute_remote("pushd /etc/rhsm/ca/; " +
 				"openssl x509 -in candlepin-ca.crt -out candlepin-ca.der -outform DER; " +
 				"openssl x509 -in candlepin-ca.der -inform DER -out candlepin-ca.pem -outform PEM; " +
-				"popd;");
-		
+				"popd;");		
 	}
 
 	@BeforeTest(description="Generate unique names")
@@ -111,6 +111,23 @@ static{
 		env_name_Dev = "envBPM_Dev_"+uid;
 		env_name_Prod = "envBPM_Prod_"+uid;
 		changeset_name = "changesetBPM_"+uid;
+		consumer_name = uid+"-\\`hostname\\`";
+
+		/* 
+		 * Cleanup the files that make system registered through RHSM:
+		 * ATTENTION: do this *only* if you know what you are doing there.
+		 * 
+		 * for further changes good to follow/adjust the progress of:
+		 * strace -o /tmp/rhsm-unregister.log subscription-manager unregister
+		 * grep "unlink(" in there to find out what are the files being removed.
+		 * 
+		 */
+		clienttasks.execute_remote("rm -f /etc/pki/consumer/key.pem " +
+				"/etc/pki/consumer/cert.pem " +
+				"/var/lib/rhsm/packages/packages.json " +
+				"/var/lib/rhsm/facts/facts.json " +
+				"/var/lib/rhsm/cache/installed_products.json " +
+				"/var/run/rhsm/cert.pid");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
@@ -208,7 +225,10 @@ static{
 	
 	@Test(description="From both a RH and Fedora machine, register the machine using subscription manager.")
 	public void test_rhsm_register(){
-		
+		exec_result = clienttasks.execute_remote(String.format("subscription-manager register " +
+				"--username admin --password admin --org %s --environment %s --name %s",org_name, env_name_Dev, consumer_name));
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().contains("The system has been registered with id:"),"Check - returned message");
 	}
 	
 }
