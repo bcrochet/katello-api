@@ -148,6 +148,7 @@ static{
 				"/var/lib/rhsm/facts/facts.json " +
 				"/var/lib/rhsm/cache/installed_products.json " +
 				"/var/run/rhsm/cert.pid");
+		clienttasks.execute_remote("service messagebus restart");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
@@ -269,6 +270,14 @@ static{
 		rhsm_pool_id = exec_result.getStdout().trim().split(":")[1].trim();
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
 				product_name,rhsm_pool_id));
+	}
+	
+	@Test(description="Subscribe to pool", dependsOnMethods={"test_rhsm_listAvailableSubscriptions"})
+	public void test_rhsm_subscribeToPool(){
+		Assert.assertNotNull(rhsm_pool_id, "Check - pool id is set");
+		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully subscribed the system to Pool "+rhsm_pool_id, "Check - returned message");
 	}
 	
 }
