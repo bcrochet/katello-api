@@ -149,5 +149,8 @@ public interface KatelloConstants {
 	
 	public static final String ACME_ORG = "ACME_Corporation";
 	public static final String KATELLO_CLI_USER_DEFAULT_PASSWORD = "testing123";
-	
+	public static final String KATELLO_SERVERS_RHQE_CA_CRT = 
+		"katello-ci.usersys.redhat.com"; // Only katello-ci for now uses that cert.
+	public static final String RHQE_CA_CERT = 
+		"https://github.com/RedHatQE/hudson-config/raw/master/rhqe-ca.crt";
 }

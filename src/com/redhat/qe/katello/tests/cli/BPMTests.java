@@ -1,8 +1,6 @@
 package com.redhat.qe.katello.tests.cli;
 
-import java.util.HashMap;
 import java.util.logging.Logger;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -109,8 +107,16 @@ static{
 		clienttasks.execute_remote("sed -i '/sslcacert=\\/etc\\/pki\\/CA\\/certs/ d' /etc/yum.conf");
 		clienttasks.execute_remote("echo \"sslcacert=/etc/pki/CA/certs\" >> /etc/yum.conf");
 		
-		exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
-		String candlepin_ca_crt = exec_result.getStdout().trim();
+		String candlepin_ca_crt;
+		if(KATELLO_SERVERS_RHQE_CA_CRT.contains(servername)){
+			exec_result = clienttasks.execute_remote("wget "+RHQE_CA_CERT+" -O /tmp/candlepin-ca.crt;");
+			Assert.assertEquals(exec_result.getExitCode(), new Integer(0),"Check - return code");
+			exec_result = clienttasks.execute_remote("cat /tmp/candlepin-ca.crt");
+			candlepin_ca_crt = exec_result.getStdout().trim(); 
+		}else{
+			exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
+			candlepin_ca_crt = exec_result.getStdout().trim();
+		}
 		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-ca.crt; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-ca.crt");
 		clienttasks.execute_remote("pushd /etc/rhsm/ca/; " +
 				"openssl x509 -in candlepin-ca.crt -out candlepin-ca.der -outform DER; " +
