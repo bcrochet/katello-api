@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.json.simple.JSONArray;
@@ -228,11 +229,22 @@ public class ProvidersTest extends KatelloTestScript {
 		JSONObject json_prov = KatelloTestScript.toJSONObj(str_json);
 		Assert.assertNotNull(json_prov, "Returned string in katello is JSON-formatted");
 		
-		String provider_id = ((Long)servertasks.getProvider(org_name, providerName).get("id")).toString();
 		String sout = servertasks.deleteProvider(org_name, providerName);
 		Assert.assertEquals(sout, "Deleted provider [ "+providerName+" ]","Check: message returned by the API call");
 		JSONObject obj_del = servertasks.getProvider(org_name, providerName);
 		Assert.assertNull(obj_del, "Check: returned getProvider() is null");
+	}
+	
+	@Test(groups={"testOrgs","testProviders"}, description="Generate ",enabled= false)
+	public void test_postUeberCert(){ // TODO - seems Candlepin not have them still rpm-ed.
+		try{
+			String _return = servertasks.apiKatello_POST("", "/organizations/"+"org1"+"/uebercert");
+			log.info("Posting ueber cert for: ["+"org1"+"]");
+			System.out.println(_return);
+		}catch (Exception e) {
+			log.log(Level.SEVERE, e.getMessage(), e);
+		}
+		
 	}
 	
 	private JSONObject updateProviderProperty(String component, String updValue){
