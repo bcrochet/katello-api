@@ -74,4 +74,13 @@ public class KatelloCliTasks {
 		return out;
 	}
 	
+	public static String grepCLIOutput(String prop, String output){
+		String[] split1 = output.split(prop+":\\s+");
+		if(split1.length<2){
+			log.severe("ERROR: Output can not be extracted for the property: ["+prop+"]");
+			return null;
+		}
+		String[] split2 = split1[1].trim().split("\n");
+		return split2[0].trim();
+	}
 }
