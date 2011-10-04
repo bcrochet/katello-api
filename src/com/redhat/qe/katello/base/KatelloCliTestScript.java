@@ -73,11 +73,15 @@ implements KatelloConstants {
 			System.exit(1);
 		}
 
+		// Disable the rhsm redhat.repo from being recreated - it fails yum to work properly.
+		clienttasks.execute_remote("rm -f /etc/yum.repos.d/redhat.repo");
+		disableRhsmYumPlugin();
+
 		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
 		if(reuseSystem.equalsIgnoreCase("true")){
 			return;
 		}
-		
+				
 		clienttasks.execute_remote("yum clean all"); // cleanup the caches
 		clienttasks.execute_remote("yum -y install wget");
 
@@ -109,4 +113,10 @@ implements KatelloConstants {
 		return this.platform_id;
 	}
 	
+	protected void disableRhsmYumPlugin(){
+		clienttasks.execute_remote("echo -e \"[main]\nenabled=0\" > /etc/yum/pluginconf.d/subscription-manager.conf");
+	}
+	protected void enableRhsmYumPlugin(){
+		clienttasks.execute_remote("echo -e \"[main]\nenabled=1\" > /etc/yum/pluginconf.d/subscription-manager.conf");
+	}
 }
