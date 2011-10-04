@@ -54,7 +54,7 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Provider \""+PROV_REDHAT+"\" info should be displayed together with org_id");
 	}
 	
-	@Test(description="Try to create provider of: redhat", groups = {"cli-providers"})
+	@Test(description="Try to create provider of: redhat (default one exists)", groups = {"cli-providers"})
 	public void test_createRedhatProvider_defaultExists(){
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
@@ -62,6 +62,23 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		
 		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake --type redhat --url https://cdn.redhat.com");
+		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code");
+		Assert.assertEquals(res.getStderr().trim(), "Validation failed: Only one Red Hat provider permitted for an Organization",
+				"Check - only one Red Hat provider is allowed");
+	}
+	
+	@Test(description="Try to create provider of: redhat (another one exists)", groups = {"cli-providers"})
+	public void test_createRedhatProvider_anotherExists(){
+		String uid = KatelloTestScript.getUniqueID();
+		String tmpOrg = "tmpOrg"+uid;
+		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+tmpOrg);
+		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		
+		res = clienttasks.run_cliCmd("provider delete --org "+tmpOrg+" --name \""+PROV_REDHAT+"\"");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");		
+		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake --type redhat --url https://cdn.redhat.com");
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake_1 --type redhat --url https://cdn.redhat.com");
 		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code");
 		Assert.assertEquals(res.getStderr().trim(), "Validation failed: Only one Red Hat provider permitted for an Organization",
 				"Check - only one Red Hat provider is allowed");
