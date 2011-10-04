@@ -84,6 +84,7 @@ static{
 		
 		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
 		if(reuseSystem.equalsIgnoreCase("true")){
+			enableRhsmYumPlugin();// Enable the rhsm yum plugin.
 			return;
 		}
 
