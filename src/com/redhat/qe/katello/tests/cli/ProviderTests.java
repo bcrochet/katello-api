@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ProviderTests extends KatelloCliTestScript{
@@ -44,6 +45,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REDHAT_STATUS), 
 				"Provider \""+PROV_REDHAT+"\" should have sync status: never");
 		
+		// assertions - `provider info`
+		// get info of "Red Hat" provider
+		String orgId = KatelloCliTasks.grepCLIOutput("Id", clienttasks.run_cliCmd("org info --name "+org_name).getStdout());
+		res = clienttasks.run_cliCmd("provider info --org "+org_name+" --name \"Red Hat\"");
+		String REGEXP_REDHAT_INFO = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Type:\\s+Red Hat.*Url:\\s+https://cdn.redhat.com.*Org Id:\\s+"+orgId+".*Description:.*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REDHAT_INFO), 
+				"Provider \""+PROV_REDHAT+"\" info should be displayed together with org_id");
 		
 	}
 	
