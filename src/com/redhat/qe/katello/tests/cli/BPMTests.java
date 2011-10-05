@@ -44,17 +44,16 @@ static{
 		Logger.getLogger(BPMTests.class.getName());
 	
 	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
-		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
+		"http://repos.fedorapeople.org/repos/pulp/pulp/6Server/x86_64/";
 	
 	private SSHCommandResult exec_result;
 
 	// Katello objects below
 	private String org_name;
 	private String user_name; // not used still: `roles` needs to be in place in ordre to give user access to exec commands.
-	private String providerRH_name;
 	private String providerF_name;
 	private String product_name;
-	private String repo_name_pulpF15;
+	private String repo_name_pulpRHEL6;
 	private String env_name_Dev, env_name_Prod;
 	private String changeset_name;
 	private String consumer_name;
@@ -130,10 +129,9 @@ static{
 		String uid = KatelloTestScript.getUniqueID();
 		org_name = "orgBPM_"+uid;
 		user_name = "userBPMAdmin_"+uid;
-		providerRH_name = "providerBPM_RH_"+uid;
 		providerF_name = "providerBPM_F_"+uid;
 		product_name = "productBPM_"+uid;
-		repo_name_pulpF15 = "repoBPM_pulpF15_"+uid;
+		repo_name_pulpRHEL6 = "repoBPM_pulpRHEL6_"+uid;
 		env_name_Dev = "envBPM_Dev_"+uid;
 		env_name_Prod = "envBPM_Prod_"+uid;
 		changeset_name = "changesetBPM_"+uid;
@@ -204,9 +202,9 @@ static{
 		// Repo create:
 		exec_result = clienttasks.run_cliCmd(String.format(
 				"repo create --org %s --product %s --name %s --url %s",
-				org_name,product_name,repo_name_pulpF15, KATELLO_SYNC_REPO_PULP_F15));
+				org_name,product_name,repo_name_pulpRHEL6, KATELLO_SYNC_REPO_PULP_F15));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created repository [ "+repo_name_pulpF15+" ]");		
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created repository [ "+repo_name_pulpRHEL6+" ]");		
 		// Repo synchronize:
 		exec_result = clienttasks.run_cliCmd(String.format(
 				"provider synchronize --org %s --name %s",
@@ -286,6 +284,7 @@ static{
 		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully subscribed the system to Pool "+rhsm_pool_id, "Check - returned message");
+		clienttasks.execute_remote("echo \""+this.env_name_Dev+"\" > /etc/yum/vars/env");
 	}
 	
 }
