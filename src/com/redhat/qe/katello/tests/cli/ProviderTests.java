@@ -4,6 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
@@ -84,4 +85,24 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Check - only one Red Hat provider is allowed");
 	}
 	
+	@Test(description="Create custom provider - different inputs", groups = {"cli-providers"},
+			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class)
+	public void test_createProvider(String name, String descr, String url, Integer exitCode, String output){
+		
+		String cmd = "provider create --org "+this.org_name+" --type custom";
+		if(name!=null)
+			cmd = cmd + " --name \""+name+"\"";
+		if(descr!=null)
+			cmd = cmd + " --description \""+descr+"\"";
+		if(url!=null)
+			cmd = cmd + " --url \""+url+"\"";
+		SSHCommandResult  res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
+		
+		if(exitCode.intValue()==0){ //
+			
+		}else{ // Failure to be checked
+			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
+		}
+	}
 }
