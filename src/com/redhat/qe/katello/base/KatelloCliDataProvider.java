@@ -42,7 +42,7 @@ public class KatelloCliDataProvider {
 				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
 				{ null, null, null, new Integer(2), "katello: error: Option --name is required; please see --help"},
-				{ " ", null, null, new Integer(144), "Validation failed: Name can't be blank, Name must not contain leading or trailing white spaces., Name must contain at least 2 characters"},
+				{ " ", null, null, new Integer(144), "Validation failed: Name can't be blank"},
 				{ " a", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a ", null, null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
 				{ "a", null, null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
