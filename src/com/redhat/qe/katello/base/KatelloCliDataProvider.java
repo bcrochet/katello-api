@@ -63,6 +63,22 @@ public class KatelloCliDataProvider {
 		};		
 	}
 	
+	@DataProvider(name="provider_create_diffType")
+	public static Object[][] provider_create_diffType(){
+		return new Object[][] {
+				{ "C", new Integer(2), "katello: error: option --type: invalid choice: 'C' (choose from 'redhat', 'custom')"},
+				{ "Custom", new Integer(2), "katello: error: option --type: invalid choice: 'Custom' (choose from 'redhat', 'custom')"},
+				{ "CUSTOM", new Integer(2), "katello: error: option --type: invalid choice: 'CUSTOM' (choose from 'redhat', 'custom')"},
+				{ "rh", new Integer(2), "katello: error: option --type: invalid choice: 'rh' (choose from 'redhat', 'custom')"},
+				{ "RedHat", new Integer(2), "katello: error: option --type: invalid choice: 'RedHat' (choose from 'redhat', 'custom')"},
+				{ "REDHAT", new Integer(2), "katello: error: option --type: invalid choice: 'REDHAT' (choose from 'redhat', 'custom')"},
+				{ "^custom", new Integer(2), "katello: error: option --type: invalid choice: '^custom' (choose from 'redhat', 'custom')"},
+				{ " custom", new Integer(2), "katello: error: option --type: invalid choice: ' custom' (choose from 'redhat', 'custom')"},
+				{ "custom ", new Integer(2), "katello: error: option --type: invalid choice: 'custom ' (choose from 'redhat', 'custom')"}
+				
+		};		
+	}
+
 	public static String strRepeat(String src, int times){
 		String res = "";
 		for(int i=0;i<times; i++)

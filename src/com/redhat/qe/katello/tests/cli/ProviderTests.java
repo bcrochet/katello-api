@@ -107,4 +107,13 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	
+	@Test(description="Create custom provider - wrong type", groups = {"cli-providers"},
+			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class)
+	public void test_createProvider_wrongType(String type, Integer exitCode, String output){
+		
+		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type \""+type+"\" --name prov-oftype-"+type);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("katello: error: option --type: invalid choice: '"+type+"' (choose from 'redhat', 'custom')"), 
+				"Check - returned error string");
+	}
 }
