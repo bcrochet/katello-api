@@ -34,11 +34,11 @@ public class KatelloCliDataProvider {
 		String uid = KatelloTestScript.getUniqueID();
 		return new Object[][] {
 				// name
-				{ "aa", null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "11", null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "1a", null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "a1", null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
+				{ "aa", null, null, new Integer(0), "Successfully created provider [ aa ]"},
+				{ "11", null, null, new Integer(0), "Successfully created provider [ 11 ]"},
+				{ "1a", null, null, new Integer(0), "Successfully created provider [ 1a ]"},
+				{ "a1", null, null, new Integer(0), "Successfully created provider [ a1 ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh", null, null, new Integer(0), "Successfully created provider [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
 				{ "prov-"+uid, null, null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
 				{ "prov "+uid, "Provider with space in name", null, new Integer(0), "Successfully created provider [ prov "+uid+" ]"},
 				{ null, null, null, new Integer(2), "katello: error: Option --name is required; please see --help"},
@@ -48,11 +48,18 @@ public class KatelloCliDataProvider {
 				{ "a", null, null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
 				{ "?1", null, null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
 				{ strRepeat("0123456789", 12)+"abcdefghi", null, null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
-				// Description
-				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ prov-"+uid+" ]"},
-				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(144), "Validation failed: Description cannot contain more than 255 characters"}
-				
+				// description
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", null, new Integer(0), "Successfully created provider [ desc-specChars"+uid+" ]"},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				// url
+				{ "url-httpOnly"+uid, null, "http://", new Integer(0), "Successfully created provider [ url-httpOnly"+uid+" ]"},
+				{ "url-httpsOnly"+uid, null, "https://", new Integer(0), "Successfully created provider [ url-httpsOnly"+uid+" ]"},
+				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), "Successfully created provider [ url-redhatcom"+uid+" ]"},
+				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
+				// misc
+				{ "duplicate"+uid, null, null, new Integer(0), "Successfully created provider [ duplicate"+uid+" ]"},
+				{ "duplicate"+uid, null, null, new Integer(144), "Validation failed: Name has already been taken"}
 		};		
 	}
 	

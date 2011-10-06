@@ -87,7 +87,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	
 	@Test(description="Create custom provider - different inputs", groups = {"cli-providers"},
 			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class)
-	public void test_createProvider(String name, String descr, String url, Integer exitCode, String output){
+	public void test_createProvider_output(String name, String descr, String url, Integer exitCode, String output){
 		
 		String cmd = "provider create --org "+this.org_name+" --type custom";
 		if(name!=null)
@@ -100,9 +100,11 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		
 		if(exitCode.intValue()==0){ //
-			
+			Assert.assertTrue(res.getStdout().contains(output),"Check - returned output string");
 		}else{ // Failure to be checked
 			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
 		}
 	}
+	
+	
 }
