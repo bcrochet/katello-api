@@ -20,7 +20,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.org_name = "org"+uid;
 		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+this.org_name);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
 	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"})
@@ -28,12 +28,12 @@ public class ProviderTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
 		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+tmpOrg);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// assertions - `provider list` 
 		// check that default provider of RedHat type is prepared
 		res = clienttasks.run_cliCmd("provider list --org "+tmpOrg+" -v");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_REDHAT = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Type:\\s+Red\\sHat.*Url:\\s+https://cdn.redhat.com.*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PROVIDER_REDHAT), 
 				"Provider \""+PROV_REDHAT+"\" should be found in the providers list");
@@ -41,7 +41,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// assertions - `provider status` 
 		// status of "Red Hat" provider
 		res = clienttasks.run_cliCmd("provider status --org "+tmpOrg+" --name \""+PROV_REDHAT+"\"");
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_REDHAT_STATUS = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Last\\sSync:\\s+never.*Sync\\sState:\\s+Not\\ssynced.*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REDHAT_STATUS), 
 				"Provider \""+PROV_REDHAT+"\" should have sync status: never");
@@ -60,7 +60,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
 		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+tmpOrg);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake --type redhat --url https://cdn.redhat.com");
 		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code");
@@ -106,7 +106,6 @@ public class ProviderTests extends KatelloCliTestScript{
 		}
 	}
 	
-	
 	@Test(description="Create custom provider - wrong type", groups = {"cli-providers"},
 			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class)
 	public void test_createProvider_wrongType(String type, Integer exitCode, String output){
@@ -116,4 +115,32 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStderr().contains("katello: error: option --type: invalid choice: '"+type+"' (choose from 'redhat', 'custom')"), 
 				"Check - returned error string");
 	}
+	
+	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"})
+	public void test_deleteProvider_RedHat(){
+		String uid = KatelloTestScript.getUniqueID();
+		String orgName = "delRH"+uid;
+		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+orgName);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// TODO - when the BZ: https://bugzilla.redhat.com/show_bug.cgi?id=744191 gets fixed, this would be another check.
+		// then to check that error happens, not allow to remove the provider.
+		res = clienttasks.run_cliCmd("provider delete --org "+orgName+" --name \"Red Hat\"");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(res.getStdout().trim(), "Deleted provider [ Red Hat ]","Check - returned output string");
+
+		// get the provider info - should be missing.
+		// TODO - again should be adjusted (see above)
+		res = clienttasks.run_cliCmd("provider info --org "+orgName+" --name \"Red Hat\"");
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
+		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ Red Hat ] within organization [ "+orgName+" ]","Check - returned output string");
+		
+		// double try to remove the provider already removed
+		res = clienttasks.run_cliCmd("provider delete --org "+orgName+" --name \"Red Hat\"");
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
+		// TODO - BZ: https://bugzilla.redhat.com/show_bug.cgi?id=744199
+		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ Red Hat ] within organization [ "+orgName+" ]","Check - returned output string");
+	}
+	
+	
 }
