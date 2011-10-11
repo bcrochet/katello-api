@@ -53,8 +53,8 @@ public class KatelloCliDataProvider {
 				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", null, new Integer(0), "Successfully created provider [ desc-255Chars"+uid+" ]"},
 				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", null, new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
 				// url
-				{ "url-httpOnly"+uid, null, "http://", new Integer(0), "Successfully created provider [ url-httpOnly"+uid+" ]"},
-				{ "url-httpsOnly"+uid, null, "https://", new Integer(0), "Successfully created provider [ url-httpsOnly"+uid+" ]"},
+				{ "url-httpOnly"+uid, null, "http://", new Integer(2), "katello: error: Option --url is not in a valid format"},
+				{ "url-httpsOnly"+uid, null, "https://", new Integer(2), "katello: error: Option --url is not in a valid format"},
 				{ "url-redhatcom"+uid, null, "http://redhat.com/", new Integer(0), "Successfully created provider [ url-redhatcom"+uid+" ]"},
 				{ "url-with_space"+uid, null, "http://url with space/", new Integer(0), "Successfully created provider [ url-with_space"+uid+" ]"},
 				// misc
