@@ -68,23 +68,6 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Check - only one Red Hat provider is allowed");
 	}
 	
-	@Test(description="Try to create provider of: redhat (another one exists)", groups = {"cli-providers"})
-	public void test_createRedhatProvider_anotherExists(){
-		String uid = KatelloTestScript.getUniqueID();
-		String tmpOrg = "tmpOrg"+uid;
-		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+tmpOrg);
-		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		
-		res = clienttasks.run_cliCmd("provider delete --org "+tmpOrg+" --name \""+PROV_REDHAT+"\"");
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");		
-		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake --type redhat --url https://cdn.redhat.com");
-		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-		res = clienttasks.run_cliCmd("provider create --org "+tmpOrg+" --name redhat_fake_1 --type redhat --url https://cdn.redhat.com");
-		Assert.assertTrue(res.getExitCode().intValue() == 144, "Check - return code");
-		Assert.assertEquals(res.getStderr().trim(), "Validation failed: Only one Red Hat provider permitted for an Organization",
-				"Check - only one Red Hat provider is allowed");
-	}
-	
 	@Test(description="Create custom provider - different inputs", groups = {"cli-providers"},
 			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class)
 	public void test_createProvider_output(String name, String descr, String url, Integer exitCode, String output){
@@ -123,23 +106,15 @@ public class ProviderTests extends KatelloCliTestScript{
 		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+orgName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
-		// TODO - when the BZ: https://bugzilla.redhat.com/show_bug.cgi?id=744191 gets fixed, this would be another check.
-		// then to check that error happens, not allow to remove the provider.
 		res = clienttasks.run_cliCmd("provider delete --org "+orgName+" --name \"Red Hat\"");
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), "Deleted provider [ Red Hat ]","Check - returned output string");
+		Assert.assertTrue(res.getExitCode().intValue()==244, "Check - return code");
+		Assert.assertEquals(res.getStderr().trim(), "Error while deleting provider [ Red Hat ]: Red Hat provider can not be deleted,","Check - returned error string");
 
-		// get the provider info - should be missing.
-		// TODO - again should be adjusted (see above)
+		// get the provider info - should be there
 		res = clienttasks.run_cliCmd("provider info --org "+orgName+" --name \"Red Hat\"");
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ Red Hat ] within organization [ "+orgName+" ]","Check - returned output string");
 		
-		// double try to remove the provider already removed
-		res = clienttasks.run_cliCmd("provider delete --org "+orgName+" --name \"Red Hat\"");
-		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		// TODO - BZ: https://bugzilla.redhat.com/show_bug.cgi?id=744199
-		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ Red Hat ] within organization [ "+orgName+" ]","Check - returned output string");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(".*Name:\\s+Red Hat.*"),"Check - returned output string");		
 	}
 	
 	
