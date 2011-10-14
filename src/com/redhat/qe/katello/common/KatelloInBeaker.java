@@ -94,18 +94,19 @@ public class KatelloInBeaker implements KatelloConstants {
 	}
 	
 	public static void main(String[] args) {
-		if(args.length != 1){
-			log.severe("ERROR: Wrong arguments specified. Need one of: {RHEL6, F15, F14}");
+		String bkrDistro = System.getenv("BKR_DISTRO");
+		if(bkrDistro == null){
+			log.severe("ERROR: Please specify $BKR_DISTRO with value of: {RHEL6, F15, F14}");
 			System.exit(2);
 		}
-		if(args[0].equals("RHEL6")){
+		if(bkrDistro.equals("RHEL6")){
 			bkrReservesys_RHEL6();
-		}else if (args[1].equals("F15")){
+		}else if (bkrDistro.equals("F15")){
 			// TODO - add support for F15
-		}else if (args[1].equals("F14")){
+		}else if (bkrDistro.equals("F14")){
 			// TODO - add support for F14
 		}else{
-			log.severe("Unsupported platform: ["+args[0]+"]. Should be one of: {RHEL6, F15, F14}");
+			log.severe("Unsupported platform: ["+bkrDistro+"]. Should be one of: {RHEL6, F15, F14}");
 			System.exit(3);
 		}
 	}
