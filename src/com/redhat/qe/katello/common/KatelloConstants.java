@@ -140,6 +140,30 @@ public interface KatelloConstants {
 			"--keyvalue=\"DISK>7999\" " +
 			"--task=/distribution/reservesys";
 	
+	public static final String BKR_KATELLO_RESERVESYS_RHEL6 = 
+		"bkr workflow-simple --username=%s --password=\"%s\" "+
+		"--distro=RHEL6-6.1 --variant=Server --arch=x86_64 "+
+		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
+		"--whiteboard=\"Katello install [Jenkins] - RHEL6\" "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/distribution/reservesys";
+	
+	public static final String BKR_KATELLO_RESERVESYS_F15 = 
+		"bkr workflow-simple --username=%s --password=\"%s\" "+
+		"--distro=Fedora-15 --arch=x86_64 "+
+		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
+		"--whiteboard=\"Katello install [Jenkins] - F15\" "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/distribution/reservesys";
+
+	public static final String BKR_KATELLO_RESERVESYS_F14 = 
+		"bkr workflow-simple --username=%s --password=\"%s\" "+
+		"--distro=Fedora-14 --arch=x86_64 "+
+		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
+		"--whiteboard=\"Katello install [Jenkins] - F14\" "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/distribution/reservesys";
+	
 	public static final String JENKINS_SSH_PUBKEY = 
 		System.getenv("HOME")+"/.ssh/id_dsa.pub";
 	public static final String JENKINS_SSH_PRIVKEY =

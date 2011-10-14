@@ -28,7 +28,6 @@ TESTNG_RUN_LIST = ENV['KATELLO_API_TESTNAMES']
 Project.local_task :update_katello
 Project.local_task :install_katello
 Project.local_task :db_cleanup_katello
-Project.local_task :beaker_reservesys
 Project.local_task :beaker_reservesys_new
 
 desc "The Katello-api project"
@@ -62,12 +61,6 @@ define "katello-api" do
      :classpath => [ CP_ALL, JAVAC_CLASSES ]
   end
   
-  task :beaker_reservesys => :compile do
-     cmd_args = []
-     Java::Commands.java "com.redhat.qe.katello.common.KatelloReservesys", cmd_args,
-     :classpath => [ CP_ALL, JAVAC_CLASSES ]
-  end
-
   task :beaker_reservesys_new => :compile do
      cmd_args = []
      Java::Commands.java "com.redhat.qe.katello.common.KatelloInBeaker", cmd_args,
