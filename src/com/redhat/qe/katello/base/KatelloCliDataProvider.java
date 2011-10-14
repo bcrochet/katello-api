@@ -79,6 +79,16 @@ public class KatelloCliDataProvider {
 		};		
 	}
 
+	@DataProvider(name="provider_delete")
+	public static Object[][] provider_delete(){
+		String uid = KatelloTestScript.getUniqueID();
+		return new Object[][] {
+				// org
+				{ null, null, new Integer(2), "Option --org is required; please see --help"},
+				{ null, null, new Integer(2), "Option --name is required; please see --help"}
+		};		
+	}
+
 	public static String strRepeat(String src, int times){
 		String res = "";
 		for(int i=0;i<times; i++)

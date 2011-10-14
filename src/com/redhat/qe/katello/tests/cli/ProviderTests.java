@@ -23,7 +23,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"})
+	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"}, enabled=true)
 	public void test_freshOrgDefaultRedHatProvider(){
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
@@ -55,7 +55,7 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Provider \""+PROV_REDHAT+"\" info should be displayed together with org_id");
 	}
 	
-	@Test(description="Try to create provider of: redhat (default one exists)", groups = {"cli-providers"})
+	@Test(description="Try to create provider of: redhat (default one exists)", groups = {"cli-providers"}, enabled=true)
 	public void test_createRedhatProvider_defaultExists(){
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
@@ -69,7 +69,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Create custom provider - different inputs", groups = {"cli-providers"},
-			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class)
+			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_createProvider_output(String name, String descr, String url, Integer exitCode, String output){
 		
 		String cmd = "provider create --org "+this.org_name+" --type custom";
@@ -90,7 +90,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Create custom provider - wrong type", groups = {"cli-providers"},
-			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class)
+			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
 	public void test_createProvider_wrongType(String type, Integer exitCode, String output){
 		
 		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type \""+type+"\" --name prov-oftype-"+type);
@@ -99,7 +99,7 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Check - returned error string");
 	}
 	
-	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"})
+	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"}, enabled=true)
 	public void test_deleteProvider_RedHat(){
 		String uid = KatelloTestScript.getUniqueID();
 		String orgName = "delRH"+uid;
@@ -117,5 +117,76 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(".*Name:\\s+Red Hat.*"),"Check - returned output string");		
 	}
 	
+	@Test(description="Delete provider Custom - missing parameters", groups={"cli-providers"}, enabled = false)
+	public void test_deleteProvider_missingReqParams(){
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "delProv-"+uid;
+		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+		
+		String cmd ="provider delete";
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("Option --org is required; please see --help"),"Check - returned error string - 1");
+		Assert.assertTrue(res.getStderr().contains("Option --name is required; please see --help"),"Check - returned error string - 2");
+		
+		cmd ="provider delete --org "+this.org_name;
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("Option --name is required; please see --help"),"Check - returned error string");
+		
+		cmd ="provider delete --name "+provName;
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("Option --org is required; please see --help"),"Check - returned error string");
+		
+		cmd ="provider delete --org";
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("katello: error: --org option requires an argument"),"Check - returned error string");
+		
+		cmd ="provider delete --org "+this.org_name+" --name";
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
+		Assert.assertTrue(res.getStderr().contains("katello: error: --name option requires an argument"),"Check - returned error string");
+	}
+	
+	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	public void test_deleteProvider_diffOrg(){
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "delProv-"+uid;
+		String org1 = "anotherOrg"+uid;
+		
+		SSHCommandResult res = clienttasks.run_cliCmd("org create --name "+org1);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd("provider delete --org "+org1+" --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
+		// XXX - maybe needs to be stderr...
+		Assert.assertTrue(res.getStdout().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
+	}
+	
+//	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},
+//			dataProvider="provider_delete",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+//	public void test_deleteProvider_Custom_noproducts(String orgName, String provName, Integer exitCode, String output){
+//		
+//		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
+//		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
+//		
+//		String cmd = "provider delete";
+//		if(orgName != null) 
+//			cmd = cmd + " --org "+this.org_name;
+//		if(provName != null)
+//			cmd = cmd + " --name \""+provName+"\"";
+//		
+//		res = clienttasks.run_cliCmd(cmd);
+//		if(exitCode.intValue()==0){ //
+//			Assert.assertTrue(res.getStdout().contains(output),"Check - returned output string");
+//		}else{ // Failure to be checked
+//			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
+//		}
+//		
+//	}
 	
 }
