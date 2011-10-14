@@ -168,18 +168,9 @@ static{
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created user [ "+user_name+" ]");
 	}
 	
-	@Test(description="Create a Red Hat Provider, and a Custom Provider with a product that mirrors Fedora",
+	@Test(description="Create a Custom Provider with a product that mirrors Fedora",
 			dependsOnMethods={"test_createOrgUser"})
-	public void test_createProviderProduct(){
-		// Seems that provider redhat is getting created during each org create command.
-//		// Create provider: Red Hat
-//		exec_result = clienttasks.run_cliCmd(String.format(
-//				"provider create --org %s --name %s --type redhat " +
-//				"--url https://cdn.redhat.com --description \"Red Hat provider\"",
-//				org_name,providerRH_name));
-//		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-//		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created provider [ "+providerRH_name+" ]");
-		
+	public void test_createProviderProduct(){		
 		// Create provider: Fedora
 		exec_result = clienttasks.run_cliCmd(String.format(
 				"provider create --org %s --name %s --type custom " +
