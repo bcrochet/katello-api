@@ -25,7 +25,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
-	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"}, enabled=true)
+	@Test(description="Fresh org - check default provider status/info", groups = {"cli-providers"}, enabled=false)
 	public void test_freshOrgDefaultRedHatProvider(){
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
@@ -57,7 +57,7 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Provider \""+PROV_REDHAT+"\" info should be displayed together with org_id");
 	}
 	
-	@Test(description="Try to create provider of: redhat (default one exists)", groups = {"cli-providers"}, enabled=true)
+	@Test(description="Try to create provider of: redhat (default one exists)", groups = {"cli-providers"}, enabled=false)
 	public void test_createRedhatProvider_defaultExists(){
 		String uid = KatelloTestScript.getUniqueID();
 		String tmpOrg = "tmpOrg"+uid;
@@ -71,7 +71,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Create custom provider - different inputs", groups = {"cli-providers"},
-			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+			dataProvider="provider_create",dataProviderClass = KatelloCliDataProvider.class, enabled=false)
 	public void test_createProvider_output(String name, String descr, String url, Integer exitCode, String output){
 		
 		String cmd = "provider create --org "+this.org_name+" --type custom";
@@ -92,7 +92,7 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description="Create custom provider - wrong type", groups = {"cli-providers"},
-			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
+			dataProvider="provider_create_diffType",dataProviderClass = KatelloCliDataProvider.class, enabled=false)
 	public void test_createProvider_wrongType(String type, Integer exitCode, String output){
 		
 		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type \""+type+"\" --name prov-oftype-"+type);
@@ -101,7 +101,7 @@ public class ProviderTests extends KatelloCliTestScript{
 				"Check - returned error string");
 	}
 	
-	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"}, enabled=true)
+	@Test(description="Delete provider - Red Hat", groups = {"cli-providers"}, enabled=false)
 	public void test_deleteProvider_RedHat(){
 		String uid = KatelloTestScript.getUniqueID();
 		String orgName = "delRH"+uid;
@@ -153,7 +153,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStderr().contains("katello: error: --name option requires an argument"),"Check - returned error string");
 	}
 	
-	@Test(description="Delete provider Custom - different org", groups = {"cli-providers"},enabled=true)
+	@Test(description="Delete provider Custom - different org", groups = {"cli-providers"},enabled=false)
 	public void test_deleteProvider_diffOrg(){
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "delProv-"+uid;
@@ -169,7 +169,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
 	}
 	
-	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=false)
 	public void test_deleteProvider_noProducts(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -188,15 +188,15 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertEquals(res.getStdout().trim(), "Successfully created provider [ "+provName+" ]");
 	}
 	
-	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=false)
 	public void test_deleteProvider_noRepos(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "noRepos-"+uid, provName_1 = "prov1-"+uid;
 		String prodName = "prod-"+uid;
 		
-		// Create org, provider, product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName));
+		// Create provider, product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -215,7 +215,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
 		
 		// Create another provider with the same product name
-		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName_1));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName_1));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName_1,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
@@ -228,5 +228,61 @@ public class ProviderTests extends KatelloCliTestScript{
 				String.format("Provider [%s] should be found in the result of product info for: [%s]",provName_1,prodName));		
 	}
 	
+	//@Test
+	public void test_deleteProvider_withRepos(){
+		// TODO - to be implemented.
+	}
+	
+	@Test(description="List providers - no description, no url", groups = {"cli-providers"},enabled=true)
+	public void test_listProviders_noDesc_noUrl(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "listProv1-"+uid;
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+None.*Description:\\s+None";
+		String match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the list with: no description, no url",provName));		
+	}
+	
+	@Test(description="List providers", groups = {"cli-providers"},enabled=true)
+	public void test_listProviders(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "listProv1-"+uid;
+		String provDesc = "Simple description";
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE,this.org_name,provName,KATELLO_SMALL_REPO,provDesc));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+%s.*";
+		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the list",provName));		
+	}
+	
+	@Test(description="List providers - no description", groups = {"cli-providers"},enabled=true)
+	public void test_listProviders_noDesc(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "listProvURL-"+uid;
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName,KATELLO_SMALL_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+None";
+		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the list with: no description",provName));		
+	}
 	
 }
