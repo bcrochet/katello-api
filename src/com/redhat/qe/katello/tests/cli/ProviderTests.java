@@ -233,8 +233,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		// TODO - to be implemented.
 	}
 	
-	@Test(description="List providers - no description, no url", groups = {"cli-providers"},enabled=true)
-	public void test_listProviders_noDesc_noUrl(){
+	@Test(description="List / Info providers - no description, no url", groups = {"cli-providers"},enabled=true)
+	public void test_listNinfoProviders_noDesc_noUrl(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "listProv1-"+uid;
@@ -242,16 +242,23 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create provider
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// List
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+None.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
-				String.format("Provider [%s] should be found in the list with: no description, no url",provName));		
+				String.format("Provider [%s] should be found in the list with: no description, no url",provName));
+		// Info
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info with: no description, no url",provName));
 	}
 	
-	@Test(description="List providers", groups = {"cli-providers"},enabled=true)
-	public void test_listProviders(){
+	@Test(description="List / Info providers", groups = {"cli-providers"},enabled=true)
+	public void test_listNinfoProviders(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "listProv1-"+uid;
@@ -260,16 +267,23 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create provider
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE,this.org_name,provName,KATELLO_SMALL_REPO,provDesc));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		//List
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+%s.*";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
-				String.format("Provider [%s] should be found in the list",provName));		
+				String.format("Provider [%s] should be found in the list",provName));
+		// Info
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info",provName));
 	}
 	
-	@Test(description="List providers - no description", groups = {"cli-providers"},enabled=true)
-	public void test_listProviders_noDesc(){
+	@Test(description="List / Info providers - no description", groups = {"cli-providers"},enabled=true)
+	public void test_listNinfoProviders_noDesc(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "listProvURL-"+uid;
@@ -277,12 +291,19 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create provider
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName,KATELLO_SMALL_REPO));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// List
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.LIST_VMODE,this.org_name));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
-				String.format("Provider [%s] should be found in the list with: no description",provName));		
+				String.format("Provider [%s] should be found in the list with: no description",provName));
+		// Info
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info with: no description",provName));
 	}
 	
 }
