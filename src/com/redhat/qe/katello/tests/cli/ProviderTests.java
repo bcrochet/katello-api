@@ -4,6 +4,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.IKatelloProduct;
+import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -185,4 +187,46 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		Assert.assertEquals(res.getStdout().trim(), "Successfully created provider [ "+provName+" ]");
 	}
+	
+	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	public void test_deleteProvider_noRepos(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "noRepos-"+uid, provName_1 = "prov1-"+uid;
+		String prodName = "prod-"+uid;
+		
+		// Create org, provider, product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// Delete provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.DELETE, this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProvider.OUT_DELETE, provName)), "Check - returned output string");
+		
+		// Check provider is removed
+		this.assert_providerRemoved(provName, this.org_name);
+
+		// Check associated product is gone
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS, this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
+		
+		// Create another provider with the same product name
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION,this.org_name,provName_1));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName_1,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// Check `product status` - should be shown with provName_1 info there
+		String REGEXP_PRODUCT = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*";
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String match_info = String.format(REGEXP_PRODUCT,prodName,provName_1).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the result of product info for: [%s]",provName_1,prodName));		
+	}
+	
+	
 }
