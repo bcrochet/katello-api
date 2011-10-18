@@ -119,4 +119,12 @@ implements KatelloConstants {
 	protected void enableRhsmYumPlugin(){
 		clienttasks.execute_remote("echo -e \"[main]\nenabled=1\" > /etc/yum/pluginconf.d/subscription-manager.conf");
 	}
+	
+	protected void assert_providerRemoved(String providerName, String orgName){
+		SSHCommandResult res;
+		log.info("Assertions: provider has been removed");
+		res = clienttasks.run_cliCmd("provider info --org \""+orgName+"\" --name \""+providerName+"\"");
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
+		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
+	}
 }

@@ -151,7 +151,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStderr().contains("katello: error: --name option requires an argument"),"Check - returned error string");
 	}
 	
-	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	@Test(description="Delete provider Custom - different org", groups = {"cli-providers"},enabled=true)
 	public void test_deleteProvider_diffOrg(){
 		String uid = KatelloTestScript.getUniqueID();
 		String provName = "delProv-"+uid;
@@ -163,30 +163,26 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd("provider delete --org "+org1+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		// XXX - maybe needs to be stderr...
+		// TODO - maybe needs to be stderr...
 		Assert.assertTrue(res.getStdout().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
 	}
 	
-//	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},
-//			dataProvider="provider_delete",dataProviderClass = KatelloCliDataProvider.class, enabled=true)
-//	public void test_deleteProvider_Custom_noproducts(String orgName, String provName, Integer exitCode, String output){
-//		
-//		SSHCommandResult  res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
-//		Assert.assertTrue(res.getExitCode().intValue() == 0, "Check - return code");
-//		
-//		String cmd = "provider delete";
-//		if(orgName != null) 
-//			cmd = cmd + " --org "+this.org_name;
-//		if(provName != null)
-//			cmd = cmd + " --name \""+provName+"\"";
-//		
-//		res = clienttasks.run_cliCmd(cmd);
-//		if(exitCode.intValue()==0){ //
-//			Assert.assertTrue(res.getStdout().contains(output),"Check - returned output string");
-//		}else{ // Failure to be checked
-//			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
-//		}
-//		
-//	}
-	
+	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
+	public void test_deleteProvider_noProducts(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "noProd-"+uid;
+		
+		res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd("provider delete --org "+this.org_name+" --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().equals("Deleted provider [ "+provName+" ]"), "Check - returned output string");
+		
+		this.assert_providerRemoved(provName, this.org_name);
+		// try to recreate the provider with the same name: should be possible
+		res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --type custom --name "+provName);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertEquals(res.getStdout().trim(), "Successfully created provider [ "+provName+" ]");
+	}
 }
