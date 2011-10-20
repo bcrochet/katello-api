@@ -127,4 +127,30 @@ implements KatelloConstants {
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
 		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
 	}
+	
+	protected void assert_repoSynced(String orgName, String productName, String repoName){
+		SSHCommandResult res;
+		String REGEXP_REPO_INFO;
+		log.info("Assertions: repository has been synchronized");
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.INFO,orgName,productName,repoName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// pacakge_count != 0
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count:\\s+0.*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+				"Repo should not contain packages count: 0");
+		// last_sync != never
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Last Sync:\\s+never.*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+				"Repo should not contain last_sync == never");
+		// progress != Not synced
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Progress:\\s+Not synced.*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+				"Repo should not contain progress == not synced");
+		
+		// package_count >0; url, progress, last_sync
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count:\\s+[1..9]+.*Progress:\\s+Finished";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+				"Repo should contain packages count: >0 & progress == finished");
+	}
 }
