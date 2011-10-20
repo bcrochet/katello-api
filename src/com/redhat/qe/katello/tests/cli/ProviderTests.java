@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloProvider;
+import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -304,6 +305,48 @@ public class ProviderTests extends KatelloCliTestScript{
 		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description",provName));
+	}
+	
+	@Test(description="Synchronize provider - no products", groups = {"cli-providers"},enabled=true)
+	public void test_syncProvider_noProduct(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "syncNoProd-"+uid;
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// Sync
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+	}
+
+	@Test(description="Synchronize provider - single product", groups = {"cli-providers"},enabled=true)
+	public void test_syncProvider_singleProduct(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "syncNoProd-"+uid;
+		String prodName = "prod1Repo-"+uid;
+		String repoName = "pulpF15_64bit-"+uid;
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		// Create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// Create repo - valid url to sync
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName, repoName, PULP_F15_x86_64_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// Sync
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+		
+		assert_repoSynced(this.org_name, prodName, repoName);
 	}
 	
 }
