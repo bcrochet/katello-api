@@ -8,8 +8,13 @@ public interface IKatelloProvider {
 	public static final String DELETE = "provider delete --org \"%s\" --name \"%s\"";
 	public static final String LIST_VMODE = "provider list --org \"%s\" -v";
 	public static final String INFO = "provider info --org \"%s\" --name \"%s\"";
+	public static final String SYNCHRONIZE = "provider synchronize --org \"%s\" --name \"%s\"";
 	
 	/** Parameters:<BR>1: provider_name*/
 	public static final String OUT_DELETE = 
 		"Deleted provider [ %s ]";
+	/** Parameters:<BR>1: provider_name*/
+	public static final String OUT_SYNCHRONIZE = 
+		"Provider [ %s ] synchronized";
+	
 }
