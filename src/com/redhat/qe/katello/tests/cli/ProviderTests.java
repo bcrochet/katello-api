@@ -383,4 +383,34 @@ public class ProviderTests extends KatelloCliTestScript{
 	}
 	
 	// Import manifest - TODO (need smaller size file for an import).
+	
+	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"},enabled=true)
+	public void test_updateProvider_RedHat_name(){
+		SSHCommandResult res;
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.UPDATE_NAME, this.org_name,PROV_REDHAT, "REDHAT"));
+		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code (provider update)");
+		Assert.assertTrue(res.getStderr().trim().contains(IKatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
+	}
+	
+	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"},enabled=true)
+	public void test_updateProvider_RedHat_url(){
+		SSHCommandResult res;
+		String update_url = "https://localhost:443";
+		String match_info;
+		
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.UPDATE_URL, this.org_name,PROV_REDHAT, update_url));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_UPDATE,PROV_REDHAT)), "Check - returned error string (provider update)");
+		// Info
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,PROV_REDHAT));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+.*Url:\\s+%s.*";
+		match_info = String.format(REGEXP_PROVIDER_LIST,PROV_REDHAT,update_url).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Provider [%s] should be found in the info",PROV_REDHAT));
+	}
+	
+	
+	// Update - TODO for custom provider.
+	
 }
