@@ -349,4 +349,39 @@ public class ProviderTests extends KatelloCliTestScript{
 		assert_repoSynced(this.org_name, prodName, repoName);
 	}
 	
+	@Test(description="Synchronize provider - multiple products", groups = {"cli-providers"},enabled=true)
+	public void test_syncProvider_multiProducts(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String provName = "syncNoProd-"+uid;
+		String prodName1 = "pulpF15_64bit"+uid;
+		String prodName2 = "pulpF15_32bit"+uid;
+		String repoName1 = "pulpF15_64bit-"+uid;
+		String repoName2 = "pulpF15_32bit-"+uid;
+		
+		// Create provider
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
+		// Create products
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName1));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName2));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		// Create repos
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName1, repoName1, PULP_F15_x86_64_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName2, repoName2, PULP_F15_i386_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		// Sync
+		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+		
+		assert_repoSynced(this.org_name, prodName1, repoName1);
+		assert_repoSynced(this.org_name, prodName2, repoName2);
+	}
+	
+	
 }
