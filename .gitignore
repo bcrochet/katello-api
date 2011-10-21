@@ -5,3 +5,4 @@ reports
 testplugin/target
 katello-api.log
 velocity.log
+src/debug/*
