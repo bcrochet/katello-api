@@ -166,7 +166,6 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd("provider delete --org "+org1+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		// TODO - maybe needs to be stderr...
 		Assert.assertTrue(res.getStdout().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
 	}
 	
@@ -383,5 +382,5 @@ public class ProviderTests extends KatelloCliTestScript{
 		assert_repoSynced(this.org_name, prodName2, repoName2);
 	}
 	
-	
+	// Import manifest - TODO (need smaller size file for an import).
 }
