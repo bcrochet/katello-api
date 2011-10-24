@@ -16,6 +16,8 @@ public interface KatelloConstants {
 		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
 	public static final String PULP_F15_i386_REPO = 
 		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/i386/";
+	public static final String PULP_F15_REPO = 
+		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/";
 	public static final String EXPORT_ZIP_PATH = 
 		System.getProperty("user.dir") + "/data/export.zip";
 	public static final int PRODUCTS_IN_EXPORT_ZIP = 6;
