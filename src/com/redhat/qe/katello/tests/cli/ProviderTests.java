@@ -198,7 +198,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create provider, product
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// Delete provider
@@ -217,7 +217,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create another provider with the same product name
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName_1));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName_1,prodName));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName_1,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Check `product status` - should be shown with provName_1 info there
 		String REGEXP_PRODUCT = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*";
@@ -334,7 +334,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		// Create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repo - valid url to sync
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName, repoName, PULP_F15_x86_64_REPO));
@@ -363,9 +363,9 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		// Create products
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName1));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName1));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,provName,prodName2));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName2));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repos
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName1, repoName1, PULP_F15_x86_64_REPO));
