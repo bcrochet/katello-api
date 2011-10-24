@@ -392,7 +392,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStderr().trim().contains(IKatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
-	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"},enabled=true)
+	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"}, dependsOnMethods = {"test_freshOrgDefaultRedHatProvider"}, enabled=true)
 	public void test_updateProvider_RedHat_url(){
 		SSHCommandResult res;
 		String update_url = "https://localhost:443";
