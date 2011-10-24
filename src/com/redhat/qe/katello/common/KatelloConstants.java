@@ -181,4 +181,6 @@ public interface KatelloConstants {
 		"katello-ci.usersys.redhat.com"; // Only katello-ci for now uses that cert.
 	public static final String RHQE_CA_CERT = 
 		"https://github.com/RedHatQE/hudson-config/raw/master/rhqe-ca.crt";
+	
+	public static final String ENV_LOCKER = "Locker";
 }
