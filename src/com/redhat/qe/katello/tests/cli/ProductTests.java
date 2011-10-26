@@ -200,6 +200,61 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 	}
+
+	@Test(description="sync product - single repo", groups = {"cli-products"}, enabled=true)
+	public void test_syncronizeProduct_SingleRepo(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "sync1Repo-"+uid;
+		SSHCommandResult res;
+
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_i386_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		assert_productExists(this.org_name, this.prov_name, prodName);
+		
+		// sync product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
+		
+		// get packages count for the repo - !=0
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
+		String REGEXP_REPO_LIST = ".*Package Count:\\s+0.*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_LIST),
+				"Repo list of the product - should not contain package count 0 (after product synchronize)");
+	}
+
+	@Test(description="sync product - multiple repos", groups = {"cli-products"}, enabled=true)
+	public void test_syncronizeProduct_MultipleRepos(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "syncManyRepos-"+uid;
+		SSHCommandResult res;
+
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		assert_productExists(this.org_name, this.prov_name, prodName);
+		
+		// sync product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
+		
+		// get packages count for the repo - !=0
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
+		String REGEXP_PACKAGE_CNT = ".*Package Count:\\s+0.*";
+		
+		String[] lines = res.getStdout().trim().split("\n");String line;
+		for(int i=0;i<lines.length;i++){
+			line = lines[i];
+			if(line.startsWith("Package Count:")){
+				// our line to analyze - should not contain: 0
+				Assert.assertFalse(line.matches(REGEXP_PACKAGE_CNT),"Repo list of the product - should not contain package count 0 (after product synchronize)");
+			}
+		}
+	}
 	
 	
 }
