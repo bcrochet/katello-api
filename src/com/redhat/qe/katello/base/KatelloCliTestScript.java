@@ -155,7 +155,7 @@ implements KatelloConstants {
 	}
 	
 	protected void assert_productExists(String orgName, String providerName, String productName){
-		this.assert_productExists(orgName, providerName, productName, ENV_LOCKER, false);
+		this.assert_productExists(orgName, providerName, productName, IKatelloEnvironment.LOCKER, false);
 	}
 
 	protected void assert_productExists(String orgName, String providerName, String productName, String envName, boolean synced){
