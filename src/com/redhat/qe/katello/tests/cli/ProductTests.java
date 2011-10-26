@@ -4,6 +4,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.IKatelloEnvironment;
 import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.IKatelloRepo;
@@ -89,6 +90,39 @@ public class ProductTests  extends KatelloCliTestScript{
 
 	// TODO - product creation failflows + he cases with "Description" variations.
 	
+	// TODO - `product list --provider`
 	
+	// TODO - `product list --environment`
+	
+	// TODO - `product status`
+	
+	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
+	public void test_promoteProduct_NoRepos(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "promoNoRepo-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,this.prov_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		assert_productExists(this.org_name, this.prov_name, prodName);
+		
+		// create env.
+		String envName = "dev-"+uid;
+		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// promote product to the env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
+		
+		// product list --environment (1 result - just the product promoted)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
+		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+				"Product list by environment - just promoted product");
+	}
 	
 }
