@@ -125,4 +125,81 @@ public class ProductTests  extends KatelloCliTestScript{
 				"Product list by environment - just promoted product");
 	}
 	
+	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
+	public void test_promoteProduct_OneRepo(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "promo1Repo-"+uid;
+		String envName = "dev-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_x86_64_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		assert_productExists(this.org_name, this.prov_name, prodName);
+		
+		// create env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// promote product to the env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
+		
+		// product list --environment (1 result - just the product promoted)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
+		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+				"Product list by environment - just promoted product");
+		
+		// repo list --environment (1 result).
+		// check - repo created - we don't know the exact repo name.
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");		
+		String REGEXP_REPO_LIST = ".*Id:\\s+"+this.org_name+"-"+envName+"-"+prodName+"-"+prodName+"_.*Name:\\s+"+prodName+"_.*Package Count:\\s+0.*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_LIST),
+				"Repo list should contain info about just created repo (requested by: org, environment)");
+	}
+	
+	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
+	public void test_promoteProduct_MultipleRepos(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "promo1Repo-"+uid;
+		String envName = "dev-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		assert_productExists(this.org_name, this.prov_name, prodName);
+		
+		// create env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// promote product to the env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
+		
+		// product list --environment (1 result - just the product promoted)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
+		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+				"Product list by environment - just promoted product");
+		
+		// repo list --environment (2 entries).
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list by product)");
+		String REGEXP_PRODUCT_LIST_I386 = ".*Id:\\s+"+this.org_name+"-"+envName+"-"+prodName+"-"+prodName+"_.*_i386.*Name:\\s+"+prodName+"_.*_i386.*Package Count:\\s+0.*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_I386),
+				"Repo list should contain info about just created repo (requested by: org, product - i386)");
+		String REGEXP_PRODUCT_LIST_X86_64 = ".*Id:\\s+"+this.org_name+"-"+envName+"-"+prodName+"-"+prodName+"_.*_x86_64.*Name:\\s+"+prodName+"_.*_x86_64.*Package Count:\\s+0.*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
+				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
+	}
+	
+	
 }
