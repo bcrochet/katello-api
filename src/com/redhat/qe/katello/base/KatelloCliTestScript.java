@@ -94,10 +94,10 @@ implements KatelloConstants {
 					"wget -O /etc/yum.repos.d/epel-katello.repo %s",YUM_REPO_RHEL_KATELLO));
 		}
 
-		clienttasks.execute_remote("yum repolist && yum -y erase katello-cli"); // listing repos is needed, gets the repodata
+		clienttasks.execute_remote("yum repolist && yum -y erase katello-cli*"); // listing repos is needed, gets the repodata
 		clienttasks.execute_remote("rm -f /etc/katello/client*"); // all kinda katello client configs
 		
-		ssh_res = clienttasks.execute_remote("yum -y install katello-cli");
+		ssh_res = clienttasks.execute_remote("yum -y install katello-cli*");
 		Assert.assertEquals(ssh_res.getExitCode(), new Integer(0), 
 				"Check: return code is 0");
 		ssh_res = clienttasks.execute_remote("rpm -q katello-cli");
