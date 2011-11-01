@@ -4,12 +4,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.IKatelloChangeset;
 import com.redhat.qe.katello.base.IKatelloEnvironment;
 import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ProductTests  extends KatelloCliTestScript{
@@ -88,7 +90,7 @@ public class ProductTests  extends KatelloCliTestScript{
 				"Repo list should contain info about just created repo (requested by: org, product - x86_64)");
 	}
 
-	// TODO - product creation failflows + he cases with "Description" variations.
+	// TODO - product creation failflows + the cases with "Description" variations. + duplicate names and so
 	
 	// TODO - `product list --provider`
 	
@@ -256,5 +258,80 @@ public class ProductTests  extends KatelloCliTestScript{
 		}
 	}
 	
+	// TODO - implement: https://bugzilla.redhat.com/show_bug.cgi?id=749517
+	// Duplicate product names - creating same product name for different orgs (even provider could have the same name)
 	
+	@Test(description="delete product - included in some changeset", groups = {"cli-products"}, enabled=true)
+	public void test_deleteProduct_InChangeset(){
+		String uid = KatelloTestScript.getUniqueID();
+		String prodName = "delProd1-"+uid;
+		String envName_dev = "dev-"+uid;
+		String csName = "cs-"+uid;
+		SSHCommandResult res;
+		
+		// create product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_x86_64_REPO));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		// sync product
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		// create env. - dev
+		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName_dev,IKatelloEnvironment.LOCKER));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		// create changeset
+		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.CREATE,this.org_name,envName_dev,csName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
+		// add product to the changeset
+		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.UPDATE_ADD_PRODUCT,prodName,this.org_name,envName_dev,csName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_product)");
+		// promote changeset (dev)
+		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.PROMOTE,this.org_name,envName_dev,csName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		
+		// Assertions - repo list by env
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName_dev));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
+		String REGEXP_PRODUCT_LIST_X86_64 = ".*Id:\\s+"+this.org_name+"-"+envName_dev+"-"+prodName+"-"+prodName+"_.*_x86_64.*Name:\\s+"+prodName+"_.*_x86_64.*Package Count:.*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
+				"Repo list by environment - should contain info");
+		// Assertions - product list by env
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName_dev));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
+		String REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+				"List should contain info about product (requested by: environment)");
+		
+		// Final action - DELETE the product
+		// ... but get its id first. To check the output string.
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,this.org_name,this.prov_name));
+		String prodId = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.DELETE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
+		
+		// Assertions - product list of the org
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,this.org_name,this.prov_name));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --provider)");
+		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+				"Check - list should NOT contain info about product (deleted already)");
+		
+		// Assertions - repo list by product
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --product)"); // Bug#750464
+		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
+		
+		// Assertions - repo list by env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName_dev));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --environment)");
+		String REGEXP_NOREPO = ".*Id:\\s+.*Name:\\s+.*Package Count:\\s+\\d+.*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_NOREPO), "Check - `repo list --environment` output string");
+		
+		// Assertions - product list of env.
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName_dev));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
+		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
+		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+				"Check - list should NOT contain info about product (deleted already)");		
+	}
 }

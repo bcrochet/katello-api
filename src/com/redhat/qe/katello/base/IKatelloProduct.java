@@ -9,6 +9,7 @@ public interface IKatelloProduct {
 	public static final String LIST_BY_PROVIDER = "product list --org \"%s\" --provider \"%s\" -v";
 	public static final String LIST_BY_ENV = "product list --org \"%s\" --environment \"%s\" -v";
 	public static final String SYNCHRONIZE = "product synchronize --org \"%s\" --name \"%s\"";
+	public static final String DELETE = "product delete --org \"%s\" --name \"%s\"";
 	
 	
 	/** Parameters:<BR>1: product_name<BR>2: org_name */
@@ -23,4 +24,7 @@ public interface IKatelloProduct {
 	/** Parameters:<BR>1: product_name */
 	public static final String OUT_SYNCHRONIZED = 
 		"Product [ %s ] synchronized";
+	public static final String OUT_DELETED = 
+		"Deleted product '%s'";
+	
 }
