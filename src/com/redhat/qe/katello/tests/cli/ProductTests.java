@@ -303,7 +303,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// Final action - DELETE the product
 		// ... but get its id first. To check the output string.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,this.org_name,this.prov_name));
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS,this.org_name,prodName));
 		String prodId = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.DELETE,this.org_name,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
