@@ -21,8 +21,6 @@ public class KatelloInfo{
 	private String passwordSSH = null;
 	private String sshKeyPrivate = null;
 	private String sshKeyPassphrase = null;
-	private String cp_username = null;
-	private String cp_password = null;
 	
 	private static KatelloInfo katelloInst = null; 
 	
@@ -35,8 +33,6 @@ public class KatelloInfo{
 		this.passwordSSH = System.getProperty("katello.ssh.passphrase","redhat"); // default: redhat
 		this.sshKeyPrivate = System.getProperty("katello.sshkey.private","~/.ssh/id_dsa.pub"); // default: ~/.ssh/id_dsa.pub
 		this.sshKeyPassphrase = System.getProperty("katello.sshkey.passphrase","dog8code"); // default: dog8code
-		this.cp_username = System.getProperty("candlepin.api.user","acme_corporation_user"); // default: acme_corporation_user
-		this.cp_password = System.getProperty("candlepin.api.passphrase","acme_corporation_user"); // default: acme_corporation_user
 		this.logSettings(); // sysout|log the settings.
 	}
 	
@@ -69,13 +65,7 @@ public class KatelloInfo{
 	public String getSshKeyPassphrase(){
 		return this.sshKeyPassphrase;
 	}
-	public String getCpUser(){
-		return this.cp_username;
-	}
-	public String getCpPass(){
-		return this.cp_password;
-	}
-	
+
 	private void logSettings(){
 		String prop, value;
 		// to out the log.fine - one level up from the TestScript loader which
@@ -95,10 +85,6 @@ public class KatelloInfo{
 		prop = "katello.sshkey.private"; value = this.sshKeyPrivate;
 		log.fine(String.format("Katello settings: [%s] = [%s]", prop, value));
 		prop = "katello.sshkey.passphrase"; value = KatelloConstants.SYSOUT_PWD_MASK;
-		log.fine(String.format("Katello settings: [%s] = [%s]", prop, value));
-		prop = "candlepin.api.user"; value = this.cp_username;
-		log.fine(String.format("Katello settings: [%s] = [%s]", prop, value));
-		prop = "candlepin.api.passphrase"; value = KatelloConstants.SYSOUT_PWD_MASK;
 		log.fine(String.format("Katello settings: [%s] = [%s]", prop, value));
 	}
 }

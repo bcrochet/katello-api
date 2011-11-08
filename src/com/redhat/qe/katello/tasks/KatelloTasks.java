@@ -93,24 +93,6 @@ public class KatelloTasks {
 		return this.execute_local(true, mCall);
 	}
 	
-	public String apiKatello_POST_candlepinOwner(
-			String content, String call) throws IOException{
-		Object[] call_args ={
-				katelloInfo.getCpUser(),
-				katelloInfo.getCpPass(),
-				content,
-				katelloInfo.getServername(),
-				katelloInfo.getPort(),
-				call};
-		String url = KatelloConstants.KATELLO_HTTP_POST;
-		if(this.useSSL){
-			url = url.replace("curl", "curl -k");
-			url = url.replace("http://", "https://");
-		}
-		String mCall = MessageFormat.format(url, call_args);
-		return this.execute_local(true, mCall);
-	}
-		
 	/** curl -s -u {username}:{password} 
 	 * http://${servername}:${port}/api${call}<br>
 	 * @param call Relative path of the call, 
@@ -175,44 +157,6 @@ public class KatelloTasks {
 		return this.execute_local(true, mCall);
 	}
 	
-	/** curl -s -k -u {username}:{password} 
-	 * https://${servername}:${port}/candlepin${call} 
-	 * @param call Relative path of the call, 
-	 * e.g. "/products/&lt;providerid&gt;"
-	 * @return The output string of the call (usually in JSON string format)
-	 */
-	public String apiCandlepin_GET(String call){
-		Object[] call_args={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
-				System.getProperty("candlepin.server.hostname", 
-						katelloInfo.getServername()),
-				System.getProperty("candlepin.server.port","8443"),
-				call};
-		String mCall = MessageFormat.format(
-				KatelloConstants.CANDLEPIN_HTTP_GET, call_args);
-		return this.execute_local(true, mCall);
-	}
-			
-	/** curl -s -k -u {username}:{password} 
-	 * https://${servername}:${port}/pulp/api${call} 
-	 * @param call Relative path of the call, 
-	 * e.g. "/repositories/&lt;repoid&gt;/"
-	 * @return The output string of the call (usually in JSON string format)
-	 */
-	public String apiPulp_GET(String call){
-		Object[] call_args={
-				katelloInfo.getUsernameUI(),
-				katelloInfo.getPasswordUI(),
-				System.getProperty("pulp.server.hostname", 
-						katelloInfo.getServername()),
-				System.getProperty("pulp.server.port","443"),
-				call};
-		String mCall = MessageFormat.format(
-				KatelloConstants.PULP_HTTP_GET, call_args);
-		return this.execute_local(true, mCall);
-	}
-
 	/**
 	 * Creates an organization via Katello api call (the initial environment name takes: root):<br>
 	 * POST /api/organizations
