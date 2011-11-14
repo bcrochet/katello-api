@@ -1,5 +1,6 @@
 package com.redhat.qe.katello.base;
 
+import java.util.Calendar;
 import java.util.logging.Logger;
 
 import org.testng.Assert;
@@ -183,5 +184,24 @@ implements KatelloConstants {
 		}else{
 			// TODO - needs an implementation - when product is synchronized.
 		}
+	}
+	
+	protected void waitfor_reposync(String orgName, String prodName, String repoName, int timeoutMinutes){
+		long now = Calendar.getInstance().getTimeInMillis() / 1000;
+		long start = now;
+		long maxWaitSec = start + (timeoutMinutes * 60);
+		String REGEXP_STATUS_FINISHED = ".*Sync State:\\s+Finished.*";
+		log.fine("Waiting repo sync finish for: minutes=["+timeoutMinutes+"]; org=["+orgName+"]; product=["+prodName+"]; repo=["+repoName+"]");
+		while(now<maxWaitSec){
+			SSHCommandResult res = clienttasks.run_cliCmd(String.format(IKatelloRepo.STATUS, orgName,prodName,repoName));
+			now = Calendar.getInstance().getTimeInMillis() / 1000;
+			if(res.getStdout().replaceAll("\n", "").matches(REGEXP_STATUS_FINISHED))
+				break;
+			try{Thread.sleep(60000);}catch (Exception e){}
+		}
+		if(now<=maxWaitSec)
+			log.fine("Repo sync done in: ["+String.valueOf(maxWaitSec - now)+"] sec");
+		else
+			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - now)+"] sec");
 	}
 }
