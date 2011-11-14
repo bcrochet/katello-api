@@ -41,6 +41,10 @@ public class KatelloCliTasks {
 				"katello --username admin --password admin "+katelloCliCommand);
 	}
 	
+	public void run_cliCmd_nowait(String katelloCliCommand){
+		this.sshCommandRunner.runCommand("katello --username admin --password admin "+katelloCliCommand+"&");
+	}
+
 	public static String run_local(boolean showLogResults, String command){
 		String out = null; String tmp_cmdFile = "/tmp/katello-"+KatelloTestScript.getUniqueID()+".sh";
 		ExecCommands localRunner = new ExecCommands();

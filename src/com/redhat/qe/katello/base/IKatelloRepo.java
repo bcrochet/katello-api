@@ -6,4 +6,6 @@ public interface IKatelloRepo {
 	public static final String INFO = "repo info --org \"%s\" --product \"%s\" --name \"%s\"";
 	public static final String LIST_BY_PRODUCT = "repo list --org \"%s\" --product \"%s\" -v";
 	public static final String LIST_BY_ENVIRONMENT = "repo list --org \"%s\" --environment \"%s\" -v";
+	public static final String SYNCHRONIZE = "repo synchronize --org \"%s\" --product \"%s\" --name \"%s\"";
+	public static final String STATUS = "repo status --org \"%s\" --product \"%s\" --name \"%s\"";
 }
