@@ -76,7 +76,7 @@ static{
 		clienttasks.execute_remote("sed -i \"s/baseurl= https:\\/\\/cdn.redhat.com/" +
 				"baseurl=https:\\/\\/"+servername+"\\/pulp\\/repos\\//g\" /etc/rhsm/rhsm.conf");
 		clienttasks.execute_remote("sed -i \"s/repo_ca_cert = %(ca_cert_dir)sredhat-uep.pem/" +
-				"repo_ca_cert = %(ca_cert_dir)scandlepin-ca.pem/g\" /etc/rhsm/rhsm.conf");
+				"repo_ca_cert = %(ca_cert_dir)scandlepin-ca.crt/g\" /etc/rhsm/rhsm.conf");
 		clienttasks.execute_remote("sed -i '/sslcacert=\\/etc\\/pki\\/CA\\/certs/ d' /etc/yum.conf");
 		clienttasks.execute_remote("echo \"sslcacert=/etc/pki/CA/certs\" >> /etc/yum.conf");
 		
@@ -91,10 +91,6 @@ static{
 			candlepin_ca_crt = exec_result.getStdout().trim();
 		}
 		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-ca.crt; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-ca.crt");
-		clienttasks.execute_remote("pushd /etc/rhsm/ca/; " +
-				"openssl x509 -in candlepin-ca.crt -out candlepin-ca.der -outform DER; " +
-				"openssl x509 -in candlepin-ca.der -inform DER -out candlepin-ca.pem -outform PEM; " +
-				"popd;");		
 	}
 
 	@BeforeTest(description="Prepare client for RHSM - \"unregister it\"")
