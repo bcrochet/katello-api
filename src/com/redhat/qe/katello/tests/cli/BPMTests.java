@@ -118,6 +118,7 @@ static{
 			candlepin_ca_crt = exec_result.getStdout().trim();
 		}
 		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-ca.crt; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-ca.crt");
+		clienttasks.execute_remote("openssl x509 -outform pem -in /etc/rhsm/ca/candlepin-ca.crt -out /etc/rhsm/ca/candlepin-ca.pem");
 	}
 
 	@BeforeTest(description="Generate unique names")
