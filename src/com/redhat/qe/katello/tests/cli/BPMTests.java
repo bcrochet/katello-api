@@ -160,7 +160,7 @@ static{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created org [ "+org_name+" ]");
 		// Create user:
-		exec_result = clienttasks.run_cliCmd("user create --username "+user_name+" --password "+KATELLO_CLI_USER_DEFAULT_PASSWORD);
+		exec_result = clienttasks.run_cliCmd("user create --username "+user_name+" --password "+KATELLO_CLI_USER_DEFAULT_PASSWORD+" --email root@localhost");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created user [ "+user_name+" ]");
 	}
