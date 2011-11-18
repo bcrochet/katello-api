@@ -115,7 +115,7 @@ public interface KatelloConstants {
 		"'url':'%s'}";
 	
 	public static final String JSON_CREATE_USER = 
-		"{'username':'%s', 'password':'%s', 'disabled':'%s'}";
+		"{'username':'%s', 'password':'%s', 'disabled':'%s', 'email':'root@localhost'}";
 
 // # Katello-CLI constants #
 // # ===================== #
