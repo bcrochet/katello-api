@@ -170,7 +170,7 @@ static{
 	public void test_createProviderProduct(){		
 		// Create provider: Fedora
 		exec_result = clienttasks.run_cliCmd(String.format(
-				"provider create --org %s --name %s --type custom " +
+				"provider create --org %s --name %s " +
 				"--description \"Fedora provider\"",
 				org_name,providerF_name));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
