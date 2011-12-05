@@ -1,11 +1,11 @@
 package com.redhat.qe.katello.base;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
-
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -17,14 +17,17 @@ public class KatelloCliTestScript
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
 
+	protected static boolean initialized = false; 
 	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
 
 	protected KatelloTasks servertasks	= null;
 	protected KatelloCliTasks clienttasks = null;
+	
+	protected HashMap<String, BKR_LAB_CONTROLLER> labs;
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
 	public KatelloCliTestScript() {
-		super();
+		super();		
 		try {
 			SSHCommandRunner server_sshRunner = null;
 			SSHCommandRunner client_sshRunner = null;
@@ -56,6 +59,10 @@ implements KatelloConstants {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		if(KatelloCliTestScript.initialized) return;
+		init_bkrLabs(); // Initialize Beaker labs hashmap.
+		
 	}
 
 	@BeforeSuite(description="Prepare katello-cli on the client side", alwaysRun = true)
@@ -200,8 +207,19 @@ implements KatelloConstants {
 			try{Thread.sleep(60000);}catch (Exception e){}
 		}
 		if(now<=maxWaitSec)
-			log.fine("Repo sync done in: ["+String.valueOf(maxWaitSec - now)+"] sec");
+			log.fine("Repo sync done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
 		else
-			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - now)+"] sec");
+			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
+	}
+	
+	private void init_bkrLabs(){
+		// initialize Beaker labs.
+		labs = new HashMap<String, BKR_LAB_CONTROLLER>();
+		labs.put("lab.rhts.englab.brq.redhat.com", BKR_LAB_CONTROLLER.BRQ);
+		labs.put("lab2.rhts.eng.bos.redhat.com", BKR_LAB_CONTROLLER.BOS);
+		labs.put("lab.rhts.eng.rdu.redhat.com", BKR_LAB_CONTROLLER.RDU);
+		labs.put("lab.rhts.eng.nay.redhat.com", BKR_LAB_CONTROLLER.NAY);
+		labs.put("lab.rhts.eng.pnq.redhat.com", BKR_LAB_CONTROLLER.PNQ);
+		labs.put("lab-01.eng.tlv.redhat.com", BKR_LAB_CONTROLLER.TLV);
 	}
 }

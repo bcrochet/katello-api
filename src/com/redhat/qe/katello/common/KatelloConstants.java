@@ -1,5 +1,7 @@
 package com.redhat.qe.katello.common;
 
+import java.util.HashMap;
+
 /**
  * Public interface for storing the general Katello constants.
  * @author gkhachik
@@ -169,6 +171,10 @@ public interface KatelloConstants {
 		"--whiteboard=\"Katello install [Jenkins] - F14\" "+
 		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
 		"--task=/distribution/reservesys";
+	
+	public static enum BKR_LAB_CONTROLLER {
+		BRQ, BOS, RDU, NAY, PNQ, TLV
+	};
 	
 	public static final String JENKINS_SSH_PUBKEY = 
 		System.getenv("HOME")+"/.ssh/id_dsa.pub";
