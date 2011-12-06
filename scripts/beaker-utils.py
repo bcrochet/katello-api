@@ -6,6 +6,7 @@ chmod a+x beaker-utils.py
 ./beaker-utils.py --method=<methodname> [--args=arg1=value1,arg2=value2,<etc>]
 '''
 from optparse import OptionParser
+import os
 
 def parseDictFromArgs(sargs, delimiter=',', assignOperator='='):
     arr = sargs.split(delimiter)
@@ -17,7 +18,18 @@ def parseDictFromArgs(sargs, delimiter=',', assignOperator='='):
     return d
 
 class BeakerUtils(object):
-    pass
+    def getMirroredF15Url(self):
+        lab = os.getenv("LAB_CONTROLLER", "lab.rhts.englab.brq.redhat.com") # BRQ by default
+        if lab == "lab2.rhts.eng.bos.redhat.com":
+            print "http://download.bos.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
+        elif lab == "lab.rhts.eng.nay.redhat.com":
+            print "http://download.eng.nay.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
+        elif lab == "lab.rhts.eng.pnq.redhat.com":
+            print "http://download.eng.pnq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
+        elif lab == "lab-01.eng.tlv.redhat.com":
+            print "http://download.eng.tlv.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
+        else: # BRQ; RDU
+            print "http://download.eng.brq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
 
 def main():
     parser = OptionParser()
