@@ -120,7 +120,7 @@ static{
 	 *  - packages count >0<br>
 	 *  - 
 	 */
-	@Test(description="V1 simple scenario")
+	@Test(description="Scenario: synchronize Fedora 15 repository")
 	public void test_syncF15(){
 		SSHCommandResult res;
 		String uniqueID = KatelloTestScript.getUniqueID();
@@ -139,14 +139,30 @@ static{
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL, orgName,provName,prodName));
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		// create repo
-		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, orgName,prodName,repoName,
-				System.getProperty("katello.yumrepo.f15.x86_64",
-						"http://download.eng.brq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/")));
+		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, orgName,prodName,repoName,getFedora15RepoUrl()));
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		log.fine("Initialize `repo synchronize` for repo: ["+repoName+"]");
 		log.fine("Follow the process by: ["+String.format(IKatelloRepo.STATUS, orgName,prodName,repoName)+"]");
 		clienttasks.run_cliCmd_nowait(String.format(IKatelloRepo.SYNCHRONIZE, orgName,prodName,repoName)); // initiate the sync.
 		
 		waitfor_reposync(orgName, prodName, repoName, 30);
+	}
+	
+	private String getFedora15RepoUrl(){
+		String ret;
+		String bkr_lab = System.getProperty("LAB_CONTROLLER", labs.get(BKR_LAB_CONTROLLER.BRQ));
+		if(bkr_lab.equals(labs.get(BKR_LAB_CONTROLLER.BOS)))
+			ret = "http://download.bos.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/";
+		else if(bkr_lab.equals(labs.get(BKR_LAB_CONTROLLER.PNQ)))
+			ret = "http://download.eng.pnq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/";
+		else if(bkr_lab.equals(labs.get(BKR_LAB_CONTROLLER.NAY)))
+			ret = "http://download.eng.nay.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/";
+		else if(bkr_lab.equals(labs.get(BKR_LAB_CONTROLLER.TLV)))
+			ret = "http://download.eng.tlv.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/";
+		// RDU ? -> BRQ (refer to BRQ)
+		else
+			ret = "http://download.eng.brq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/";
+		
+		return ret;
 	}
 }
