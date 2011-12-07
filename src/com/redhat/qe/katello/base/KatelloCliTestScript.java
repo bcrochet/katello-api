@@ -23,7 +23,7 @@ implements KatelloConstants {
 	protected KatelloTasks servertasks	= null;
 	protected KatelloCliTasks clienttasks = null;
 	
-	protected HashMap<String, BKR_LAB_CONTROLLER> labs;
+	protected HashMap<BKR_LAB_CONTROLLER, String> labs;
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
 	public KatelloCliTestScript() {
@@ -214,12 +214,12 @@ implements KatelloConstants {
 	
 	private void init_bkrLabs(){
 		// initialize Beaker labs.
-		labs = new HashMap<String, BKR_LAB_CONTROLLER>();
-		labs.put("lab.rhts.englab.brq.redhat.com", BKR_LAB_CONTROLLER.BRQ);
-		labs.put("lab2.rhts.eng.bos.redhat.com", BKR_LAB_CONTROLLER.BOS);
-		labs.put("lab.rhts.eng.rdu.redhat.com", BKR_LAB_CONTROLLER.RDU);
-		labs.put("lab.rhts.eng.nay.redhat.com", BKR_LAB_CONTROLLER.NAY);
-		labs.put("lab.rhts.eng.pnq.redhat.com", BKR_LAB_CONTROLLER.PNQ);
-		labs.put("lab-01.eng.tlv.redhat.com", BKR_LAB_CONTROLLER.TLV);
+		labs = new HashMap<BKR_LAB_CONTROLLER, String>();
+		labs.put(BKR_LAB_CONTROLLER.BRQ, "lab.rhts.englab.brq.redhat.com");
+		labs.put(BKR_LAB_CONTROLLER.BOS, "lab2.rhts.eng.bos.redhat.com");
+		labs.put(BKR_LAB_CONTROLLER.RDU, "lab.rhts.eng.rdu.redhat.com");
+		labs.put(BKR_LAB_CONTROLLER.NAY, "lab.rhts.eng.nay.redhat.com");
+		labs.put(BKR_LAB_CONTROLLER.PNQ, "lab.rhts.eng.pnq.redhat.com");
+		labs.put(BKR_LAB_CONTROLLER.TLV, "lab-01.eng.tlv.redhat.com");
 	}
 }
