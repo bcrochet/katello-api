@@ -26,7 +26,7 @@ public class KatelloTestScript
 	protected KatelloTasks servertasks	= null;
 	private SimpleDateFormat dateFormatter = null;
 	
-	protected String default_org = "admin_one";
+	protected String default_org = "ACME_Corporation";
 	
 	public KatelloTestScript() {
 		super();
