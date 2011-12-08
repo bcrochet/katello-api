@@ -88,6 +88,7 @@ static{
 		}
 
 		String servername = KatelloInfo.getInstance().getServername();
+		clienttasks.execute_remote("wget -O /etc/yum.repos.d/epel-subscription-manager.repo http://repos.fedorapeople.org/repos/candlepin/subscription-manager/epel-subscription-manager.repo");
 		clienttasks.execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/*;");
 		exec_result = clienttasks.execute_remote("yum -y install python-rhsm subscription-manager");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
@@ -103,9 +104,7 @@ static{
 		clienttasks.execute_remote("sed -i \"s/baseurl= https:\\/\\/cdn.redhat.com/" +
 				"baseurl=https:\\/\\/"+servername+"\\/pulp\\/repos\\//g\" /etc/rhsm/rhsm.conf");
 		clienttasks.execute_remote("sed -i \"s/repo_ca_cert = %(ca_cert_dir)sredhat-uep.pem/" +
-				"repo_ca_cert = %(ca_cert_dir)scandlepin-ca.crt/g\" /etc/rhsm/rhsm.conf");
-		clienttasks.execute_remote("sed -i '/sslcacert=\\/etc\\/pki\\/CA\\/certs/ d' /etc/yum.conf");
-		clienttasks.execute_remote("echo \"sslcacert=/etc/pki/CA/certs\" >> /etc/yum.conf");
+				"repo_ca_cert = %(ca_cert_dir)scandlepin-local.pem/g\" /etc/rhsm/rhsm.conf");
 		
 		String candlepin_ca_crt;
 		if(KATELLO_SERVERS_RHQE_CA_CRT.contains(servername)){
@@ -117,8 +116,7 @@ static{
 			exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
 			candlepin_ca_crt = exec_result.getStdout().trim();
 		}
-		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-ca.crt; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-ca.crt");
-		clienttasks.execute_remote("openssl x509 -outform pem -in /etc/rhsm/ca/candlepin-ca.crt -out /etc/rhsm/ca/candlepin-ca.pem");
+		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-local.pem; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-local.pem");
 	}
 
 	@BeforeTest(description="Generate unique names")
@@ -272,7 +270,19 @@ static{
 		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully subscribed the system to Pool "+rhsm_pool_id, "Check - returned message");
-		clienttasks.execute_remote("echo \""+this.env_name_Dev+"\" > /etc/yum/vars/env");
 	}
 	
+	@Test(description="Yum should work - yum info pulp-consumer", 
+			dependsOnMethods={"test_rhsm_subscribeToPool"})
+	public void test_yuminfo(){
+		String pkg_pulp_consumer = "pulp-consumer";
+		exec_result = clienttasks.execute_remote("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo="+repo_name_pulpRHEL6);
+		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
+		String YUM_INFO_PULP_CONSUMER = 
+				".*Available Packages"+
+				".*Name\\s+:\\s+"+pkg_pulp_consumer+
+				".*Repo\\s+:\\s+"+repo_name_pulpRHEL6+".*";
+		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").matches(YUM_INFO_PULP_CONSUMER), 
+				"package "+pkg_pulp_consumer+" should be returned in yum info");
+	}
 }
