@@ -1,13 +1,11 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
-import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.common.KatelloInfo;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -59,66 +57,6 @@ static{
 	private String consumer_name;
 	private String rhsm_pool_id;
 	
-	@BeforeSuite(description="Prepare rhsm")
-	public void init_rhsm(){
-		/* 
-		 * Once tried on F15 - there was some error on exit code:
-		 * --- 
-		 * subscription-manager register --username admin --password admin --org
-		 * <org> --environment <env> --name `hostname` --force
-		 * The system has been registered with id:
-		 * bf624394-4ce1-4792-8b0e-de858c920c0c
-		 * org.freedesktop.DBus.Error.Spawn.ChildExited: Launch helper exited with 
-		 * unknown return code 1
-		 * ---
-		 *   
-		 */		
-		// we need to run on RHEL6 now.
-		if(!CLIENT_PLATFORMS_ALLOWED[getClientPlatformID()][0].contains("redhat-6")){
-			String err = "RHSM tasks need in having RHEL6. " +
-					"Please adjust: [katello.client.hostname] properly.";
-			log.severe(err);
-			Assert.assertTrue(false, "RHSM client running on proper platform"); // raise error
-		}
-		
-		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
-		if(reuseSystem.equalsIgnoreCase("true")){
-			enableRhsmYumPlugin();// Enable the rhsm yum plugin.
-			return;
-		}
-
-		String servername = KatelloInfo.getInstance().getServername();
-		clienttasks.execute_remote("wget -O /etc/yum.repos.d/epel-subscription-manager.repo http://repos.fedorapeople.org/repos/candlepin/subscription-manager/epel-subscription-manager.repo");
-		clienttasks.execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/*;");
-		exec_result = clienttasks.execute_remote("yum -y install python-rhsm subscription-manager");
-		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
-
-		// some assertions - we need to assure we are running the version we need!
-		exec_result = clienttasks.execute_remote("subscription-manager register --help");
-		Assert.assertTrue(exec_result.getStdout().contains("--org=ORG"), "Check: subscription-manager --org");
-		Assert.assertTrue(exec_result.getStdout().contains("--environment=ENVIRONMENT"), "Check: subscription-manager --environment");
-		
-		clienttasks.execute_remote("sed -i \"s/hostname = subscription.rhn.redhat.com/" +
-				"hostname = "+servername+"/g\" /etc/rhsm/rhsm.conf");
-		clienttasks.execute_remote("sed -i \"s/prefix = \\/subscription/prefix = \\/katello\\/api/g\" /etc/rhsm/rhsm.conf");
-		clienttasks.execute_remote("sed -i \"s/baseurl= https:\\/\\/cdn.redhat.com/" +
-				"baseurl=https:\\/\\/"+servername+"\\/pulp\\/repos\\//g\" /etc/rhsm/rhsm.conf");
-		clienttasks.execute_remote("sed -i \"s/repo_ca_cert = %(ca_cert_dir)sredhat-uep.pem/" +
-				"repo_ca_cert = %(ca_cert_dir)scandlepin-local.pem/g\" /etc/rhsm/rhsm.conf");
-		
-		String candlepin_ca_crt;
-		if(KATELLO_SERVERS_RHQE_CA_CRT.contains(servername)){
-			exec_result = clienttasks.execute_remote("wget "+RHQE_CA_CERT+" -O /tmp/candlepin-ca.crt;");
-			Assert.assertEquals(exec_result.getExitCode(), new Integer(0),"Check - return code");
-			exec_result = clienttasks.execute_remote("cat /tmp/candlepin-ca.crt");
-			candlepin_ca_crt = exec_result.getStdout().trim(); 
-		}else{
-			exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
-			candlepin_ca_crt = exec_result.getStdout().trim();
-		}
-		clienttasks.execute_remote("touch /etc/rhsm/ca/candlepin-local.pem; echo -e \""+candlepin_ca_crt+"\" > /etc/rhsm/ca/candlepin-local.pem");
-	}
-
 	@BeforeTest(description="Generate unique names")
 	public void setUp(){
 		String uid = KatelloTestScript.getUniqueID();
