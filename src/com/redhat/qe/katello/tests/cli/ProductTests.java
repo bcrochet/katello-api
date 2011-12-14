@@ -145,16 +145,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
+		// sync product (otherwise promote will fail)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
+		
 		// promote product to the env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
-		
-		// product list --environment (1 result - just the product promoted)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
-		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
-				"Product list by environment - just promoted product");
+		Assert.assertTrue(res.getExitCode().intValue()==244, "Check - return code (product promote)");
+		Assert.assertTrue(res.getStderr().trim().contains(String.format(IKatelloProduct.OUT_NOT_SYNCHRONIZED_YET,prodName)), "Check - returned error string (product promote)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
@@ -173,6 +171,10 @@ public class ProductTests  extends KatelloCliTestScript{
 		// create env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// sync product (otherwise promote will fail)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
@@ -210,6 +212,10 @@ public class ProductTests  extends KatelloCliTestScript{
 		// create env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
+		
+		// sync product (otherwise promote will fail)
+		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));

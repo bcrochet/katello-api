@@ -26,5 +26,7 @@ public interface IKatelloProduct {
 		"Product [ %s ] synchronized";
 	public static final String OUT_DELETED = 
 		"Deleted product '%s'";
+	public static final String OUT_NOT_SYNCHRONIZED_YET = 
+			"Product '%s' was not synchronized yet";
 	
 }
