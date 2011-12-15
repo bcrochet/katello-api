@@ -1,9 +1,9 @@
 #!/usr/bin/python
 '''
 How to use:
-wget http://git.engineering.redhat.com/?p=users/gkhachik/katello-api.git;a=blob_plain;f=scripts/beaker-utils.py;hb=HEAD -O beaker-utils.py
-chmod a+x beaker-utils.py
-./beaker-utils.py --method=<methodname> [--args=arg1=value1,arg2=value2,<etc>]
+wget http://git.engineering.redhat.com/?p=users/gkhachik/katello-api.git;a=blob_plain;f=scripts/katello-utils.py;hb=HEAD -O katello-utils.py
+chmod a+x katello-utils.py
+./katello-utils.py --method=<methodname> [--args=arg1=value1,arg2=value2,<etc>]
 
 ===
 NOTES:
