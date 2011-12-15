@@ -52,6 +52,18 @@ class KatelloUtils(object):
             print "name=[%s]; result=[%s]; duration=[%s]; status=[%s]"%\
             (task.get("name"),task.get("result"),task.get("duration"),task.get("status"))
             
+    def tdl_extract_certs(self, filename, reponame, certname, keyname):
+        et = ElementTree()
+        tree = ElementTree.parse(et, filename)
+        repos = tree.findall("repositories/repository")
+        for repo in repos:
+             if repo.get("name")==reponame:
+                 f = open(certname,'w')
+                 f.write(repo.findall("clientcert")[0].text)
+                 f.close()                 
+                 f = open(keyname,'w')
+                 f.write(repo.findall("clientkey")[0].text)
+                 f.close()
         
     
 def main():
