@@ -214,7 +214,7 @@ static{
 			dependsOnMethods={"test_rhsm_subscribeToPool"})
 	public void test_yuminfo(){
 		String pkg_pulp_consumer = "pulp-consumer";
-		exec_result = clienttasks.execute_remote("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo="+repo_name_pulpRHEL6);
+		exec_result = clienttasks.execute_remote("yum info "+pkg_pulp_consumer+" --disablerepo=* --enablerepo=*"+repo_name_pulpRHEL6+"*");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		String YUM_INFO_PULP_CONSUMER = 
 				".*Available Packages"+
