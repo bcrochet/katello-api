@@ -219,7 +219,7 @@ static{
 		String YUM_INFO_PULP_CONSUMER = 
 				".*Available Packages"+
 				".*Name\\s+:\\s+"+pkg_pulp_consumer+
-				".*Repo\\s+:\\s+"+repo_name_pulpRHEL6+".*";
+				".*Repo\\s+:\\s+.*"+repo_name_pulpRHEL6+".*";
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").matches(YUM_INFO_PULP_CONSUMER), 
 				"package "+pkg_pulp_consumer+" should be returned in yum info");
 	}
