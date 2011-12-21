@@ -368,7 +368,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// Assertions - repo list by product
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo list --product)"); // Bug#750464
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --product)"); // Bug#750464
 		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
 		
 		// Assertions - repo list by env.
