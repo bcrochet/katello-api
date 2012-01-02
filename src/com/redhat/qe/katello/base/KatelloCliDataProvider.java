@@ -95,4 +95,43 @@ public class KatelloCliDataProvider {
 			res = res + src; 
 		return res;
 	}
+	
+	/**
+	 * Object[] contains of:<BR>
+	 * activation key:<BR>
+	 * &nbsp;&nbsp;name<br>
+	 * &nbsp;&nbsp;description<br>
+	 * &nbsp;&nbsp;exit_code<br>
+	 * &nbsp;&nbsp;output
+	 */
+	@DataProvider(name="activationkey_create")
+	public static Object[][] activationkey_create(){
+		String uid = KatelloTestScript.getUniqueID();
+		return new Object[][] {
+				// name
+				{ "aa", null, new Integer(0), "Successfully created activation key [ aa ]"},
+				{ "11", null, new Integer(0), "Successfully created activation key [ 11 ]"},
+				{ "1a", null, new Integer(0), "Successfully created activation key [ 1a ]"},
+				{ "a1", null, new Integer(0), "Successfully created activation key [ a1 ]"},
+				{ strRepeat("0123456789", 12)+"abcdefgh", null, new Integer(0), "Successfully created activation key [ "+strRepeat("0123456789", 12)+"abcdefgh"+" ]"},
+				{ "ak-"+uid, null, new Integer(0), "Successfully created activation key [ ak-"+uid+" ]"},
+				{ "ak "+uid, "Provider with space in name", new Integer(0), "Successfully created activation key [ ak "+uid+" ]"},
+				{ null, null, new Integer(2), "katello: error: Option --name is required; please see --help"},
+				{ " ", null, new Integer(144), "Name can't be blank"},
+				{ " a", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a ", null, new Integer(144), "Validation failed: Name must not contain leading or trailing white spaces."},
+				{ "a", null, new Integer(144), "Validation failed: Name must contain at least 2 characters"},
+				{ "?1", null, new Integer(144), "Validation failed: Name cannot contain characters other than alpha numerals, space,'_', '-'."},
+			    { strRepeat("0123456789", 12)+"abcdefghi", null, new Integer(144), "Validation failed: Name cannot contain more than 128 characters"},
+//				// description
+				{ "desc-specChars"+uid, "\\!@%^&*(<_-~+=//\\||,.>)", new Integer(0), "Successfully created activation key [ desc-specChars"+uid+" ]"},
+				{ "desc-255Chars"+uid, strRepeat("0123456789", 25)+"abcde", new Integer(0), "Successfully created activation key [ desc-255Chars"+uid+" ]"},
+				{ "desc-256Chars"+uid, strRepeat("0123456789", 25)+"abcdef", new Integer(144), "Validation failed: Description cannot contain more than 255 characters"},
+				// misc
+				{ "duplicate"+uid, null, new Integer(0), "Successfully created activation key [ duplicate"+uid+" ]"},
+ 				{ "duplicate"+uid, null, new Integer(144), "Validation failed: Name has already been taken"}
+		};
+	}
+	
+	
 }
