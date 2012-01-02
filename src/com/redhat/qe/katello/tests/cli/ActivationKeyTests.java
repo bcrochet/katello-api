@@ -4,12 +4,14 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.IKatelloActivationKey;
+import com.redhat.qe.katello.base.IKatelloChangeset;
 import com.redhat.qe.katello.base.IKatelloEnvironment;
 import com.redhat.qe.katello.base.IKatelloOrg;
 import com.redhat.qe.katello.base.IKatelloTemplate;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ActivationKeyTests extends KatelloCliTestScript{
@@ -77,11 +79,76 @@ static{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
 		
 		cmd = String.format(IKatelloActivationKey.CREATE_NODESC_TEMPLATE, 
-				this.org, this.env, "ne-"+uid, "notForEnv-"+uid);
+				this.org, this.env, "nfe-"+uid, "notForEnv-"+uid);
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
 		Assert.assertTrue(res.getStdout().trim().contains(
 				String.format(IKatelloActivationKey.ERR_TEMPLATE_NOTFOUND,"notForEnv-"+uid)), "Check - returned error string (activation_key create --template)");
 	}
 	
+	@Test(description="create AK - with template", enabled=true)
+	public void test_create_withTemplate(){
+		SSHCommandResult res; String cmd; String match_info;
+		String uid = KatelloTestScript.getUniqueID();
+		String template = "templateForEnv-"+uid;
+		String changeset = "csForEnv-"+uid;
+		String ak_template = "akTemplate-"+uid;
+
+		// create template
+		cmd = String.format(IKatelloTemplate.CREATE, this.org, template);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
+		
+		// create changeset
+		cmd = String.format(IKatelloChangeset.CREATE, this.org, this.env, changeset);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
+		
+		// add template to changeset
+		cmd = String.format(IKatelloChangeset.UPDATE_ADD_TEMPLATE, template, this.org, this.env, changeset);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_template)");
+		
+		// promote changeset to the env.
+		cmd = String.format(IKatelloChangeset.PROMOTE, this.org, this.env, changeset);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+		
+		cmd = String.format(IKatelloActivationKey.CREATE_NODESC_TEMPLATE, 
+				this.org, this.env, ak_template, template);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create --template)");
+		Assert.assertTrue(res.getStdout().trim().contains(
+				String.format(IKatelloActivationKey.OUT_CREATE,ak_template)), "Check - returned output string (activation_key create --template)");
+		
+		// retrieve envID, templateID
+		cmd = String.format(IKatelloEnvironment.INFO, this.org, this.env);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
+		String env_id = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
+		cmd = String.format(IKatelloTemplate.INFO_FOR_ENV, this.org, template, this.env);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template info)");
+		String template_id = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
+		
+		// asserts: activation_key list
+		cmd = String.format(IKatelloActivationKey.LIST_ALL, this.org);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
+		String REGEXP_AK_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*";
+		match_info = String.format(REGEXP_AK_LIST,
+				ak_template,env_id,template_id).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Activation key [%s] should be found in the list",ak_template));
+		
+		// asserts: activation_key info
+		cmd = String.format(IKatelloActivationKey.INFO, this.org, ak_template);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key info)");
+		String REGEXP_AK_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
+		match_info = String.format(REGEXP_AK_INFO,
+				ak_template,env_id,template_id).replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Activation key [%s] should contain correct info",ak_template));
+	}
 }
