@@ -3,6 +3,7 @@ package com.redhat.qe.katello.base;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
@@ -65,6 +66,7 @@ public class KatelloTestScript
 	 * @since 15.Feb.2011
 	 */
 	public static String getUniqueID(){
+		try{Thread.sleep(1000+Math.abs(new Random().nextInt(200)));}catch(InterruptedException iex){};
 		String uid = String.valueOf(
 				Calendar.getInstance().getTimeInMillis() / 1000); 
 		log.fine(String.format("Generating unique ID: [%s]",uid));
