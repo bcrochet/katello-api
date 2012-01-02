@@ -3,8 +3,10 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.IKatelloActivationKey;
 import com.redhat.qe.katello.base.IKatelloEnvironment;
 import com.redhat.qe.katello.base.IKatelloOrg;
+import com.redhat.qe.katello.base.IKatelloTemplate;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -51,4 +53,35 @@ static{
 			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
 		}
 	}
+	
+	@Test(description="create AK - template does not exist", enabled=true)
+	public void test_create_noTemplate(){
+		SSHCommandResult res;
+		String uid = KatelloTestScript.getUniqueID();
+		String cmd = String.format(IKatelloActivationKey.CREATE_NODESC_TEMPLATE, 
+				this.org, this.env, "ne-"+uid, "neTemplate-"+uid);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
+		Assert.assertTrue(res.getStdout().trim().contains(
+				String.format(IKatelloActivationKey.ERR_TEMPLATE_NOTFOUND,"neTemplate-"+uid)), "Check - returned error string (activation_key create --template)");
+	}
+	
+	@Test(description="create AK - template not exported to the env.", enabled=true)
+	public void test_create_TemplateNotForEnv(){
+		SSHCommandResult res; String cmd;
+		String uid = KatelloTestScript.getUniqueID();
+		String template = "template-"+uid;
+
+		cmd = String.format(IKatelloTemplate.CREATE, this.org, template);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
+		
+		cmd = String.format(IKatelloActivationKey.CREATE_NODESC_TEMPLATE, 
+				this.org, this.env, "ne-"+uid, "notForEnv-"+uid);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
+		Assert.assertTrue(res.getStdout().trim().contains(
+				String.format(IKatelloActivationKey.ERR_TEMPLATE_NOTFOUND,"notForEnv-"+uid)), "Check - returned error string (activation_key create --template)");
+	}
+	
 }
