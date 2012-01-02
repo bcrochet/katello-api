@@ -1,6 +1,8 @@
 package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
+
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
@@ -222,5 +224,10 @@ static{
 				".*Repo\\s+:\\s+.*"+repo_name_pulpRHEL6+".*";
 		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").matches(YUM_INFO_PULP_CONSUMER), 
 				"package "+pkg_pulp_consumer+" should be returned in yum info");
+	}
+	
+	@AfterTest(description="erase registration made; cleanup",alwaysRun=true)
+	public void tearDown(){
+		clienttasks.execute_remote("subscription-manager clean");
 	}
 }
