@@ -72,23 +72,6 @@ static{
 		changeset_name = "changesetBPM_"+uid;
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
-
-		/* 
-		 * Cleanup the files that make system registered through RHSM:
-		 * ATTENTION: do this *only* if you know what you are doing there.
-		 * 
-		 * for further changes good to follow/adjust the progress of:
-		 * strace -o /tmp/rhsm-unregister.log subscription-manager unregister
-		 * grep "unlink(" in there to find out what are the files being removed.
-		 * 
-		 */
-		clienttasks.execute_remote("rm -f /etc/pki/consumer/key.pem " +
-				"/etc/pki/consumer/cert.pem " +
-				"/var/lib/rhsm/packages/packages.json " +
-				"/var/lib/rhsm/facts/facts.json " +
-				"/var/lib/rhsm/cache/installed_products.json " +
-				"/var/run/rhsm/cert.pid");
-		clienttasks.execute_remote("service messagebus restart");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
