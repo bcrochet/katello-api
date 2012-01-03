@@ -56,7 +56,7 @@ static{
 		}
 	}
 	
-	@Test(description="create AK - template does not exist", enabled=true)
+	@Test(description="create AK - template does not exist", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_noTemplate(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
@@ -68,7 +68,7 @@ static{
 				String.format(IKatelloActivationKey.ERR_TEMPLATE_NOTFOUND,"neTemplate-"+uid)), "Check - returned error string (activation_key create --template)");
 	}
 	
-	@Test(description="create AK - template not exported to the env.", enabled=true)
+	@Test(description="create AK - template not exported to the env.", groups = {"cli-activationkey"}, enabled=true)
 	public void test_create_TemplateNotForEnv(){
 		SSHCommandResult res; String cmd;
 		String uid = KatelloTestScript.getUniqueID();
@@ -84,6 +84,58 @@ static{
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
 		Assert.assertTrue(res.getStdout().trim().contains(
 				String.format(IKatelloActivationKey.ERR_TEMPLATE_NOTFOUND,"notForEnv-"+uid)), "Check - returned error string (activation_key create --template)");
+	}
+	
+	@Test(description="create AK - same name, diff. orgs", groups = {"cli-activationkey"}, enabled=true)
+	public void test_create_diffOrgsSameName(){
+		SSHCommandResult res; String cmd; String match_info;
+		String uid = KatelloTestScript.getUniqueID();
+		String ak_name = "ak-"+uid;
+		String org2 = "org-"+uid;
+
+		// create 2nd org (and the same env) 
+		res = clienttasks.run_cliCmd(String.format(IKatelloOrg.CREATE_NODESC,org2));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,org2,this.env,IKatelloEnvironment.LOCKER));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+		
+		cmd = String.format(IKatelloActivationKey.CREATE_NODESC,
+				this.org, this.env, ak_name);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+		
+		cmd = String.format(IKatelloActivationKey.CREATE_NODESC,
+				org2, this.env, ak_name);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+		Assert.assertTrue(res.getStdout().trim().contains(
+				String.format(IKatelloActivationKey.OUT_CREATE,ak_name)), "Check - returned output string (activation_key create)");
+		
+		// retrieve envID, templateID
+		cmd = String.format(IKatelloEnvironment.INFO, this.org, this.env);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment info)");
+		String env_id = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
+		
+		// asserts: activation_key list
+		cmd = String.format(IKatelloActivationKey.LIST_ALL, this.org);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key list)");
+		String REGEXP_AK_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*";
+		match_info = String.format(REGEXP_AK_LIST,
+				ak_name,env_id,"None").replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Activation key [%s] should be found in the list",ak_name));
+		
+		// asserts: activation_key info
+		cmd = String.format(IKatelloActivationKey.INFO, this.org, ak_name);
+		res = clienttasks.run_cliCmd(cmd);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key info)");
+		String REGEXP_AK_INFO = ".*Id:\\s+\\d+.*Name:\\s+%s.*Environment Id:\\s+%s.*System Template Id:\\s+%s.*Pools:.*";
+		match_info = String.format(REGEXP_AK_INFO,
+				ak_name,env_id,"None").replaceAll("\"", "");
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+				String.format("Activation key [%s] should contain correct info",ak_name));
 	}
 	
 	@Test(description="create AK - with template", enabled=true)
@@ -151,4 +203,5 @@ static{
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",ak_template));
 	}
+
 }
