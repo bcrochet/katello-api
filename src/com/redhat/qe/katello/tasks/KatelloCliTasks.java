@@ -164,24 +164,28 @@ public class KatelloCliTasks implements KatelloConstants{
 		return out;
 	}
 	
-	public static String grepCLIOutput(String prop, String output){
-		String[] split1 = output.split(prop+":\\s+");
-		if(split1.length<2){
-			log.severe("ERROR: Output can not be extracted for the property: ["+prop+"]");
-			return null;
-		}
-		String[] split2 = split1[1].trim().split("\n");
-		return split2[0].trim();
+	public static String grepCLIOutput(String property, String output){
+		return grepCLIOutput(property, output, 1);
 	}
 	
-	public static String grepCLIOutput(String prop, String output, int occurence){
-		String[] split1 = output.split(prop+":\\s+");
-		if(split1.length<(occurence+1)){
-			log.severe("ERROR: Output can not be extracted ["+occurence+"] occurance for the property: ["+prop+"]");
-			return null;
+	public static String grepCLIOutput(String property, String output, int occurence){
+		int meet_cnt = 0;
+		String[] lines = output.split("\\n");
+		for(int i=0;i<lines.length;i++){
+			if(lines[i].startsWith(property)){ // our line
+				meet_cnt++;
+				if(meet_cnt == occurence){
+					String[] split = lines[i].split(":\\s+");
+					if(split.length<2){
+						return lines[i+1].trim();
+					}else{
+						return split[1].trim();
+					}
+				}
+			}
 		}
-		String[] split2 = split1[occurence].trim().split("\n");
-		return split2[0].trim();
+		log.severe("ERROR: Output can not be extracted for the property: ["+property+"]");
+		return null;
 	}
 	
 }
