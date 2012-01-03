@@ -79,8 +79,10 @@ implements KatelloConstants {
 			exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
 			candlepin_ca_crt = exec_result.getStdout().trim();
 		}
-		clienttasks.config_cli(kt_servername);
+		
+		// Ordering is important. First setup of RHSM should come.
 		clienttasks.config_rhsm(kt_servername, candlepin_ca_crt);
+		clienttasks.config_cli(kt_servername);
 	}
 	
 	public int getClientPlatformID(){

@@ -182,6 +182,8 @@ public interface KatelloConstants {
 		System.getenv("HOME")+"/.ssh/id_dsa";
 	public static final String KATELLO_CLI_CLIENT_CONFIG = 
 		"/etc/katello/client.conf";
+	public static final String KATELLO_AGENT_CONFIG = 
+			"/etc/gofer/plugins/katelloplugin.conf";
 	
 	public static final String ACME_ORG = "ACME_Corporation";
 	public static final String KATELLO_CLI_USER_DEFAULT_PASSWORD = "testing123";
