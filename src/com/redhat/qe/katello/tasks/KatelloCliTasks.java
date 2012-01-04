@@ -57,7 +57,7 @@ public class KatelloCliTasks implements KatelloConstants{
 		}
 				
 		// Install Katello yum repo under /etc/yum.repos.d/
-		installKatelloRepo();
+		installRepo_Katello();
 
 		// Clean up yum caches, install wget (if not installed)
 		execute_remote("yum clean all"); // cleanup the caches
@@ -74,6 +74,8 @@ public class KatelloCliTasks implements KatelloConstants{
 		Assert.assertEquals(ssh_res.getExitCode(), new Integer(0), 
 				"Check: return code of `rpm -q katello-cli katello-agent`");
 		
+		execute_remote("sed -i \"s/host\\s*=.*/" +
+				"host = "+servername+"/g\" "+KATELLO_CLI_CLIENT_CONFIG);
 		execute_remote("sed -i \"s/url\\s*=.*/"+
 				"url=tcp:\\/\\/\\$\\(host):5672"+
 				"/g\" "+KATELLO_AGENT_CONFIG);
@@ -92,7 +94,7 @@ public class KatelloCliTasks implements KatelloConstants{
 		}
 		
 		// Remove possible old version of RHSM, install new
-		execute_remote("wget -O /etc/yum.repos.d/epel-subscription-manager.repo http://repos.fedorapeople.org/repos/candlepin/subscription-manager/epel-subscription-manager.repo");
+		installRepo_RHSM();
 		execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/* /etc/yum.repos.d/redhat.repo");
 		exec_result = execute_remote("yum -y install python-rhsm subscription-manager");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
@@ -181,7 +183,7 @@ public class KatelloCliTasks implements KatelloConstants{
 		return platform_id;
 	}
 	
-	private void installKatelloRepo(){
+	private void installRepo_Katello(){
 		int platform_id = getClientPlatformID(); // or exit if unsupported.
 		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("fedora")){ // Fedora
 			execute_remote(String.format("" +
@@ -193,4 +195,15 @@ public class KatelloCliTasks implements KatelloConstants{
 		}
 	}
 	
+	private void installRepo_RHSM(){
+		int platform_id = getClientPlatformID(); // or exit if unsupported.
+		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("fedora")){ // Fedora
+			execute_remote(String.format("" +
+					"wget -O /etc/yum.repos.d/fedora-subscription-manager.repo %s",YUM_REPO_FEDORA_RHSM));
+		}
+		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("redhat")){ // RHEL
+			execute_remote(String.format("" +
+					"wget -O /etc/yum.repos.d/epel-subscription-manager.repo %s",YUM_REPO_RHEL_RHSM));
+		}		
+	}
 }
