@@ -43,7 +43,7 @@ class KatelloUtils(object):
             print "http://download.eng.brq.redhat.com/pub/fedora/linux/releases/15/Fedora/x86_64/os/"
     
     def getBeakerJobStatus(self, jid):
-        Popen("bkr job-results %s > /tmp/beaker-%s.log"%(jid,jid), stdout=None, shell=True).wait()
+        Popen("bkr job-results J:%s > /tmp/beaker-%s.log"%(jid,jid), stdout=None, shell=True).wait()
         
         et = ElementTree()
         tree = ElementTree.parse(et,"/tmp/beaker-%s.log"%jid)
