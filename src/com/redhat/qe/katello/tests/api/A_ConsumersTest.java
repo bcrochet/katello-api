@@ -101,7 +101,7 @@ public class A_ConsumersTest extends KatelloTestScript {
 		return _return;
 	}
 
-	@Test( groups = {"testConsumers"}, description = "Delete consumer", enabled=false) // TODO - Bug#717883
+	@Test( groups = {"testConsumers"}, description = "Delete consumer", enabled=true)
 	public void test_deleteConsumer(){
 		String pid = KatelloTestScript.getUniqueID();
 		String cname = "auto-"+pid+".delete.me";
@@ -113,7 +113,8 @@ public class A_ConsumersTest extends KatelloTestScript {
 		Assert.assertEquals("", ret,"Check returned string (empty)");
 		
 		String sCons = servertasks.getConsumer(cid); // try to request the removed consumer
-		Assert.assertEquals(sCons,"Couldn't find system '"+cid+"'","Check API request to get consumer: ["+cid+"]");
+		Assert.assertTrue(sCons.contains("Couldn't find system '"+cid+"'"),
+				"Check API request to get consumer: ["+cid+"]");
 	}
 	
 	// TODO - re-enable once get fixed the bug: https://bugzilla.redhat.com/show_bug.cgi?id=721000
