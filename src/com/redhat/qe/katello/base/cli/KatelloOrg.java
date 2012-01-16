@@ -15,7 +15,7 @@ public class KatelloOrg {
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
 	public static final String OUT_CREATE = 
-			"Successfully created activation key [ %s ]";
+			"Successfully created org [ %s ]";
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
