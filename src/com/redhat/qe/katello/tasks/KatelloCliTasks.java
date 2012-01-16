@@ -64,7 +64,7 @@ public class KatelloCliTasks implements KatelloConstants{
 		if(execute_remote("rpm -q wget").getExitCode().intValue()!=0)
 			execute_remote("yum -y install wget");
 
-		execute_remote("yum repolist && yum -y erase katello-cli* katello-agent"); // listing repos is needed, gets the repodata
+		execute_remote("yum repolist && yum -y erase katello-cli* katello-agent gofer gofer-package"); // listing repos is needed, gets the repodata
 		execute_remote("rm -f /etc/katello/client* /etc/gofer/plugins/katelloplugin*"); // remove config files
 		
 		ssh_res = execute_remote("yum -y install katello-cli* katello-agent");
@@ -96,7 +96,7 @@ public class KatelloCliTasks implements KatelloConstants{
 		// Remove possible old version of RHSM, install new
 		installRepo_RHSM();
 		execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/* /etc/yum.repos.d/redhat.repo");
-		exec_result = execute_remote("yum -y install python-rhsm subscription-manager");
+		exec_result = execute_remote("yum repolist; yum -y install python-rhsm subscription-manager");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
 
 		// Configure
