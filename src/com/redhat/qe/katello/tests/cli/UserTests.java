@@ -11,7 +11,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class UserTests extends KatelloCliTestScript{
 
 	static{
-		 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+//		 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 	}
 	
 	@Test(description="create user - for default org", enabled=true)
