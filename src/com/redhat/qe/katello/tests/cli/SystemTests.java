@@ -14,6 +14,7 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloSystem;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class SystemTests extends KatelloCliTestScript{
@@ -169,7 +170,10 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
 		
-		
+		sys = new KatelloSystem(clienttasks, null, this.orgName, null);
+		exec_result = clienttasks.execute_remote("katello --username admin --password admin system list --org "+this.orgName+" -v | grep \""+system+"\" | wc -l");
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (grep: `system list --org`)");
+		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").trim().equals("2"), "Check - 2 systems are registered with the same name");
 	}
 		
 	@AfterMethod(description = "Clean RHSM data - prepare for next scenario run", alwaysRun = true)
