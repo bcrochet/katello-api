@@ -1,6 +1,9 @@
-package com.redhat.qe.katello.tests.cli;
+	package com.redhat.qe.katello.tests.cli;
 
 import java.util.logging.Logger;
+
+import org.testng.SkipException;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -15,7 +18,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class SystemTests extends KatelloCliTestScript{
 	static{
-			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+//			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 	}
 	
 	protected static Logger log = 
@@ -38,6 +41,12 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code (org create)");
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");
+		
+		exec_result = clienttasks.execute_remote(KatelloSystem.RHSM_CREATE);
+		if(exec_result.getStderr().contains("certificate verify failed")){ // It's Jenkins's special server with it's own certificate. Exit Scenarios
+			log.warning("Seems Katello server is: [katello-ci-rhel6.usersys.redhat.com]. RHSM tests can't run there - certificate issue");
+			throw new SkipException("RHSM tests can not run on this specific server. Certificate issues.");
+		}
 	}
 	
 	@Test(description = "RHSM register - org have no environment but Locker only", enabled=true)
@@ -63,8 +72,55 @@ public class SystemTests extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().contains("The system has been registered with id:"),
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (success)");
+	}
+	
+	@Test(description = "RHSM register - already registered", 
+			dependsOnMethods = {"test_rhsm_RegOneEnvOnly"}, enabled=true)
+	public void test_rhsm_AlreadyReg(){
+		String uid = KatelloTestScript.getUniqueID();
+		String system = "rhsm-reg1-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		
+		//2-nd attempt
+		system = "rhsm-reg2-"+uid;
+		sys = new KatelloSystem(clienttasks, system, this.orgName, null);
+		exec_result = sys.rhsm_register();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 1, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.ERR_RHSM_REG_ALREADY_FORCE_NEEDED),
+				"Check - output (--force needed)");
+	}
+	
+	@Test(description = "RHSM force register", 
+			dependsOnMethods = {"test_rhsm_RegOneEnvOnly"}, enabled=true)
+	public void test_rhsm_ForceReg(){
+		String uid = KatelloTestScript.getUniqueID();
+		String system = "rhsm-force-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		
+		//re-register with --force option
+		exec_result = sys.rhsm_registerForce();
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code (register --force)");
+		String REGEXP_UNREGISTERED = ".*The system with UUID .* has been unregistered.*";
+		Assert.assertTrue(exec_result.getStdout().replaceAll("\n", "").matches(REGEXP_UNREGISTERED),"Check - system is unregistered");			
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (system registered --force)");
+	}
+	
+	@AfterMethod(description = "Clean RHSM data - prepare for next scenario run", alwaysRun = true)
+	public void clean_rhsm(){
+		clienttasks.execute_remote("subscription-manager clean");
 	}
 	
 	
