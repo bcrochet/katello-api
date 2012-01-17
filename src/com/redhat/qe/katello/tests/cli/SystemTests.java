@@ -98,7 +98,7 @@ public class SystemTests extends KatelloCliTestScript{
 	}
 	
 	@Test(description = "RHSM force register", 
-			dependsOnMethods = {"test_rhsm_RegOneEnvOnly"}, enabled=true)
+			dependsOnMethods = {"test_rhsm_AlreadyReg"}, enabled=true)
 	public void test_rhsm_ForceReg(){
 		String uid = KatelloTestScript.getUniqueID();
 		String system = "rhsm-force-"+uid;
@@ -117,6 +117,25 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
 				"Check - output (system registered --force)");
 	}
+
+	@Test(description = "RHSM register - more than one environment (no env. specified)", 
+			dependsOnMethods = {"test_rhsm_ForceReg"}, enabled=true)
+	public void test_rhsm_RegMultiEnv(){
+		String uid = KatelloTestScript.getUniqueID();
+		String system = "rhsm-regMultiEnv-"+uid;
+		
+		// Create the 2nd env.
+		KatelloEnvironment env = new KatelloEnvironment(
+				clienttasks, this.envName_Test, null, this.orgName, KatelloEnvironment.LOCKER);
+		env.create();		
+		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
+		Assert.assertTrue(exec_result.getStderr().trim().contains(
+				String.format(KatelloSystem.ERR_RHSM_REG_MULTI_ENV, this.orgName)),
+				"Check - output (rhsm register - multi envs. exist)");
+	}
+	
 	
 	@AfterMethod(description = "Clean RHSM data - prepare for next scenario run", alwaysRun = true)
 	public void clean_rhsm(){
