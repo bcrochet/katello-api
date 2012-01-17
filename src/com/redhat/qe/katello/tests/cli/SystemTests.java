@@ -18,7 +18,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class SystemTests extends KatelloCliTestScript{
 	static{
-//			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 	}
 	
 	protected static Logger log = 
@@ -136,7 +136,42 @@ public class SystemTests extends KatelloCliTestScript{
 				"Check - output (rhsm register - multi envs. exist)");
 	}
 	
+	@Test(description = "RHSM register - env specified", 
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, enabled=true)
+	public void test_rhsm_RegWithEnv(){
+		String uid = KatelloTestScript.getUniqueID();
+		String system = "rhsm-env-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, this.envName_Test);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+	}
 	
+	@Test(description = "RHSM register - same name for 2 environments", 
+			dependsOnMethods = {"test_rhsm_RegMultiEnv"}, enabled=true)
+	public void test_rhsm_RegSameNameTwoEnvs(){
+		String uid = KatelloTestScript.getUniqueID();
+		String system = "localhost-"+uid;
+		
+		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, this.envName_Dev);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		
+		clienttasks.execute_remote("subscription-manager clean");
+		
+		sys = new KatelloSystem(clienttasks, system, this.orgName, this.envName_Test);
+		exec_result = sys.rhsm_register(); 
+		Assert.assertTrue(exec_result.getExitCode().intValue() == 0, "Check - return code");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(KatelloSystem.OUT_CREATE),
+				"Check - output (success)");
+		
+		
+	}
+		
 	@AfterMethod(description = "Clean RHSM data - prepare for next scenario run", alwaysRun = true)
 	public void clean_rhsm(){
 		clienttasks.execute_remote("subscription-manager clean");

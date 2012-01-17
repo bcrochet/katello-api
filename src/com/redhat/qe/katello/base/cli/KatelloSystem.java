@@ -22,6 +22,8 @@ public class KatelloSystem {
 			"Organization %s has '%s' environment only. Please create an environment for system registration.";
 	public static final String ERR_RHSM_REG_ALREADY_FORCE_NEEDED = 
 			"This system is already registered. Use --force to override";
+	public static final String ERR_RHSM_REG_MULTI_ENV = 
+			"Organization %s has more than one environment. Please specify target environment for system registration.";
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
