@@ -17,9 +17,11 @@ public class KatelloSystem {
 					RHSM_DEFAULT_USER,RHSM_DEFAULT_PASS);
 	
 	public static final String OUT_CREATE = 
-			"Successfully created environment [ %s ]";
+			"The system has been registered with id:";
 	public static final String ERR_RHSM_LOCKER_ONLY = 
 			"Organization %s has '%s' environment only. Please create an environment for system registration.";
+	public static final String ERR_RHSM_REG_ALREADY_FORCE_NEEDED = 
+			"This system is already registered. Use --force to override";
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
@@ -51,4 +53,19 @@ public class KatelloSystem {
 		
 		return cli.execute_remote(cmd);		
 	}
+	
+	public SSHCommandResult rhsm_registerForce(){
+		String cmd = RHSM_CREATE;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.environment != null)
+			cmd += " --environment \""+this.environment+"\"";
+		cmd += " --force";
+		
+		return cli.execute_remote(cmd);		
+	}
+	
 }
