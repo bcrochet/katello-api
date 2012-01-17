@@ -70,4 +70,15 @@ public class KatelloSystem {
 		return cli.execute_remote(cmd);		
 	}
 	
+	public SSHCommandResult list(){
+		String cmd = CMD_LIST;
+		
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.environment != null)
+			cmd += " --environment \""+this.environment+"\"";
+		cmd += " -v";
+		
+		return cli.run_cliCmd(cmd);		
+	}
 }
