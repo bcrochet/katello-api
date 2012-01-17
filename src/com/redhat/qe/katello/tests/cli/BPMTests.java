@@ -38,7 +38,7 @@ static{
 	 *  
 	 *	Or if you are lazy: uncomment the line below: but please push it back again.   
 	 */
-//	 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+	 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 }
 	protected static Logger log = 
 		Logger.getLogger(BPMTests.class.getName());
@@ -192,7 +192,7 @@ static{
 		Assert.assertNotNull(rhsm_pool_id, "Check - pool id is set");
 		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully subscribed the system to Pool "+rhsm_pool_id, "Check - returned message");
+		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully consumed a subscription from the pool with id "+rhsm_pool_id, "Check - returned message");
 	}
 	
 	@Test(description="Yum should work - yum info pulp-consumer", 
