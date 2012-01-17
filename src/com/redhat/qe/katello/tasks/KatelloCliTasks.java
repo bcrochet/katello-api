@@ -61,13 +61,13 @@ public class KatelloCliTasks implements KatelloConstants{
 
 		// Clean up yum caches, install wget (if not installed)
 		execute_remote("yum clean all"); // cleanup the caches
-		if(execute_remote("rpm -q wget").getExitCode().intValue()!=0)
+		if(execute_remote("rpm -q wget > /dev/null").getExitCode().intValue()!=0)
 			execute_remote("yum -y install wget");
 
-		execute_remote("yum repolist && yum -y erase katello-cli* katello-agent gofer gofer-package"); // listing repos is needed, gets the repodata
+		execute_remote("yum repolist && yum -y erase katello-cli katello-cli-common katello-agent gofer gofer-package"); // listing repos is needed, gets the repodata
 		execute_remote("rm -f /etc/katello/client* /etc/gofer/plugins/katelloplugin*"); // remove config files
 		
-		ssh_res = execute_remote("yum -y install katello-cli* katello-agent");
+		ssh_res = execute_remote("yum -y install katello-cli katello-cli-common katello-agent");
 		Assert.assertTrue(ssh_res.getExitCode().intValue()==0, 
 				"Check: return code is 0");
 		ssh_res = execute_remote("rpm -q katello-cli katello-agent");
