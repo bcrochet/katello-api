@@ -37,7 +37,7 @@ define "katello-api" do
   manifest["Implementation-Vendor"] = COPYRIGHT
   
   task(:testng) do
-     cmd_args = ['-testnames',TESTNG_RUN_LIST,'-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter']
+     cmd_args = ['-testnames',TESTNG_RUN_LIST,'-listener','com.redhat.qe.auto.testng.TestNGListener,org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter,org.testng.reporters.XMLReporter','-configfailurepolicy','continue','-parallel','classes','-threadcount','2']
      Java::Commands.java "org.testng.TestNG", TESTNG_XML, cmd_args,
      :classpath => [ CP_ALL, JAVAC_CLASSES ]
   end
