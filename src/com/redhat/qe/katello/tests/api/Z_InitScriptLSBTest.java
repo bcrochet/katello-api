@@ -8,7 +8,6 @@ import org.testng.annotations.Test;
 
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.tools.SCPTools;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class Z_InitScriptLSBTest extends KatelloTestScript{

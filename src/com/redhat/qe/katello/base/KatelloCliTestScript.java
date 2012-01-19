@@ -1,11 +1,8 @@
 package com.redhat.qe.katello.base;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.logging.Logger;
-
 import org.testng.Assert;
-import org.testng.annotations.BeforeSuite;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -17,14 +14,11 @@ public class KatelloCliTestScript
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
 
-	protected static boolean initialized = false; 
 	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
 
 	protected KatelloTasks servertasks	= null;
 	protected KatelloCliTasks clienttasks = null;
 	
-	protected HashMap<BKR_LAB_CONTROLLER, String> labs;
-
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
 	public KatelloCliTestScript() {
 		super();		
@@ -58,31 +52,7 @@ implements KatelloConstants {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-		if(KatelloCliTestScript.initialized) return;
-		init_bkrLabs(); // Initialize Beaker labs hashmap.
-		
-	}
-
-	@BeforeSuite(description="Prepare katello client", alwaysRun = true)
-	public void setUpKatelloCli(){
-		SSHCommandResult exec_result;
-		String kt_servername = System.getProperty("katello.server.hostname", "localhost");
-		String candlepin_ca_crt;
-		if(KATELLO_SERVERS_RHQE_CA_CRT.contains(kt_servername)){
-			exec_result = clienttasks.execute_remote("wget "+RHQE_CA_CERT+" -O /tmp/candlepin-ca.crt;");
-			Assert.assertEquals(exec_result.getExitCode(), new Integer(0),"Check - return code");
-			exec_result = clienttasks.execute_remote("cat /tmp/candlepin-ca.crt");
-			candlepin_ca_crt = exec_result.getStdout().trim(); 
-		}else{
-			exec_result = servertasks.execute_remote("cat /etc/candlepin/certs/candlepin-ca.crt");
-			candlepin_ca_crt = exec_result.getStdout().trim();
-		}
-		
-		// Ordering is important. First setup of RHSM should come.
-		clienttasks.config_rhsm(kt_servername, candlepin_ca_crt);
-		clienttasks.config_cli(kt_servername);
+		}		
 	}
 	
 	public int getClientPlatformID(){
@@ -171,16 +141,5 @@ implements KatelloConstants {
 			log.fine("Repo sync done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
 		else
 			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
-	}
-	
-	private void init_bkrLabs(){
-		// initialize Beaker labs.
-		labs = new HashMap<BKR_LAB_CONTROLLER, String>();
-		labs.put(BKR_LAB_CONTROLLER.BRQ, "lab.rhts.englab.brq.redhat.com");
-		labs.put(BKR_LAB_CONTROLLER.BOS, "lab2.rhts.eng.bos.redhat.com");
-		labs.put(BKR_LAB_CONTROLLER.RDU, "lab.rhts.eng.rdu.redhat.com");
-		labs.put(BKR_LAB_CONTROLLER.NAY, "lab.rhts.eng.nay.redhat.com");
-		labs.put(BKR_LAB_CONTROLLER.PNQ, "lab.rhts.eng.pnq.redhat.com");
-		labs.put(BKR_LAB_CONTROLLER.TLV, "lab-01.eng.tlv.redhat.com");
-	}
+	}	
 }

@@ -8,7 +8,6 @@ import com.redhat.qe.auto.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
-import com.redhat.qe.katello.common.KatelloDBCleaner;
 
 public class A_ConsumersTest extends KatelloTestScript {
 	protected static Logger log = 

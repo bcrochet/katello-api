@@ -14,12 +14,11 @@ import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloSystem;
-import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class SystemTests extends KatelloCliTestScript{
 	static{
-			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
+//			 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.
 	}
 	
 	protected static Logger log = 

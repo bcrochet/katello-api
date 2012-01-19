@@ -1,7 +1,5 @@
 package com.redhat.qe.katello.common;
 
-import java.util.HashMap;
-
 /**
  * Public interface for storing the general Katello constants.
  * @author gkhachik

@@ -81,7 +81,6 @@ public class KatelloCliDataProvider {
 
 	@DataProvider(name="provider_delete")
 	public static Object[][] provider_delete(){
-		String uid = KatelloTestScript.getUniqueID();
 		return new Object[][] {
 				// org
 				{ null, null, new Integer(2), "Option --org is required; please see --help"},
