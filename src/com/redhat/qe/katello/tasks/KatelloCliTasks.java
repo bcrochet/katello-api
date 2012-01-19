@@ -32,8 +32,12 @@ public class KatelloCliTasks implements KatelloConstants{
 	}
 		
 	public SSHCommandResult execute_remote(String command){
-		SSHCommandResult cmd_res = this.sshCommandRunner.runCommandAndWait(command);
-		return cmd_res;
+		try{
+			SSHCommandResult cmd_res = this.sshCommandRunner.runCommandAndWait(command);
+			return cmd_res;
+		}catch(Throwable t){
+			log.finest(String.format("Error running the command: [%s]",command));
+		}return null;
 	}
 	
 	public SSHCommandResult run_cliCmd(String katelloCliCommand){
