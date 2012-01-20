@@ -88,7 +88,8 @@ implements KatelloConstants {
 				"Repo should not contain progress == not synced");
 		
 		// package_count >0; url, progress, last_sync
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count: [^0]\\d*.*Progress:\\s+Finished";
+		String cnt = KatelloCliTasks.grepCLIOutput("Package Count", res.getStdout());
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count: "+cnt+"*.*Progress:\\s+Finished";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should contain packages count: >0 & progress == finished");
 	}
