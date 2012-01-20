@@ -89,9 +89,10 @@ implements KatelloConstants {
 		
 		// package_count >0; url, progress, last_sync
 		String cnt = KatelloCliTasks.grepCLIOutput("Package Count", res.getStdout());
-		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count: "+cnt+"*.*Progress:\\s+Finished";
+		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
+		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Progress:\\s+Finished.*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
-				"Repo should contain packages count: >0 & progress == finished");
+				"Repo should contain progress == finished");
 	}
 	
 	protected void assert_productExists(String orgName, String providerName, String productName){
