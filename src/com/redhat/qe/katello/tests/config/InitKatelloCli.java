@@ -102,6 +102,7 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 		SSHCommandResult exec_result;
 
 		// Cleanup the previous registration
+		log.info("Clean RHSM profile");
 		clienttasks.execute_remote("subscription-manager clean"); // cleanup previous registration craps
 		
 		// Exit if we want to reuse the system. For DEBUG only.
@@ -110,13 +111,14 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 			return;
 		}
 		
-		// Remove possible old version of RHSM, install new
+		log.info("Remove possible old version of RHSM, install new");
 		installRepo_RHSM();
 		clienttasks.execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/* /etc/yum.repos.d/redhat.repo");
 		exec_result = clienttasks.execute_remote("yum repolist; yum -y install python-rhsm subscription-manager");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
 
 		// Configure
+		log.info("Configure RHSM settings");
 		clienttasks.execute_remote("sed -i \"s/hostname = subscription.rhn.redhat.com/" +
 				"hostname = "+servername+"/g\" /etc/rhsm/rhsm.conf");
 		clienttasks.execute_remote("sed -i \"s/prefix = \\/subscription/prefix = \\/katello\\/api/g\" /etc/rhsm/rhsm.conf");
