@@ -28,5 +28,7 @@ public interface IKatelloProduct {
 		"Deleted product '%s'";
 	public static final String OUT_NOT_SYNCHRONIZED_YET = 
 			"Product '%s' was not synchronized yet";
+	public static final String ERR_PROMOTE_NOREPOS = 
+			"Product '%s' hasn't any repositories";
 	
 }

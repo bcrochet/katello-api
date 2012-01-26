@@ -151,9 +151,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// promote product to the env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
-		//Assert.assertTrue(res.getStderr().trim().contains(String.format(IKatelloProduct.OUT_NOT_SYNCHRONIZED_YET,prodName)), "Check - returned error string (product promote)");
+		Assert.assertTrue(res.getExitCode().intValue()==244, "Check - return code (product promote)");
+		Assert.assertTrue(res.getStderr().trim().contains(String.format(IKatelloProduct.ERR_PROMOTE_NOREPOS,prodName)), "Check - returned output string (product promote)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
