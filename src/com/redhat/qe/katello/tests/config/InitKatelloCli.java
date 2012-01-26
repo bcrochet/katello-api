@@ -101,15 +101,8 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 	private void config_rhsm(String servername, String candlepin_ca_crt){
 		SSHCommandResult exec_result;
 
-		// Cleanup the previous registration
-		log.info("Clean RHSM profile");
+		log.info("Cleanup previous registration of RHSM");
 		clienttasks.execute_remote("subscription-manager clean"); // cleanup previous registration craps
-		
-		// Exit if we want to reuse the system. For DEBUG only.
-		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
-		if(reuseSystem.equalsIgnoreCase("true")){
-			return;
-		}
 		
 		log.info("Remove possible old version of RHSM, install new");
 		installRepo_RHSM();
