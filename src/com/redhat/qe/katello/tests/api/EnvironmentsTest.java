@@ -10,6 +10,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 
 public class EnvironmentsTest extends KatelloTestScript{
 	private String org_name;
@@ -61,7 +62,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(this.org_name, this.env_name, env_descr,"Locker");
+		servertasks.createEnvironment(this.org_name, this.env_name, env_descr,KatelloEnvironment.LOCKER);
 		JSONObject json_env = servertasks.getEnvFromOrgList(this.org_name, this.env_name);
 		Assert.assertNotNull(json_env,"Should be in envs. list of the organization");
 	}

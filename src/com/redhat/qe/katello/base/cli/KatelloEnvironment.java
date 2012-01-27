@@ -6,7 +6,7 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloEnvironment {
 	
 	// ** ** ** ** ** ** ** Public constants
-	public static final String LOCKER = "Locker";
+	public static final String LOCKER = "Library";
 	
 	public static final String CMD_CREATE = "environment create";
 	public static final String CMD_INFO = "environment info";

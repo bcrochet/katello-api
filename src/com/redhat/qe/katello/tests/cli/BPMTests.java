@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
@@ -128,7 +129,7 @@ static{
 	public void test_createEnvPromoteContent(){
 		// Environment create: Dev
 		exec_result = clienttasks.run_cliCmd(String.format(
-				"environment create --org %s --name %s --prior Locker",
+				"environment create --org %s --name %s --prior "+KatelloEnvironment.LOCKER,
 				org_name,env_name_Dev));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created environment [ "+env_name_Dev+" ]");				

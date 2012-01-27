@@ -8,6 +8,7 @@ import com.redhat.qe.auto.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 
 public class A_ConsumersTest extends KatelloTestScript {
 	protected static Logger log = 
@@ -34,7 +35,7 @@ public class A_ConsumersTest extends KatelloTestScript {
 		uid = KatelloTestScript.getUniqueID();
 		env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(org_name, env_name, env_descr,"Locker");
+		servertasks.createEnvironment(org_name, env_name, env_descr,KatelloEnvironment.LOCKER);
 	}
 
 	@Test(groups = { "testConsumers" }, description = "Create consumer")

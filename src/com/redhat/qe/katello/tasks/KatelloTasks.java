@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloInfo;
 import com.redhat.qe.tools.ExecCommands;
@@ -233,7 +234,7 @@ public class KatelloTasks {
 	}
 		
 	public String createEnvironment(String orgName, String envName, String envDesc){
-		return createEnvironment(orgName, envName, envDesc,"Locker");
+		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LOCKER);
 	}
 	
 	public String createEnvironment(String orgName, String envName, String envDesc, 
