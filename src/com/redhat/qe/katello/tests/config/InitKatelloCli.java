@@ -67,12 +67,6 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 	private void config_cli(String servername){
 		SSHCommandResult ssh_res;
 
-		// Exit if we want to reuse the system. For DEBUG only.
-		String reuseSystem = System.getProperty("katello.cli.reuseSystem", "false");
-		if(reuseSystem.equalsIgnoreCase("true")){
-			return;
-		}
-				
 		// Install Katello yum repo under /etc/yum.repos.d/
 		installRepo_Katello();
 
