@@ -75,7 +75,7 @@ public class KatelloUser {
 		// asserts: user list
 		res = list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_LIST+")");
-		String REGEXP_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+None.*";
+		String REGEXP_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*";
 		if(this.disabled)
 			REGEXP_LIST = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
 
@@ -87,7 +87,7 @@ public class KatelloUser {
 		// asserts: user info
 		res = info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+CMD_INFO+")");
-		String REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+None.*";
+		String REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+False.*";
 		if(this.disabled)
 			REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
 		match_info = String.format(REGEXP_INFO,
