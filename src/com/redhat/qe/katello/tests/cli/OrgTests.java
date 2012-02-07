@@ -96,7 +96,7 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res = clienttasks.run_cliCmd(String.format(
 				"org delete --name %s",orgName));
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), String.format("Successfully deleted org [ %s ]",orgName));
+		Assert.assertTrue(res.getStdout().trim().contains(String.format("Successfully deleted org [ %s ]",orgName)),"Check - return string");
 		
 		res = clienttasks.run_cliCmd(String.format("org info --name %s",orgName));
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
