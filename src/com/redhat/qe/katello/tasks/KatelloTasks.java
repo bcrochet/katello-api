@@ -234,7 +234,7 @@ public class KatelloTasks {
 	}
 		
 	public String createEnvironment(String orgName, String envName, String envDesc){
-		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LOCKER);
+		return createEnvironment(orgName, envName, envDesc,KatelloEnvironment.LIBRARY);
 	}
 	
 	public String createEnvironment(String orgName, String envName, String envDesc, 

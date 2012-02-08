@@ -55,7 +55,7 @@ public class SystemTests extends KatelloCliTestScript{
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertEquals(exec_result.getStderr().trim(), 
-				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LOCKER),
+				String.format(KatelloSystem.ERR_RHSM_LOCKER_ONLY,this.orgName, KatelloEnvironment.LIBRARY),
 				"Check - please create an env.");
 	}
 	
@@ -67,7 +67,7 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		// Create the env.
 		KatelloEnvironment env = new KatelloEnvironment(
-				clienttasks, this.envName_Dev, null, this.orgName, KatelloEnvironment.LOCKER);
+				clienttasks, this.envName_Dev, null, this.orgName, KatelloEnvironment.LIBRARY);
 		env.create();		
 		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
 		exec_result = sys.rhsm_register(); 
@@ -126,7 +126,7 @@ public class SystemTests extends KatelloCliTestScript{
 		
 		// Create the 2nd env.
 		KatelloEnvironment env = new KatelloEnvironment(
-				clienttasks, this.envName_Test, null, this.orgName, KatelloEnvironment.LOCKER);
+				clienttasks, this.envName_Test, null, this.orgName, KatelloEnvironment.LIBRARY);
 		env.create();		
 		KatelloSystem sys = new KatelloSystem(clienttasks, system, this.orgName, null);
 		exec_result = sys.rhsm_register(); 

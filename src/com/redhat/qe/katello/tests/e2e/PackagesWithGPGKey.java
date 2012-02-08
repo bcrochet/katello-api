@@ -1,0 +1,147 @@
+package com.redhat.qe.katello.tests.e2e;
+
+import java.util.logging.Logger;
+
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.KatelloCliTestScript;
+import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloChangeset;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloGpgKey;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
+import com.redhat.qe.katello.base.cli.KatelloRepo;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
+import com.redhat.qe.tools.SSHCommandResult;
+
+/**
+ * Whitebox test ideas: http://etherpad.corp.redhat.com/oIhuClgqfk<BR>
+ * Scenario:<BR>
+ * GPG keys: End to end "If I sign it can I install it"?
+ * @author gkhachik
+ */
+public class PackagesWithGPGKey extends KatelloCliTestScript{
+	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
+
+	public static final String GPG_PUBKEY_RPM = "gpg-pubkey-f78fb195-4f0d5ba1";
+	public static final String REPO_WITH_GPG_PACKAGES = "http://inecas.fedorapeople.org/fakerepos/zoo/";
+	public static final String REPO_GPG_FILE = "http://inecas.fedorapeople.org/fakerepos/zoo/RPM-GPG-KEY-dummy-packages-generator";
+	
+	private String org;
+	private String env = "Dev";
+	private String provider;
+	private String product;
+	private String repo;
+	private String gpg_key;
+	
+	@BeforeTest(description="Init unique names", alwaysRun=true)
+	public void setUp(){
+		String uniqueID = KatelloTestScript.getUniqueID();
+		this.org = "GPGOrg"+uniqueID;
+		this.provider = "GPGProv"+uniqueID;
+		this.product = "GPGProd"+uniqueID;
+		this.repo = "GPGRepo_Zoo"+uniqueID;
+		this.gpg_key = "gpg_zoo"+uniqueID;
+		
+		log.info("E2E - Cleanup GPG stuff");
+		clienttasks.execute_remote("yum -y erase wolf");
+		clienttasks.execute_remote("subscription-manager unregister");
+		clienttasks.execute_remote("rpm -e "+GPG_PUBKEY_RPM);
+		
+		log.info("E2E - Create org");
+		KatelloOrg org = new KatelloOrg(this.clienttasks, this.org, null);
+		org.create();
+	}
+	
+	@Test(description="Create org, provider, product and repo", enabled=true)
+	public void test_prepareRepo(){
+		log.info("E2E - Create provider/product/repo");
+		KatelloProvider prov = new KatelloProvider(clienttasks, this.provider,this.org, null, null);
+		prov.create(); // create provider
+		KatelloProduct prod = new KatelloProduct(clienttasks, this.product, this.org, this.provider, null, null, null, null, null);
+		prod.create(); // create product
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, null, null);
+		repo.create(); // create repo
+	}
+	
+	@Test(description="Create environment, gpg key", enabled=true)
+	public void test_prepareEnvGpgKey(){
+		log.info("E2E - Create environment/gpg key");
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, this.env, null, this.org, KatelloEnvironment.LIBRARY);
+		env.create();
+		this.clienttasks.execute_remote("wget "+REPO_GPG_FILE+" -O /tmp/RPM-GPG-KEY-dummy-packages-generator");
+		KatelloGpgKey gpg_key = new KatelloGpgKey(clienttasks, this.gpg_key, this.org, "/tmp/RPM-GPG-KEY-dummy-packages-generator");
+		gpg_key.create();
+	}
+	
+	@Test(description="Synchronize repository", dependsOnMethods={"test_prepareRepo"}, enabled=true)
+	public void test_syncRepo(){
+		log.info("E2E - Synchronize repo");
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, null, null);
+		repo.synchronize();
+	}
+	
+	@Test(description="Add gpg key to repo - after sync", dependsOnMethods={"test_syncRepo","test_prepareEnvGpgKey"}, enabled=true)
+	public void test_addGpgToRepo(){
+		
+		log.info("E2E - Add gpg key to repo");
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, this.gpg_key, null);
+		repo.update_gpgkey();
+		repo.assert_repoHasGpg();
+	}
+	
+	@Test(description="Promote product content to the environment", dependsOnMethods={"test_addGpgToRepo"}, enabled=true)
+	public void test_promoteRepoToEnv(){
+		SSHCommandResult res;
+		
+		log.info("E2E - Promote product to the environment");
+		String changeset_dev = "cs_"+this.env;
+		KatelloChangeset cs_dev = new KatelloChangeset(clienttasks, changeset_dev, this.org, this.env);
+		cs_dev.create(); // create changeset
+		cs_dev.update_addProduct(this.product); // add product
+		res = cs_dev.promote(); // promote
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
+	}
+	
+	@Test(description="Subscribe client system to the product", dependsOnMethods={"test_promoteRepoToEnv"}, enabled=true)
+	public void test_subscribeClient(){
+		SSHCommandResult res;
+		String systemName = "system-PackagesWithGPGKey-"+KatelloTestScript.getUniqueID();
+		
+		log.info("E2E - Subscribe client system");
+		clienttasks.execute_remote("subscription-manager clean");
+		res = clienttasks.execute_remote(String.format(
+					"subscription-manager register --username admin --password admin" +
+					" --org \"%s\" --environment \"%s\" --name \"%s\"",
+					this.org, this.env, systemName));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
+		
+		KatelloOrg org = new KatelloOrg(this.clienttasks, this.org, null);
+		String poolID = KatelloCliTasks.grepCLIOutput("Id",org.subscriptions().getStdout());
+		res = clienttasks.execute_remote(String.format("subscription-manager subscribe --pool=%s",poolID));
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
+		Assert.assertTrue(res.getStdout().trim().equals("Successfully consumed a subscription from the pool with id "+poolID), 
+				"Check - return message (rhsm subscribe)");
+	}
+	
+	@Test(description="Consume package installation, check gpgcheck flag", dependsOnMethods={"test_subscribeClient"}, enabled=true)
+	public void test_installPackage(){
+		SSHCommandResult res;
+		
+		log.info("E2E - check repo, install package");
+		clienttasks.execute_remote("yum repolist"); // refresh repos
+		res = clienttasks.execute_remote("cat /etc/yum.repos.d/redhat.repo");// out redhat.repo
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
+		String REPO_STRUCT = String.format(".*name = %s.*enabled = 1.*gpgcheck = 1.*",this.repo);
+		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REPO_STRUCT), "Check - redhat.repo content");
+		res = clienttasks.execute_remote("yum -y install wolf --disablerepo \\* --enablerepo *"+this.repo+"*");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (yum install wolf)");
+		res = clienttasks.execute_remote("rpm -qi "+GPG_PUBKEY_RPM);
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rpm info of gpg-key)");
+	}
+	
+}

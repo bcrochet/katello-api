@@ -3,33 +3,29 @@ package com.redhat.qe.katello.base.cli;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
-public class KatelloEnvironment {
+public class KatelloProvider {
 	
 	// ** ** ** ** ** ** ** Public constants
-	public static final String LIBRARY = "Library";
-	
-	public static final String CMD_CREATE = "environment create";
-	public static final String CMD_INFO = "environment info";
-	public static final String CMD_LIST = "environment list";
+	public static final String CMD_CREATE = "provider create";
 	
 	public static final String OUT_CREATE = 
-			"Successfully created environment [ %s ]";
+			"Successfully created provider [ %s ]";
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
-	String description;
 	String org;
-	String prior;
+	String description;
+	String url;
 	
 	private KatelloCliTasks cli;	
 	
-	public KatelloEnvironment(KatelloCliTasks pCli, String pName, String pDesc,
-			String pOrg, String pPrior){
+	public KatelloProvider(KatelloCliTasks pCli, String pName, String pOrg, 
+			String pDesc, String pUrl){
 		this.cli = pCli;
 		this.name = pName;
-		this.description = pDesc;
 		this.org = pOrg;
-		this.prior = pPrior;
+		this.description = pDesc;
+		this.url = pUrl;
 	}
 	
 	public SSHCommandResult create(){
@@ -37,16 +33,16 @@ public class KatelloEnvironment {
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
 		if(this.description != null)
 			cmd += " --description \""+this.description+"\"";
-		if(this.org != null)
-			cmd += " --org \""+this.org+"\"";		
-		if(this.prior != null)
-			cmd += " --prior \""+this.prior+"\"";
+		if(this.url != null)
+			cmd += " --url \""+this.url+"\"";
 		
 		return cli.run_cliCmd(cmd);
 	}
-	
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **

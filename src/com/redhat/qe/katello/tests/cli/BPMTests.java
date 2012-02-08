@@ -129,7 +129,7 @@ static{
 	public void test_createEnvPromoteContent(){
 		// Environment create: Dev
 		exec_result = clienttasks.run_cliCmd(String.format(
-				"environment create --org %s --name %s --prior "+KatelloEnvironment.LOCKER,
+				"environment create --org %s --name %s --prior "+KatelloEnvironment.LIBRARY,
 				org_name,env_name_Dev));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created environment [ "+env_name_Dev+" ]");				

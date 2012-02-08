@@ -62,7 +62,7 @@ public class EnvironmentsTest extends KatelloTestScript{
 		String uid = KatelloTestScript.getUniqueID();
 		this.env_name = "auto-env-"+uid; 
 		String env_descr = "Test Environment "+uid;
-		servertasks.createEnvironment(this.org_name, this.env_name, env_descr,KatelloEnvironment.LOCKER);
+		servertasks.createEnvironment(this.org_name, this.env_name, env_descr,KatelloEnvironment.LIBRARY);
 		JSONObject json_env = servertasks.getEnvFromOrgList(this.org_name, this.env_name);
 		Assert.assertNotNull(json_env,"Should be in envs. list of the organization");
 	}
