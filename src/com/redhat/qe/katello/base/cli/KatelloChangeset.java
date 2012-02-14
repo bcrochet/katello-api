@@ -84,6 +84,23 @@ public class KatelloChangeset {
 		return cli.run_cliCmd(cmd);
 	}
 	
+	public SSHCommandResult update_fromProduct_addErrata(String productName, String errataName){
+		String cmd = CMD_UPDATE;
+		
+		if(productName != null)
+			cmd += " --from_product \""+productName+"\"";
+		if(errataName != null)
+			cmd += " --add_erratum \""+errataName+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.environment != null)
+			cmd += " --environment \""+this.environment+"\"";
+		
+		return cli.run_cliCmd(cmd);
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	
