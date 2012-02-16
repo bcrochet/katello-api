@@ -11,13 +11,13 @@ public interface KatelloConstants {
 	public static final String SYSOUT_PWD_MASK = "********";
 
 	public static final String KATELLO_SMALL_REPO = 
-		"http://repos.fedorapeople.org/repos/katello/katello/fedora-14/x86_64/";
+		"http://repos.fedorapeople.org/repos/katello/katello/fedora-15/x86_64/";
 	public static final String PULP_F15_x86_64_REPO = 
-		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/x86_64/";
+		"http://repos.fedorapeople.org/repos/pulp/pulp/v1/testing/fedora-15/x86_64/";
 	public static final String PULP_F15_i386_REPO = 
-		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/i386/";
+		"http://repos.fedorapeople.org/repos/pulp/pulp/v1/testing/fedora-15/i386/";
 	public static final String PULP_F15_REPO = 
-		"http://repos.fedorapeople.org/repos/pulp/pulp/fedora-15/";
+		"http://repos.fedorapeople.org/repos/pulp/pulp/v1/testing/fedora-15/";
 	public static final String EXPORT_ZIP_PATH = 
 		System.getProperty("user.dir") + "/data/export.zip";
 	public static final int PRODUCTS_IN_EXPORT_ZIP = 6;
