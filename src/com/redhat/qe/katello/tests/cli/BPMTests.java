@@ -44,9 +44,6 @@ static{
 	protected static Logger log = 
 		Logger.getLogger(BPMTests.class.getName());
 	
-	public static final String KATELLO_SYNC_REPO_PULP_F15 = 
-		"http://repos.fedorapeople.org/repos/pulp/pulp/6Server/x86_64/";
-	
 	private SSHCommandResult exec_result;
 
 	// Katello objects below
@@ -112,7 +109,7 @@ static{
 		// Repo create:
 		exec_result = clienttasks.run_cliCmd(String.format(
 				"repo create --org %s --product %s --name %s --url %s",
-				org_name,product_name,repo_name_pulpRHEL6, KATELLO_SYNC_REPO_PULP_F15));
+				org_name,product_name,repo_name_pulpRHEL6, PULP_F15_x86_64_REPO));
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertEquals(exec_result.getStdout().trim(), "Successfully created repository [ "+repo_name_pulpRHEL6+" ]");		
 		// Repo synchronize:
