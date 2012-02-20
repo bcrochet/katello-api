@@ -124,7 +124,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		String poolID = KatelloCliTasks.grepCLIOutput("Id",org.subscriptions().getStdout());
 		res = clienttasks.execute_remote(String.format("subscription-manager subscribe --pool=%s",poolID));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
-		Assert.assertTrue(res.getStdout().trim().equals("Successfully consumed a subscription from the pool with id "+poolID), 
+		Assert.assertTrue(res.getStdout().trim().equals("Successfully subscribed the system to Pool "+poolID), 
 				"Check - return message (rhsm subscribe)");
 	}
 	

@@ -1,7 +1,9 @@
 package com.redhat.qe.katello.tests.config;
 
+import java.util.logging.Logger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -10,9 +12,12 @@ import com.redhat.qe.tools.SSHCommandResult;
 import com.redhat.qe.tools.SSHCommandRunner;
 
 public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript implements KatelloConstants{
+	protected static Logger log = 
+			Logger.getLogger(InitKatelloCli.class.getName());
 
 	protected KatelloTasks servertasks	= null;
 	protected KatelloCliTasks clienttasks = null;
+	private boolean isCFSE;
 
 	public InitKatelloCli() {
 		super();
@@ -43,6 +48,7 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 			ExecCommands localRunner = new ExecCommands();
 			servertasks = new KatelloTasks(server_sshRunner, localRunner);
 			clienttasks = new KatelloCliTasks(client_sshRunner, localRunner);
+			this.isCFSE = ifCFSE();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -68,7 +74,10 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 		SSHCommandResult ssh_res;
 
 		// Install Katello yum repo under /etc/yum.repos.d/
-		installRepo_Katello();
+		String kt_servername = System.getProperty("katello.server.hostname", "localhost");
+		String kt_clientname = System.getProperty("katello.client.hostname", "localhost");
+		if(!kt_clientname.equals(kt_servername))
+			installRepo_Katello();
 
 		// Clean up yum caches, install wget (if not installed)
 		clienttasks.execute_remote("yum clean all"); // cleanup the caches
@@ -78,18 +87,28 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 		clienttasks.execute_remote("yum repolist && yum -y erase katello-cli katello-cli-common katello-agent gofer gofer-package"); // listing repos is needed, gets the repodata
 		clienttasks.execute_remote("rm -f /etc/katello/client* /etc/gofer/plugins/katelloplugin*"); // remove config files
 		
-		ssh_res = clienttasks.execute_remote("yum -y install katello-cli katello-cli-common katello-agent");
+		String pkgsInstall = "katello-cli";
+		if(!isCFSE)
+			pkgsInstall += " katello-agent";
+		ssh_res = clienttasks.execute_remote("yum -y install "+pkgsInstall);
 		Assert.assertTrue(ssh_res.getExitCode().intValue()==0, 
 				"Check: return code is 0");
-		ssh_res = clienttasks.execute_remote("rpm -q katello-cli katello-agent");
-		Assert.assertEquals(ssh_res.getExitCode(), new Integer(0), 
-				"Check: return code of `rpm -q katello-cli katello-agent`");
 		
-		clienttasks.execute_remote("sed -i \"s/host\\s*=.*/" +
-				"host = "+servername+"/g\" "+KATELLO_CLI_CLIENT_CONFIG);
-		clienttasks.execute_remote("sed -i \"s/url\\s*=.*/"+
-				"url=tcp:\\/\\/\\$\\(host):5672"+
-				"/g\" "+KATELLO_AGENT_CONFIG);
+			ssh_res = clienttasks.execute_remote("rpm -q "+pkgsInstall);
+		Assert.assertEquals(ssh_res.getExitCode(), new Integer(0), 
+				"Check: return code of `rpm -q "+pkgsInstall+"`");
+		if(!isCFSE){
+			clienttasks.execute_remote("sed -i \"s/host\\s*=.*/" +
+					"host = "+servername+"/g\" "+KATELLO_CLI_CLIENT_CONFIG);
+			clienttasks.execute_remote("sed -i \"s/url\\s*=.*/"+
+					"url=tcp:\\/\\/\\$\\(host):5672"+
+					"/g\" "+KATELLO_AGENT_CONFIG);
+		}
+	}
+	
+	@Test
+	public void test_null(){
+		
 	}
 	
 	private void config_rhsm(String servername, String candlepin_ca_crt){
@@ -99,7 +118,13 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 		clienttasks.execute_remote("subscription-manager clean"); // cleanup previous registration craps
 		
 		log.info("Remove possible old version of RHSM, install new");
-		installRepo_RHSM();
+
+		String kt_servername = System.getProperty("katello.server.hostname", "localhost");
+		String kt_clientname = System.getProperty("katello.client.hostname", "localhost");
+		if(!kt_clientname.equals(kt_servername)){
+			if(!this.isCFSE)
+				installRepo_RHSM();
+		}
 		clienttasks.execute_remote("yum -y erase python-rhsm subscription-manager; rm -rf /etc/rhsm/* /etc/yum.repos.d/redhat.repo");
 		exec_result = clienttasks.execute_remote("yum repolist; yum -y install python-rhsm subscription-manager");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "RHSM packages should get installed");
@@ -155,5 +180,15 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 			System.exit(1);
 		}
 		return platform_id;
+	}
+	
+	private boolean ifCFSE(){
+		String kt_servername = System.getProperty("katello.server.hostname", "localhost");
+		SSHCommandResult res = clienttasks.execute_remote("curl -sk wget https://"+kt_servername+"/katello | grep \"CloudForms System Engine Version:\" | cut -d: -f2");
+		if(!res.getStdout().trim().equals("")){
+			log.info("Server is running [CloudForms System Engine Version: "+res.getStdout().trim()+"]");
+			return true;
+		}
+		return false;
 	}
 }
