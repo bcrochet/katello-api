@@ -81,17 +81,19 @@ public class EnvironmentsTest extends KatelloTestScript{
 		JSONObject json_updEnv;
 		JSONObject json_env = servertasks.getEnvironment(this.org_name, this.env_name);
 		try{
-			// update: name
-			dupBefore = parseKatelloDate((String)json_env.get("updated_at"));
-			json_updEnv = this.updateEnvProperty("name", "modified-"+this.env_name);
-			
-			dupAfter = parseKatelloDate((String)json_updEnv.get("updated_at"));
-			Assert.assertEquals(json_updEnv.get("name"), "modified-"+this.env_name,"Check updated: name");
-			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
-			this.env_name = "modified-"+this.env_name;
+//			// update: name
+//			dupBefore = parseKatelloDate((String)json_env.get("updated_at"));
+//			json_updEnv = this.updateEnvProperty("name", "modified-"+this.env_name);
+//			
+//			dupAfter = parseKatelloDate((String)json_updEnv.get("updated_at"));
+//			Assert.assertEquals(json_updEnv.get("name"), "modified-"+this.env_name,"Check updated: name");
+//			Assert.assertMore(dupAfter.getTime(), dupBefore.getTime(), "Check the timestamp updated");
+//			this.env_name = "modified-"+this.env_name;
+			// ENV name can not be updated any more. Refer to inecas. 
+			// Applied today: 21.Feb.2012 
 			
 			// update: description
-			dupBefore = dupAfter;
+			dupBefore = parseKatelloDate((String)json_env.get("updated_at"));
 			json_updEnv = this.updateEnvProperty("description", "Updated environment description");
 			dupAfter = parseKatelloDate((String)json_updEnv.get("updated_at"));
 			Assert.assertEquals(json_updEnv.get("description"), "Updated environment description","Check updated: description");
