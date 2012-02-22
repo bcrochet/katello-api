@@ -101,7 +101,7 @@ public class OrgTests extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd(String.format("org info --name %s",orgName));
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
 		Assert.assertEquals(res.getStderr().trim(), 
-				String.format("Couldn't find organization '%s',",orgName));
+				String.format("Couldn't find organization '%s'",orgName));
 	}
 	
 	/**
