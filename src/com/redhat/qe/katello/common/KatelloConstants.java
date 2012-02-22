@@ -119,10 +119,21 @@ public interface KatelloConstants {
 
 // # Katello-CLI constants #
 // # ===================== #
-	public static final String YUM_REPO_FEDORA_KATELLO=
-		"http://repos.fedorapeople.org/repos/katello/katello/fedora-katello.repo";
+	public static final String YUM_REPO_FEDORA15_KATELLO=
+		"http://repos.fedorapeople.org/repos/katello/katello/fedora-15/x86_64/katello-repos-latest.rpm";
+	public static final String YUM_REPO_FEDORA16_KATELLO=
+			"http://repos.fedorapeople.org/repos/katello/katello/fedora-16/x86_64/katello-repos-latest.rpm";
 	public static final String YUM_REPO_RHEL_KATELLO=
-		"http://repos.fedorapeople.org/repos/katello/katello/epel-katello.repo";
+		"http://repos.fedorapeople.org/repos/katello/katello/6Server/x86_64/katello-repos-latest.rpm";
+
+	public static final String YUM_REPO_FEDORA15_KATELLO_TESTING=
+			"http://repos.fedorapeople.org/repos/katello/katello/fedora-15/x86_64/katello-repos-testing-latest.rpm";
+		public static final String YUM_REPO_FEDORA16_KATELLO_TESTING=
+				"http://repos.fedorapeople.org/repos/katello/katello/fedora-16/x86_64/katello-repos-testing-latest.rpm";
+		public static final String YUM_REPO_RHEL_KATELLO_TESTING=
+			"http://repos.fedorapeople.org/repos/katello/katello/6Server/x86_64/katello-repos-testing-latest.rpm";
+
+	
 	public static final String YUM_REPO_FEDORA_RHSM=
 			"http://repos.fedorapeople.org/repos/candlepin/subscription-manager/fedora-subscription-manager.repo";
 		public static final String YUM_REPO_RHEL_RHSM=
@@ -136,8 +147,8 @@ public interface KatelloConstants {
 	 * &nbsp;&nbsp;[2] - Katello yum repo url 
 	 */
 	public static final String[][] CLIENT_PLATFORMS_ALLOWED = {
-		{"x86_64-x86_64-with-fedora-15","Fedora 15 (64 bit)",YUM_REPO_FEDORA_KATELLO},
-		{"x86_64-x86_64-with-fedora-16","Fedora 16 (64 bit))",YUM_REPO_FEDORA_KATELLO},
+		{"x86_64-x86_64-with-fedora-15","Fedora 15 (64 bit)",YUM_REPO_FEDORA16_KATELLO},
+		{"x86_64-x86_64-with-fedora-16","Fedora 16 (64 bit))",YUM_REPO_FEDORA16_KATELLO},
 		{"x86_64-x86_64-with-redhat-6","RHEL 6.x (64 bit)",YUM_REPO_RHEL_KATELLO}
 	};
 	

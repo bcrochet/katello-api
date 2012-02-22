@@ -143,13 +143,23 @@ public class InitKatelloCli extends com.redhat.qe.auto.testng.TestScript impleme
 	
 	private void installRepo_Katello(){
 		int platform_id = getClientPlatformID(); // or exit if unsupported.
-		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("fedora")){ // Fedora
-			clienttasks.execute_remote(String.format("" +
-					"wget -O /etc/yum.repos.d/fedora-katello.repo %s",YUM_REPO_FEDORA_KATELLO));
+		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("fedora-15")){ // Fedora 15
+			if(isCFSE)
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck", YUM_REPO_FEDORA15_KATELLO));
+			else
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck", YUM_REPO_FEDORA15_KATELLO_TESTING));
+		}
+		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("fedora-16")){ // Fedora 16
+			if(isCFSE)
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck", YUM_REPO_FEDORA16_KATELLO));
+			else
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck", YUM_REPO_FEDORA16_KATELLO_TESTING));
 		}
 		if(CLIENT_PLATFORMS_ALLOWED[platform_id][0].contains("redhat")){ // RHEL
-			clienttasks.execute_remote(String.format("" +
-					"wget -O /etc/yum.repos.d/epel-katello.repo %s",YUM_REPO_RHEL_KATELLO));
+			if(isCFSE)
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck",YUM_REPO_RHEL_KATELLO));
+			else
+				clienttasks.execute_remote(String.format("yum -y install %s --nogpgcheck",YUM_REPO_RHEL_KATELLO_TESTING));
 		}
 	}
 	
