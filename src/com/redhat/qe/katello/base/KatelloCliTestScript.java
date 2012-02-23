@@ -30,7 +30,7 @@ implements KatelloConstants {
 						System.getProperty("katello.server.hostname", "localhost"), 
 						System.getProperty("katello.ssh.user", "root"), 
 						System.getProperty("katello.ssh.passphrase", "secret"), 
-						System.getProperty("katello.sshkey.private", ".ssh/id_auto_dsa"), 
+						System.getProperty("katello.sshkey.private", ".ssh/id_hudson_dsa"), 
 						System.getProperty("katello.sshkey.passphrase", "secret"), null);				
 			}catch(Throwable t){
 				log.warning("Warning: Could not initialize server's SSHCommandRunner.");
@@ -40,7 +40,7 @@ implements KatelloConstants {
 						System.getProperty("katello.client.hostname", "localhost"), 
 						System.getProperty("katello.client.ssh.user", "root"), 
 						System.getProperty("katello.client.ssh.passphrase", "secret"), 
-						System.getProperty("katello.client.sshkey.private", ".ssh/id_auto_dsa"), 
+						System.getProperty("katello.client.sshkey.private", ".ssh/id_hudson_dsa"), 
 						System.getProperty("katello.client.sshkey.passphrase", "secret"), null);				
 			}catch(Throwable t){
 				log.warning("Warning: Could not initialize client's SSHCommandRunner.");

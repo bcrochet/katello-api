@@ -168,7 +168,7 @@ public interface KatelloConstants {
 		"--distro=RHEL6-6.1 --variant=Server --arch=x86_64 "+
 		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
 		"--whiteboard=\"Katello install [Jenkins] - RHEL6\" "+
-		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_hudson_dsa' "+
 		"--task=/distribution/reservesys";
 	
 	public static final String BKR_KATELLO_RESERVESYS_F15 = 
@@ -176,7 +176,7 @@ public interface KatelloConstants {
 		"--distro=Fedora-15 --arch=x86_64 "+
 		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
 		"--whiteboard=\"Katello install [Jenkins] - F15\" "+
-		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_hudson_dsa' "+
 		"--task=/distribution/reservesys";
 
 	public static final String BKR_KATELLO_RESERVESYS_F14 = 
@@ -184,7 +184,7 @@ public interface KatelloConstants {
 		"--distro=Fedora-14 --arch=x86_64 "+
 		"--keyvalue=\"MEMORY>2047\" --keyvalue=\"DISK>19999\" "+
 		"--whiteboard=\"Katello install [Jenkins] - F14\" "+
-		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_auto_dsa' "+
+		"--task=/Kalpana/Sanity/ImportKeys --taskparam='PUBKEYS=id_hudson_dsa' "+
 		"--task=/distribution/reservesys";
 	
 	public static enum BKR_LAB_CONTROLLER {
