@@ -29,7 +29,6 @@
 	
 	<test name="CLI_Tests" preserve-order="true">
 		<classes>
-			<class name="com.redhat.qe.katello.tests.config.InitKatelloCli"/>
 			<class name="com.redhat.qe.katello.tests.cli.SystemTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.OrgTests"/>
 			<class name="com.redhat.qe.katello.tests.cli.ProviderTests"/>
@@ -41,14 +40,12 @@
 	
 	<test name="BPM_Tests" preserve-order="true">
 		<classes>
-			<class name="com.redhat.qe.katello.tests.config.InitKatelloCli"/>
 			<class name="com.redhat.qe.katello.tests.cli.BPMTests"/>
 		</classes>
 	</test>
 	
 	<test name="E2E_Tests" preserve-order="true">
 		<classes>
-			<class name="com.redhat.qe.katello.tests.config.InitKatelloCli"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
 		</classes>
