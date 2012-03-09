@@ -9,7 +9,9 @@ import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloChangeset;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -26,7 +28,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		this.prov_name = "prov"+uid;
 		res = clienttasks.run_cliCmd("org create --name "+this.org_name);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org create)");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL, this.org_name, this.prov_name));
+		KatelloProvider prov = new KatelloProvider(clienttasks, this.prov_name, this.org_name, null, null);
+		res = prov.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider create)");
 	}
 	
@@ -331,13 +334,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		// create changeset
-		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.CREATE,this.org_name,envName_dev,csName));
+		KatelloChangeset cs = new KatelloChangeset(clienttasks, csName, this.org_name, envName_dev);
+		res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
 		// add product to the changeset
-		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.UPDATE_ADD_PRODUCT,prodName,this.org_name,envName_dev,csName));
+		res = cs.update_addProduct(prodName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_product)");
 		// promote changeset (dev)
-		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.PROMOTE,this.org_name,envName_dev,csName));
+		res = cs.promote();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		
 		// Assertions - repo list by env

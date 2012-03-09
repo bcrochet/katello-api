@@ -101,6 +101,21 @@ public class KatelloChangeset {
 		return cli.run_cliCmd(cmd);
 	}
 
+	public SSHCommandResult update_addTemplate(String templatename){
+		String cmd = CMD_UPDATE;
+		
+		if(templatename != null)
+			cmd += " --add_template \""+templatename+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.environment != null)
+			cmd += " --environment \""+this.environment+"\"";
+		
+		return cli.run_cliCmd(cmd);
+	}
+
 	// ** ** ** ** ** ** **
 	// ASSERTS
 	// ** ** ** ** ** ** **	

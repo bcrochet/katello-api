@@ -3,11 +3,11 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
-import com.redhat.qe.katello.base.IKatelloChangeset;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloActivationKey;
+import com.redhat.qe.katello.base.cli.KatelloChangeset;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloTemplate;
@@ -119,7 +119,7 @@ static{
 	
 	@Test(description="create AK - with template", enabled=true)
 	public void test_create_withTemplate(){
-		SSHCommandResult res; String cmd;
+		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
 		String template = "templateForEnv-"+uid;
 		String changeset = "csForEnv-"+uid;
@@ -131,18 +131,16 @@ static{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
 		
 		// create changeset
-		cmd = String.format(IKatelloChangeset.CREATE, this.organization, this.env, changeset);
-		res = clienttasks.run_cliCmd(cmd);
+		KatelloChangeset cs = new KatelloChangeset(clienttasks, changeset, this.organization, this.env);
+		res = cs.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset create)");
 		
 		// add template to changeset
-		cmd = String.format(IKatelloChangeset.UPDATE_ADD_TEMPLATE, template, this.organization, this.env, changeset);
-		res = clienttasks.run_cliCmd(cmd);
+		res = cs.update_addTemplate(template);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset update --add_template)");
 		
 		// promote changeset to the env.
-		cmd = String.format(IKatelloChangeset.PROMOTE, this.organization, this.env, changeset);
-		res = clienttasks.run_cliCmd(cmd);
+		res = cs.promote();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
 		
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template);
