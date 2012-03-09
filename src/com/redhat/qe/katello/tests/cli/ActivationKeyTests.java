@@ -4,13 +4,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.IKatelloChangeset;
-import com.redhat.qe.katello.base.IKatelloEnvironment;
-import com.redhat.qe.katello.base.IKatelloOrg;
-import com.redhat.qe.katello.base.IKatelloTemplate;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloActivationKey;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloTemplate;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ActivationKeyTests extends KatelloCliTestScript{
@@ -29,9 +29,11 @@ static{
 		String uid = KatelloTestScript.getUniqueID();
 		this.organization = "ak-"+uid;
 		this.env = "ak-"+uid;
-		res = clienttasks.run_cliCmd(String.format(IKatelloOrg.CREATE_NODESC,this.organization));
+		KatelloOrg org = new KatelloOrg(clienttasks, this.organization, null);
+		res = org.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.organization,this.env,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, this.env, null, this.organization, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 	}
 	
@@ -74,8 +76,8 @@ static{
 		String ak_name = "nfe-"+uid;
 
 		// create the template
-		String cmd = String.format(IKatelloTemplate.CREATE, this.organization, template);
-		res = clienttasks.run_cliCmd(cmd);
+		KatelloTemplate tmpl = new KatelloTemplate(clienttasks, template, null, this.organization, null);
+		res = tmpl.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
 		
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template);
@@ -94,9 +96,11 @@ static{
 		String org2 = "org2-"+uid;
 
 		// create 2nd org (and the same env) 
-		res = clienttasks.run_cliCmd(String.format(IKatelloOrg.CREATE_NODESC,org2));
+		KatelloOrg org = new KatelloOrg(clienttasks, org2, null);
+		res = org.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,org2,this.env,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, this.env, null, org2, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, org2, this.env, ak_name, null, null);
@@ -122,8 +126,8 @@ static{
 		String ak_name = "akTemplate-"+uid;
 
 		// create template
-		cmd = String.format(IKatelloTemplate.CREATE, this.organization, template);
-		res = clienttasks.run_cliCmd(cmd);
+		KatelloTemplate tmpl = new KatelloTemplate(clienttasks, template, null, this.organization, null);
+		res = tmpl.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template create)");
 		
 		// create changeset

@@ -1,8 +1,14 @@
 package com.redhat.qe.katello.base;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Logger;
 import org.testng.Assert;
+
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.katello.tasks.KatelloTasks;
@@ -96,7 +102,7 @@ implements KatelloConstants {
 	}
 	
 	protected void assert_productExists(String orgName, String providerName, String productName){
-		this.assert_productExists(orgName, providerName, productName, IKatelloEnvironment.LOCKER, false);
+		this.assert_productExists(orgName, providerName, productName, KatelloEnvironment.LIBRARY, false);
 	}
 
 	protected void assert_productExists(String orgName, String providerName, String productName, String envName, boolean synced){
@@ -143,5 +149,35 @@ implements KatelloConstants {
 			log.fine("Repo sync done in: ["+String.valueOf((Calendar.getInstance().getTimeInMillis() / 1000) - start)+"] sec");
 		else
 			log.warning("Repo sync did not finished after: ["+String.valueOf(maxWaitSec - start)+"] sec");
-	}	
+	}
+	
+	/**
+	 * Returns list of org names that have imported a manifest that has subscriptions for:<BR>
+	 * Red Hat Enterprise Linux Server<BR>
+	 * Id: 69
+	 * @return empty list or names of the orgs
+	 */
+	protected ArrayList<String> getOrgsWithImportedManifest(){
+		ArrayList<String> orgs = new ArrayList<String>();
+		String servername = System.getProperty("katello.server.hostname", "localhost");
+		log.info("Scanning ["+servername+"] for organizations with imported manifest");
+		SSHCommandResult res = clienttasks.run_cliCmd("org list -v | grep \"^Name\" | cut -d: -f2");
+		String[] lines = res.getStdout().split("\n");
+		for(String org: lines){
+			org = org.trim();
+			res = clienttasks.run_cliCmd("product list --provider=\""+KatelloProvider.PROVIDER_REDHAT+
+					"\" --org \""+org+"\" -v | grep \"^Id:\\s\\+69\" | wc -l");
+			if(res.getStdout().trim().equals("1")){
+				orgs.add(org);
+			}
+		}
+		return orgs;
+	}
+	
+	protected boolean hasOrg_environment(String org, String environment){
+		log.info(String.format("CHeck if the org [%s] has an environment [%s]",org,environment));
+		SSHCommandResult res = clienttasks.run_cliCmd("environment list"+
+				"\" --org \""+org+"\" -v | grep \"^Name:\\s\\+"+environment+"\" | wc -l");
+		return res.getStdout().trim().equals("1");
+	}
 }

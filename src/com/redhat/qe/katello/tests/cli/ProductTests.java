@@ -2,15 +2,14 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
 import com.redhat.qe.katello.base.IKatelloChangeset;
-import com.redhat.qe.katello.base.IKatelloEnvironment;
 import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -142,7 +141,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// create env.
 		String envName = "dev-"+uid;
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -169,7 +169,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		assert_productExists(this.org_name, this.prov_name, prodName);
 		
 		// create env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -210,7 +211,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		assert_productExists(this.org_name, this.prov_name, prodName);
 		
 		// create env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
@@ -325,7 +327,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		// create env. - dev
-		res = clienttasks.run_cliCmd(String.format(IKatelloEnvironment.CREATE_NODESC,this.org_name,envName_dev,IKatelloEnvironment.LOCKER));
+		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
+		res = env.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		// create changeset
 		res = clienttasks.run_cliCmd(String.format(IKatelloChangeset.CREATE,this.org_name,envName_dev,csName));

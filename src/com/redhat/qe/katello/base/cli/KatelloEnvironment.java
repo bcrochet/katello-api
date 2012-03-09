@@ -9,7 +9,7 @@ public class KatelloEnvironment {
 	public static final String LIBRARY = "Library";
 	
 	public static final String CMD_CREATE = "environment create";
-	public static final String CMD_INFO = "environment info";
+	public static final String CMD_INFO = "environment info -v";
 	public static final String CMD_LIST = "environment list";
 	
 	public static final String OUT_CREATE = 
@@ -45,6 +45,17 @@ public class KatelloEnvironment {
 			cmd += " --prior \""+this.prior+"\"";
 		
 		return cli.run_cliCmd(cmd);
+	}
+	
+	public SSHCommandResult info(){
+		String cmd = CMD_INFO;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";		
+		
+		return cli.run_cliCmd(cmd);		
 	}
 	
 	// ** ** ** ** ** ** **

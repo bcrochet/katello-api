@@ -5,6 +5,8 @@ import com.redhat.qe.tools.SSHCommandResult;
 
 public class KatelloProduct {
 	
+	public static final String RHEL_SERVER = "Red Hat Enterprise Linux Server";
+	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "product create";
 	
