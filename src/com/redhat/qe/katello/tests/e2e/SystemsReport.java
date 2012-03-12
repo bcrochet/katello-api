@@ -109,11 +109,11 @@ public class SystemsReport extends KatelloCliTestScript{
 		Assert.assertTrue((redCnt>=1), "Check - red systems cound >=1");
 	}
 	
-	@Test(description="Check green systems == 2", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
+	@Test(description="Check green systems >= 2", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
 	public void test_greenSystemsCount(){
 		SSHCommandResult res = clienttasks.run_cliCmd("system report --org \""+this.org+"\" --format csv | grep \",green,\" | wc -l");
 		int redCnt = Integer.parseInt(res.getStdout().trim());
-		Assert.assertTrue((redCnt>=1), "Check - green systems cound ==2");
+		Assert.assertTrue((redCnt>=2), "Check - green systems cound >=2");
 	}
 	
 	@Test(description="Check report headers - compliance", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
