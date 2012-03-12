@@ -190,8 +190,10 @@ static{
 		Assert.assertNotNull(rhsm_pool_id, "Check - pool id is set");
 		exec_result = clienttasks.execute_remote("subscription-manager subscribe --pool "+rhsm_pool_id);
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(exec_result.getStdout().trim().startsWith("Successfully consumed a subscription from the pool with id "+rhsm_pool_id), 
-				"Check - returned message");
+		Assert.assertTrue(exec_result.getStdout().trim().startsWith("Successfully"), 
+				"Check - returned message (Successfully)");
+		Assert.assertTrue(exec_result.getStdout().trim().contains(rhsm_pool_id), 
+				"Check - returned message (pool ID)");
 	}
 	
 	@Test(description="Yum should work - yum info pulp-consumer", 
