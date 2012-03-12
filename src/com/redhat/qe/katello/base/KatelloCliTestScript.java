@@ -175,9 +175,25 @@ implements KatelloConstants {
 	}
 	
 	protected boolean hasOrg_environment(String org, String environment){
-		log.info(String.format("CHeck if the org [%s] has an environment [%s]",org,environment));
+		log.info(String.format("Check if the org [%s] has an environment [%s]",org,environment));
 		SSHCommandResult res = clienttasks.run_cliCmd("environment list"+
 				"\" --org \""+org+"\" -v | grep \"^Name:\\s\\+"+environment+"\" | wc -l");
 		return res.getStdout().trim().equals("1");
+	}
+	
+	protected SSHCommandResult rhsm_clean(){
+		log.info("RHSM clean");
+		return clienttasks.execute_remote("subscription-manager clean");
+	}
+	
+	protected SSHCommandResult rhsm_register(String org, String environment, String name, boolean autosubscribe){
+		log.info("Registering client with: --org \""+org+"\" --environment \""+environment+"\" " +
+				"--name \""+name+"\" --autosubscribe "+Boolean.toString(autosubscribe));
+		String cmd = String.format(
+				"subscription-manager register --username admin --password admin --org \"%s\" --environment \"%s\" --name \"%s\"",
+				org,environment,name);
+		if(autosubscribe)
+			cmd += " --autosubscribe";
+		return clienttasks.execute_remote(cmd);
 	}
 }

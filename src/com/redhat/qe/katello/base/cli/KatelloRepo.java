@@ -7,10 +7,15 @@ import com.redhat.qe.tools.SSHCommandResult;
 public class KatelloRepo {
 	
 	// ** ** ** ** ** ** ** Public constants
+	// Red Hat Enterprise Linux 6 Server RPMs x86_64 6Server
+	public static final String RH_REPO_RHEL6_SERVER_RPMS_64BIT = 
+			"Red Hat Enterprise Linux 6 Server RPMs x86_64 6Server";
+	
 	public static final String CMD_CREATE = "repo create";
 	public static final String CMD_SYNCHRONIZE = "repo synchronize";
 	public static final String CMD_UPDATE = "repo update";
 	public static final String CMD_INFO = "repo info";
+	public static final String CMD_ENABLE = "repo enable";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created repository [ %s ]"; 
@@ -95,6 +100,19 @@ public class KatelloRepo {
 		if(this.product != null)
 			cmd += " --product \""+this.product+"\"";
 		
+		return cli.run_cliCmd(cmd);
+	}
+	
+	public SSHCommandResult enable(){
+		String cmd = CMD_ENABLE;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.product != null)
+			cmd += " --product \""+this.product+"\"";
+
 		return cli.run_cliCmd(cmd);
 	}
 	
