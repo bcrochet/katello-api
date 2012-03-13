@@ -51,7 +51,7 @@ public class SystemTests extends KatelloCliTestScript{
 	
 	@Test(description = "RHSM register - org have no environment but Locker only", enabled=true)
 	public void test_rhsm_RegLockerOnly(){
-		KatelloSystem sys = new KatelloSystem(clienttasks, "localhost.localadmin", this.orgName, null);
+		KatelloSystem sys = new KatelloSystem(clienttasks, "localhost"+KatelloTestScript.getUniqueID(), this.orgName, null);
 		exec_result = sys.rhsm_register(); 
 		Assert.assertTrue(exec_result.getExitCode().intValue() == 255, "Check - return code");
 		Assert.assertEquals(exec_result.getStderr().trim(), 
