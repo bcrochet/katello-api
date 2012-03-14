@@ -121,7 +121,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		SSHCommandResult res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliance |\" | wc -l");
 		int hdrCnt = Integer.parseInt(res.getStdout().trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliance");
-		res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliant_until |\" | wc -l");
+		res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliant_until |\\|compliant until\" | wc -l");
 		hdrCnt = Integer.parseInt(res.getStdout().trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliant_until");
 	}
