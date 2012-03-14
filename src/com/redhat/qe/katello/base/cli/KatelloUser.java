@@ -9,10 +9,12 @@ public class KatelloUser {
 	// ** ** ** ** ** ** ** Public constants
 	public static final String DEFAULT_ADMIN_USER = "admin";
 	public static final String DEFAULT_ADMIN_PASS = "admin";
+	public static final String DEFAULT_USER_PASS = "testing";
 	
 	public static final String CMD_CREATE = "user create";
 	public static final String CMD_INFO = "user info";
 	public static final String CMD_LIST = "user list";
+	public static final String CMD_ASSIGN_ROLE = "user assign_role";
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
@@ -63,6 +65,17 @@ public class KatelloUser {
 		
 		cmd += " -v";
 
+		return cli.run_cliCmd(cmd);
+	}
+	
+	public SSHCommandResult assign_role(String role){
+		String cmd = CMD_ASSIGN_ROLE;
+		
+		if(this.username != null)
+			cmd += " --username \""+this.username+"\"";
+		if(role != null)
+			cmd += " --role \""+role+"\"";		
+		
 		return cli.run_cliCmd(cmd);
 	}
 
