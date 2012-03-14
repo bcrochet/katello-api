@@ -42,11 +42,13 @@ public class SystemTests extends KatelloCliTestScript{
 		Assert.assertTrue(exec_result.getStdout().trim().equals(String.format(KatelloOrg.OUT_CREATE,this.orgName)),
 				"Check - returned message");
 		
+		rhsm_clean(); // clean - in case of it registered
 		exec_result = clienttasks.execute_remote(KatelloSystem.RHSM_CREATE);
 		if(exec_result.getStderr().contains("certificate verify failed")){ // It's Jenkins's special server with it's own certificate. Exit Scenarios
 			log.warning("Seems Katello server is: [katello-ci-rhel6.usersys.redhat.com]. RHSM tests can't run there - certificate issue");
 			throw new SkipException("RHSM tests can not run on this specific server. Certificate issues.");
 		}
+		rhsm_clean();
 	}
 	
 	@Test(description = "RHSM register - org have no environment but Locker only", enabled=true)
