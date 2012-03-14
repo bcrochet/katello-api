@@ -38,8 +38,6 @@ public class KatelloPermission {
 			cmd += " --org \""+this.org+"\"";
 		if(this.scope != null)
 			cmd += " --scope \""+this.scope+"\"";
-		if(this.scope != null)
-			cmd += " --scope \""+this.scope+"\"";
 		if(this.tags != null)
 			cmd += " --tags \""+this.tags+"\"";
 		if(this.verbs != null)
