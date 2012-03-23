@@ -84,6 +84,23 @@ public class KatelloChangeset {
 		return cli.run_cliCmd(cmd);
 	}
 	
+	public SSHCommandResult update_fromProduct_addRepo(String productName, String repoName){
+		String cmd = CMD_UPDATE+" --from_product";
+		
+		if(productName != null)
+			cmd += " \""+productName+"\"";
+		if(repoName != null)
+			cmd += " --add_repo \""+repoName+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.environment != null)
+			cmd += " --environment \""+this.environment+"\"";
+		
+		return cli.run_cliCmd(cmd);
+	}
+
 	public SSHCommandResult update_fromProduct_addErrata(String productName, String errataName){
 		String cmd = CMD_UPDATE;
 		
