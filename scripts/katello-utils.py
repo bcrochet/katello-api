@@ -64,8 +64,13 @@ class KatelloUtils(object):
                  f = open(keyname,'w')
                  f.write(repo.findall("clientkey")[0].text)
                  f.close()
-        
     
+    def tdl_fromTag(self,filename,tag,index=0):
+        et = ElementTree()
+        tree = ElementTree.parse(et, filename)
+        print tree.findall(tag)[int(index)].text
+
+
 def main():
     parser = OptionParser()
     parser.add_option("--method", dest="method", 
