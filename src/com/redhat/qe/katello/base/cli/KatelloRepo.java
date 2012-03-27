@@ -8,8 +8,9 @@ public class KatelloRepo {
 	
 	// ** ** ** ** ** ** ** Public constants
 	// Red Hat Enterprise Linux 6 Server RPMs x86_64 6Server
+	public static final String RH_REPO_PRODUCT_VER = "6Server";
 	public static final String RH_REPO_RHEL6_SERVER_RPMS_64BIT = 
-			"Red Hat Enterprise Linux 6 Server RPMs x86_64 6Server";
+			"Red Hat Enterprise Linux 6 Server RPMs x86_64 "+RH_REPO_PRODUCT_VER;
 	
 	public static final String CMD_CREATE = "repo create";
 	public static final String CMD_SYNCHRONIZE = "repo synchronize";
