@@ -9,16 +9,6 @@
 	</listeners>
 	-->
 	
-	<test name="All_Tests" preserve-order="true">
-		<classes>
-			<class name="com.redhat.qe.katello.tests.api.A_ConsumersTest"/>
-			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
-			<class name="com.redhat.qe.katello.tests.api.ProvidersTest"/>
-			<class name="com.redhat.qe.katello.tests.api.UsersTest"/>
-			<class name="com.redhat.qe.katello.tests.api.Z_InitScriptLSBTest"/> <!-- ALWAYS, should be the last script to run -->		
-		</classes>
-	</test>
-	
 	<test name="Smoke_Tests" preserve-order="true">
 		<classes>
 			<class name="com.redhat.qe.katello.tests.api.EnvironmentsTest"/>
@@ -38,14 +28,9 @@
 		</classes>
 	</test>
 	
-	<test name="BPM_Tests" preserve-order="true">
-		<classes>
-			<class name="com.redhat.qe.katello.tests.cli.BPMTests"/>
-		</classes>
-	</test>
-	
 	<test name="E2E_Tests" preserve-order="true">
 		<classes>
+			<class name="com.redhat.qe.katello.tests.e2e.BPMTests"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PackagesWithGPGKey"/>
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
