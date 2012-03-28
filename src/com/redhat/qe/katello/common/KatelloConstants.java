@@ -24,6 +24,9 @@ public interface KatelloConstants {
 	public static final String AWESOME_SERVER_BASIC = 
 		"Awesome OS Server Basic";
 	
+	// Some repo URLs
+	public static final String REPO_INECAS_ZOO3 = "http://inecas.fedorapeople.org/fakerepos/zoo3/";
+	
 	/** curl -s -u {username}:{password} 
 	 * http://${servername}:${port}/api${call} */
 	public static final String KATELLO_HTTP_GET =
