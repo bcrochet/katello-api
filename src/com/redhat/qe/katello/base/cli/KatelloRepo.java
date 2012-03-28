@@ -104,6 +104,21 @@ public class KatelloRepo {
 		return cli.run_cliCmd(cmd);
 	}
 	
+	public SSHCommandResult info(String environment){
+		String cmd = CMD_INFO;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.product != null)
+			cmd += " --product \""+this.product+"\"";
+		if(environment != null)
+			cmd += " --environment \""+environment+"\"";
+		
+		return cli.run_cliCmd(cmd);
+	}
+
 	public SSHCommandResult enable(){
 		String cmd = CMD_ENABLE;
 		

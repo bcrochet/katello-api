@@ -11,6 +11,7 @@ public class KatelloSystem {
 	
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
+	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
 	
 	public static final String RHSM_CREATE = 
 			String.format("subscription-manager register --username %s --password %s",
@@ -77,6 +78,18 @@ public class KatelloSystem {
 			cmd += " --org \""+this.org+"\"";
 		if(this.environment != null)
 			cmd += " --environment \""+this.environment+"\"";
+		cmd += " -v";
+		
+		return cli.run_cliCmd(cmd);		
+	}
+	
+	public SSHCommandResult subscriptions_available(){
+		String cmd = CMD_SUBSCRIPTIONS+" --available";
+		
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
 		cmd += " -v";
 		
 		return cli.run_cliCmd(cmd);		
