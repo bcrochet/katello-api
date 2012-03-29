@@ -35,6 +35,7 @@
 			<class name="com.redhat.qe.katello.tests.e2e.PromoteErrata"/>
 			<class name="com.redhat.qe.katello.tests.e2e.SystemsReport"/>
 			<class name="com.redhat.qe.katello.tests.e2e.RhsmOnlyPermissions"/>
+			<class name="com.redhat.qe.katello.tests.e2e.PromoteWithFilters"/>
 		</classes>
 	</test>
 	
