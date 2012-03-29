@@ -132,7 +132,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		String cmd = "subscription-manager subscribe --pool "+pool;
 		res = clienttasks.execute_remote(cmd);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
-		Assert.assertTrue(res.getStdout().trim().contains("Successfully subscribed the system"), "Check - message (subscribed)");
+		String MATCH_SUBSCRIBED = "Successfully.*"+pool+".*";
+		Assert.assertTrue(res.getStdout().trim().matches(MATCH_SUBSCRIBED), "Check - message (subscribed)");
 	}
 	
 	@Test(description="Yum operations", dependsOnMethods={"test_subscribeSystemToZoo3"}, enabled=true)
