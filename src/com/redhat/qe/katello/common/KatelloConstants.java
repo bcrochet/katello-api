@@ -24,6 +24,9 @@ public interface KatelloConstants {
 	public static final String AWESOME_SERVER_BASIC = 
 		"Awesome OS Server Basic";
 	
+	/** Katello CLI default command prefix*/
+	public static final String KATELLO_CLI_DEFAULT = "katello -uadmin -padmin";
+	
 	// Some repo URLs
 	public static final String REPO_INECAS_ZOO3 = "http://inecas.fedorapeople.org/fakerepos/zoo3/";
 	

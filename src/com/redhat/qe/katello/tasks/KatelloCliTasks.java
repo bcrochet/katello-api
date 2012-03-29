@@ -43,7 +43,7 @@ public class KatelloCliTasks implements KatelloConstants{
 	public SSHCommandResult run_cliCmd(String katelloCliCommand){
 		try{
 			return this.sshCommandRunner.runCommandAndWait(
-					"katello --username admin --password admin "+katelloCliCommand);
+					KATELLO_CLI_DEFAULT+" "+katelloCliCommand);
 		}catch(Throwable t){
 			log.finest(String.format("Error running the command: [katello %s]",katelloCliCommand));
 		}return null;
@@ -51,7 +51,7 @@ public class KatelloCliTasks implements KatelloConstants{
 	
 	public void run_cliCmd_nowait(String katelloCliCommand){
 		try{
-			this.sshCommandRunner.runCommand("katello --username admin --password admin "+katelloCliCommand+"&");
+			this.sshCommandRunner.runCommand(KATELLO_CLI_DEFAULT+" "+katelloCliCommand+"&");
 		}catch(Throwable t){
 			log.finest(String.format("Error running the command: [katello %s]",katelloCliCommand));
 		}
