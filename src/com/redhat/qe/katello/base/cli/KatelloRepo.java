@@ -17,6 +17,7 @@ public class KatelloRepo {
 	public static final String CMD_UPDATE = "repo update";
 	public static final String CMD_INFO = "repo info";
 	public static final String CMD_ENABLE = "repo enable";
+	public static final String CMD_ADD_FILTER = "repo add_filter";
 	
 	public static final String OUT_CREATE = 
 			"Successfully created repository [ %s ]"; 
@@ -130,6 +131,21 @@ public class KatelloRepo {
 			cmd += " --product \""+this.product+"\"";
 
 		return cli.run_cliCmd(cmd);
+	}
+	
+	public SSHCommandResult add_filter(String filter){
+		String cmd = CMD_ADD_FILTER;
+		
+		if(filter != null)
+			cmd += " --filter \""+filter+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.product != null)
+			cmd += " --product \""+this.product+"\"";
+		
+		return cli.run_cliCmd(cmd);		
 	}
 	
 	// ** ** ** ** ** ** **
