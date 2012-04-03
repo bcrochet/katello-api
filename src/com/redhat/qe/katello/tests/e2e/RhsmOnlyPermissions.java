@@ -109,7 +109,7 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		log.info("Sync and promote Zoo3 to the dev env. Subscribe the system to it.");
 		KatelloProvider prov = new KatelloProvider(clienttasks, providerName, this.org, null, null);
 		prov.create();
-		KatelloProduct prod = new KatelloProduct(clienttasks, this.prod, this.org, providerName, null, null, null, null, false);
+		KatelloProduct prod = new KatelloProduct(clienttasks, this.prod, this.org, providerName, null, null, null, null, null);
 		prod.create();
 		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.prod, REPO_INECAS_ZOO3, null, null);
 		repo.create();
