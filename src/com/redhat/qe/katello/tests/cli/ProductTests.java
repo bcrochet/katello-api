@@ -9,6 +9,7 @@ import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
 import com.redhat.qe.katello.base.cli.KatelloChangeset;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
 import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
@@ -38,10 +39,10 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,this.prov_name,prodName));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, null, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
 		assert_productExists(this.org_name, this.prov_name, prodName);
 	}
 	
@@ -52,10 +53,10 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_x86_64_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		
 		assert_productExists(this.org_name, this.prov_name, prodName);
 		
 		// check - repo created - we don't know the exact repo name.
@@ -73,10 +74,10 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res, resRepos; String repoName;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
 		assert_productExists(this.org_name, this.prov_name, prodName);
 		
 		// check - 2 repos created
@@ -373,7 +374,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Assertions - repo list by product
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --product)"); // Bug#750464
-		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
+		Assert.assertTrue(res.getStderr().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
 		
 		// Assertions - repo list by env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName_dev));
