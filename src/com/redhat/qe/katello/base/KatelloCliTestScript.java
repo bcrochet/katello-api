@@ -70,7 +70,7 @@ implements KatelloConstants {
 		log.info("Assertions: provider has been removed");
 		res = clienttasks.run_cliCmd("provider info --org \""+orgName+"\" --name \""+providerName+"\"");
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
+		Assert.assertEquals(res.getStderr().trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
 	}
 	
 	protected void assert_repoSynced(String orgName, String productName, String repoName){

@@ -145,7 +145,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd("provider delete --org "+org1+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertTrue(res.getStdout().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
+		Assert.assertTrue(res.getStderr().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
 	}
 	
 	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
