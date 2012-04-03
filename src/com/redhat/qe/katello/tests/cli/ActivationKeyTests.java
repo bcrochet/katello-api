@@ -63,7 +63,7 @@ static{
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template_name);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(res.getStderr().trim().contains(
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template_name)), 
 				"Check - returned error string (activation_key create --template)");
 	}
@@ -83,7 +83,7 @@ static{
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(res.getStderr().trim().contains(
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template)), 
 				"Check - returned error string (activation_key create --template)");
 	}
