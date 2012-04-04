@@ -19,10 +19,6 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 	private String organization;
 	private String env;
 	
-static{
-	 System.setProperty("katello.cli.reuseSystem", "true");  // TODO - /me needs to be commented.	
-}
-
 	@BeforeClass(description="init: create org stuff", groups = {"cli-activationkey"})
 	public void setUp(){
 		SSHCommandResult res;
