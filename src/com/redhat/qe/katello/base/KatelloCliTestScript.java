@@ -8,6 +8,7 @@ import org.testng.Assert;
 
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
 import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
@@ -101,36 +102,38 @@ implements KatelloConstants {
 				"Repo should contain progress == finished");
 	}
 	
-	protected void assert_productExists(String orgName, String providerName, String productName){
-		this.assert_productExists(orgName, providerName, productName, KatelloEnvironment.LIBRARY, false);
-	}
+//	protected void assert_productExists(String orgName, String providerName, String productName){
+//		this.assert_productExists(orgName, providerName, productName, KatelloEnvironment.LIBRARY, false);
+//	}
 
-	protected void assert_productExists(String orgName, String providerName, String productName, String envName, boolean synced){
-		SSHCommandResult res;
-		String REGEXP_PRODUCT_LIST;
-		
-		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+productName+".*Provider Name:\\s+"+providerName+".*";
-		log.info("Assertions: product exists");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,orgName,providerName));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
-				"List should contain info about product (requested by: provider)");
-
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,orgName,envName));
-		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
-				"List should contain info about product (requested by: environment)");
-		
-		if(!synced){
-			res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS, orgName,productName));
-			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			String REGEXP_PRODUCT_STATUS = ".*Name:\\s+"+productName+".*Provider Name:\\s+"+providerName+".*Last Sync:\\s+never.*Sync State:\\s+Not synced.*";
-			Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
-					"List should contain status of product (not synced)");
-		}else{
-			// TODO - needs an implementation - when product is synchronized.
-		}
-	}
+//	protected void assert_productExists(String orgName, String providerName, String productName, String envName, boolean synced){
+//		SSHCommandResult res;
+//		String REGEXP_PRODUCT_LIST;
+//		
+//		KatelloProduct prod = new KatelloProduct(clienttasks, orgName, productName, providerName, null, null, null, null, null);
+//		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+productName+".*Provider Name:\\s+"+providerName+".*";
+//		log.info("Assertions: product exists");
+//		res = prod.
+//		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,orgName,providerName));
+//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+//		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+//				"List should contain info about product (requested by: provider)");
+//
+//		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,orgName,envName));
+//		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+//		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+//				"List should contain info about product (requested by: environment)");
+//		
+//		if(!synced){
+//			res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS, orgName,productName));
+//			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
+//			String REGEXP_PRODUCT_STATUS = ".*Name:\\s+"+productName+".*Provider Name:\\s+"+providerName+".*Last Sync:\\s+never.*Sync State:\\s+Not synced.*";
+//			Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
+//					"List should contain status of product (not synced)");
+//		}else{
+//			// TODO - needs an implementation - when product is synchronized.
+//		}
+//	}
 	
 	protected void waitfor_reposync(String orgName, String prodName, String repoName, int timeoutMinutes){
 		long now = Calendar.getInstance().getTimeInMillis() / 1000;

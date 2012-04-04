@@ -2,14 +2,13 @@ package com.redhat.qe.katello.tests.cli;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
 import com.redhat.qe.auto.testng.Assert;
-import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloProvider;
 import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliDataProvider;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -177,7 +176,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create provider, product
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, provName, null, null, null, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		
 		// Delete provider
@@ -189,18 +189,19 @@ public class ProviderTests extends KatelloCliTestScript{
 		this.assert_providerRemoved(provName, this.org_name);
 
 		// Check associated product is gone
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS, this.org_name,prodName));
+		res = prod.status();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
+		Assert.assertTrue(res.getStderr().trim().equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
 		
 		// Create another provider with the same product name
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName_1));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName_1,prodName));
+		KatelloProduct prod1 = new KatelloProduct(clienttasks, prodName, this.org_name, provName, null, null, null, null, null);
+		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Check `product status` - should be shown with provName_1 info there
 		String REGEXP_PRODUCT = ".*Id:\\s+\\d+.*Name:\\s+%s.*Provider Id:\\s+\\d+.*Provider Name:\\s+%s.*";
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS,this.org_name,prodName));
+		res = prod.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String match_info = String.format(REGEXP_PRODUCT,prodName,provName_1).replaceAll("\"", "");
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
@@ -313,7 +314,8 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		// Create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, provName, null, null, null, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repo - valid url to sync
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName, repoName, PULP_F15_x86_64_REPO));
@@ -342,9 +344,11 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName));
 		// Create products
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName1));
+		KatelloProduct prod1 = new KatelloProduct(clienttasks, prodName1, this.org_name, provName, null, null, null, null, null);
+		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,provName,prodName2));
+		KatelloProduct prod2 = new KatelloProduct(clienttasks, prodName2, this.org_name, provName, null, null, null, null, null);
+		res = prod2.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Create repos
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.CREATE, this.org_name, prodName1, repoName1, PULP_F15_x86_64_REPO));

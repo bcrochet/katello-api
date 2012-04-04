@@ -3,7 +3,6 @@ package com.redhat.qe.katello.tests.cli;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
-import com.redhat.qe.katello.base.IKatelloProduct;
 import com.redhat.qe.katello.base.IKatelloRepo;
 import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -42,8 +41,8 @@ public class ProductTests  extends KatelloCliTestScript{
 		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, null, null, null);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
+		prod.assert_productExists(null,false);
 	}
 	
 	@Test(description="create product - with single repo", groups = {"cli-products"}, enabled=true)
@@ -53,11 +52,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, null);
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null,false);
 		
 		// check - repo created - we don't know the exact repo name.
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
@@ -74,11 +73,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res, resRepos; String repoName;
 		
 		// create product
-		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, null);
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
 		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");		
+		prod.assert_productExists(null,false);
 		
 		// check - 2 repos created
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
@@ -136,10 +135,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE_NOURL,this.org_name,this.prov_name,prodName));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, null, null, null);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null,false);
 		
 		// create env.
 		String envName = "dev-"+uid;
@@ -148,13 +148,13 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		res = prod.promote(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==244, "Check - return code (product promote)");
-		Assert.assertTrue(res.getStderr().trim().contains(String.format(IKatelloProduct.ERR_PROMOTE_NOREPOS,prodName)), "Check - returned output string (product promote)");
+		Assert.assertTrue(res.getStderr().trim().contains(String.format(KatelloProduct.ERR_PROMOTE_NOREPOS,prodName)), "Check - returned output string (product promote)");
 	}
 	
 	@Test(description="promote product", groups = {"cli-products"}, enabled=true)
@@ -165,10 +165,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_x86_64_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null, false);
 		
 		// create env.
 		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
@@ -176,16 +177,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		res = prod.promote(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
 		
 		// product list --environment (1 result - just the product promoted)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
+		res = prod.list(envName);
 		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"Product list by environment - just promoted product");
@@ -207,10 +208,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null, false);
 		
 		// create env.
 		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName, null, this.org_name, KatelloEnvironment.LIBRARY);
@@ -218,16 +220,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (environment create)");
 		
 		// sync product (otherwise promote will fail)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		
 		// promote product to the env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.PROMOTE,this.org_name,prodName, envName));
+		res = prod.promote(envName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product promote)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_PROMOTED,prodName,envName)), "Check - returned output string (product promote)");
 		
 		// product list --environment (1 result - just the product promoted)
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName));
+		res = prod.list(envName);
 		String REGEXP_PRODUCT_LIST = ".*Id:\\s+\\d+Name:\\s+"+prodName+".*Provider Name:\\s+"+prov_name+".*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"Product list by environment - just promoted product");
@@ -250,15 +252,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_i386_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_i386_REPO, null, true);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null, false);
 		
 		// sync product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
 		
 		// get packages count for the repo - !=0
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
@@ -274,15 +277,16 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res, resRepos; String repoName;
 
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_REPO, null, true);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
-		assert_productExists(this.org_name, this.prov_name, prodName);
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_CREATED,prodName)), "Check - returned output string (product create)");
+		prod.assert_productExists(null, false);
 		
 		// sync product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_SYNCHRONIZED,prodName)), "Check - returned output string (product synchronize)");
 		
 		// get packages count for the repos - !=0
 		resRepos = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,org_name,prodName));
@@ -323,10 +327,11 @@ public class ProductTests  extends KatelloCliTestScript{
 		SSHCommandResult res;
 		
 		// create product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.CREATE,this.org_name,this.prov_name,prodName,PULP_F15_x86_64_REPO));
+		KatelloProduct prod = new KatelloProduct(clienttasks, prodName, this.org_name, this.prov_name, null, null, PULP_F15_x86_64_REPO, null, true);
+		res = prod.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
 		// sync product
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.SYNCHRONIZE,this.org_name,prodName));
+		res = prod.synchronize();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product synchronize)");
 		// create env. - dev
 		KatelloEnvironment env = new KatelloEnvironment(clienttasks, envName_dev, null, this.org_name, KatelloEnvironment.LIBRARY);
@@ -350,7 +355,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST_X86_64),
 				"Repo list by environment - should contain info");
 		// Assertions - product list by env
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName_dev));
+		res = prod.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		String REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
@@ -358,14 +363,14 @@ public class ProductTests  extends KatelloCliTestScript{
 		
 		// Final action - DELETE the product
 		// ... but get its id first. To check the output string.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS,this.org_name,prodName));
+		res = prod.status();
 		String prodId = KatelloCliTasks.grepCLIOutput("Id", res.getStdout());
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.DELETE,this.org_name,prodName));
+		res = prod.delete();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
+		Assert.assertTrue(res.getStdout().trim().contains(String.format(KatelloProduct.OUT_DELETED,prodId)), "Check - returned output string (product delete)");
 		
 		// Assertions - product list of the org
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,this.org_name,this.prov_name));
+		res = prod.list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --provider)");
 		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
@@ -374,7 +379,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		// Assertions - repo list by product
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_PRODUCT,this.org_name,prodName));
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (repo list --product)"); // Bug#750464
-		Assert.assertTrue(res.getStderr().trim().equals(String.format(IKatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
+		Assert.assertTrue(res.getStderr().trim().equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `repo list --product` output string");
 		
 		// Assertions - repo list by env.
 		res = clienttasks.run_cliCmd(String.format(IKatelloRepo.LIST_BY_ENVIRONMENT,this.org_name,envName_dev));
@@ -383,7 +388,7 @@ public class ProductTests  extends KatelloCliTestScript{
 		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_NOREPO), "Check - `repo list --environment` output string");
 		
 		// Assertions - product list of env.
-		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,this.org_name,envName_dev));
+		res = prod.list(envName_dev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product list --environment)");
 		REGEXP_PRODUCT_LIST = ".*Name:\\s+"+prodName+".*Provider Name:\\s+"+this.prov_name+".*";
 		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
