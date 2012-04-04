@@ -7,6 +7,10 @@ public class KatelloFilter {
 	
 	// ** ** ** ** ** ** ** Public constants
 	public static final String CMD_CREATE = "filter create";
+
+
+	public static final String OUT_CREATE = 
+			"Successfully created filter [ %s ]";
 	
 	// ** ** ** ** ** ** ** Class members
 	String name;
