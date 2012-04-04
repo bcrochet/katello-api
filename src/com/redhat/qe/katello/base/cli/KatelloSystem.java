@@ -12,6 +12,7 @@ public class KatelloSystem {
 	public static final String CMD_INFO = "system info";
 	public static final String CMD_LIST = "system list";
 	public static final String CMD_SUBSCRIPTIONS = "system subscriptions";
+	public static final String CMD_PACKAGES = "system packages";
 	
 	public static final String RHSM_CREATE = 
 			String.format("subscription-manager register --username %s --password %s",
@@ -25,6 +26,7 @@ public class KatelloSystem {
 			"This system is already registered. Use --force to override";
 	public static final String ERR_RHSM_REG_MULTI_ENV = 
 			"Organization %s has more than one environment. Please specify target environment for system registration.";
+	public static final String OUT_REMOTE_ACTION_DONE = "Remote action finished:";
 
 	// ** ** ** ** ** ** ** Class members
 	String name;
@@ -94,4 +96,18 @@ public class KatelloSystem {
 		
 		return cli.run_cliCmd(cmd);		
 	}
+	
+	public SSHCommandResult packages_install(String packageName){
+		String cmd = CMD_PACKAGES+" --install";
+		
+		if(packageName != null)
+			cmd += " \""+packageName+"\"";
+		if(this.org != null)
+			cmd += " --org \""+this.org+"\"";
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";
+		
+		return cli.run_cliCmd(cmd);		
+	}
+	
 }

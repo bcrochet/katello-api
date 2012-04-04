@@ -57,7 +57,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		prov.create(); // create provider
 		KatelloProduct prod = new KatelloProduct(clienttasks, this.product, this.org, this.provider, null, null, null, null, null);
 		prod.create(); // create product
-		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, PackagesWithGPGKey.REPO_WITH_GPG_PACKAGES, null, null);
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, PackagesWithGPGKey.REPO_INECAS_ZOO3, null, null);
 		repo.create(); // create repo
 	}
 	
@@ -80,7 +80,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 	@Test(description="Synchronize repository", dependsOnMethods={"test_promoteToDevNoSync"}, enabled=true)
 	public void test_syncRepo(){
 		log.info("E2E - Synchronize repo");
-		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, PackagesWithGPGKey.REPO_WITH_GPG_PACKAGES, null, null);
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
 		repo.synchronize();
 	}
 	

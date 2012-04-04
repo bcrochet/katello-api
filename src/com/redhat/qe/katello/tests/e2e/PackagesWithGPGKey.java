@@ -15,20 +15,22 @@ import com.redhat.qe.katello.base.cli.KatelloOrg;
 import com.redhat.qe.katello.base.cli.KatelloProduct;
 import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.base.cli.KatelloRepo;
+import com.redhat.qe.katello.base.cli.KatelloSystem;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 /**
  * Whitebox test ideas: http://etherpad.corp.redhat.com/oIhuClgqfk<BR>
  * Scenario:<BR>
- * GPG keys: End to end "If I sign it can I install it"?
+ * GPG keys: End to end "If I sign it can I install it"?<BR>
+ * TCMS: https://tcms.engineering.redhat.com/case/136126/?from_plan=4785
  * @author gkhachik
  */
 public class PackagesWithGPGKey extends KatelloCliTestScript{
 	protected static Logger log = Logger.getLogger(PackagesWithGPGKey.class.getName());
 
 	public static final String GPG_PUBKEY_RPM = "gpg-pubkey-f78fb195-4f0d5ba1";
-	public static final String REPO_WITH_GPG_PACKAGES = "http://inecas.fedorapeople.org/fakerepos/zoo/";
+//	public static final String REPO_WITH_GPG_PACKAGES = "http://inecas.fedorapeople.org/fakerepos/zoo/";
 	public static final String REPO_GPG_FILE = "http://inecas.fedorapeople.org/fakerepos/zoo/RPM-GPG-KEY-dummy-packages-generator";
 	
 	private String org;
@@ -37,6 +39,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	private String product;
 	private String repo;
 	private String gpg_key;
+	private String system;
 	
 	@BeforeTest(description="Init unique names", alwaysRun=true)
 	public void setUp(){
@@ -48,7 +51,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		this.gpg_key = "gpg_zoo"+uniqueID;
 		
 		log.info("E2E - Cleanup GPG stuff");
-		clienttasks.execute_remote("yum -y erase wolf");
+		clienttasks.execute_remote("yum -y erase wolf lion");
 		clienttasks.execute_remote("subscription-manager unregister");
 		clienttasks.execute_remote("rpm -e "+GPG_PUBKEY_RPM);
 		
@@ -64,7 +67,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		prov.create(); // create provider
 		KatelloProduct prod = new KatelloProduct(clienttasks, this.product, this.org, this.provider, null, null, null, null, null);
 		prod.create(); // create product
-		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, null, null);
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
 		repo.create(); // create repo
 	}
 	
@@ -81,7 +84,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	@Test(description="Synchronize repository", dependsOnMethods={"test_prepareRepo"}, enabled=true)
 	public void test_syncRepo(){
 		log.info("E2E - Synchronize repo");
-		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, null, null);
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_INECAS_ZOO3, null, null);
 		repo.synchronize();
 	}
 	
@@ -89,7 +92,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	public void test_addGpgToRepo(){
 		
 		log.info("E2E - Add gpg key to repo");
-		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_WITH_GPG_PACKAGES, this.gpg_key, null);
+		KatelloRepo repo = new KatelloRepo(clienttasks, this.repo, this.org, this.product, REPO_INECAS_ZOO3, this.gpg_key, null);
 		repo.update_gpgkey();
 		repo.assert_repoHasGpg();
 	}
@@ -110,14 +113,14 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 	@Test(description="Subscribe client system to the product", dependsOnMethods={"test_promoteRepoToEnv"}, enabled=true)
 	public void test_subscribeClient(){
 		SSHCommandResult res;
-		String systemName = "system-PackagesWithGPGKey-"+KatelloTestScript.getUniqueID();
+		this.system = "system-PackagesWithGPGKey-"+KatelloTestScript.getUniqueID();
 		
 		log.info("E2E - Subscribe client system");
 		clienttasks.execute_remote("subscription-manager clean");
 		res = clienttasks.execute_remote(String.format(
 					"subscription-manager register --username admin --password admin" +
 					" --org \"%s\" --environment \"%s\" --name \"%s\"",
-					this.org, this.env, systemName));
+					this.org, this.env, this.system));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm register)");
 		
 		KatelloOrg org = new KatelloOrg(this.clienttasks, this.org, null);
@@ -146,4 +149,19 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rpm info of gpg-key)");
 	}
 	
+	@Test(description="Install package remotely", dependsOnMethods={"test_subscribeClient"}, enabled = true)
+	public void test_installRemotePackage(){
+		SSHCommandResult res;
+		
+		log.info("E2E - try remote package installation");
+		KatelloSystem system = new KatelloSystem(clienttasks, this.system, this.org, null);
+		res = system.packages_install("lion");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");
+		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_REMOTE_ACTION_DONE),
+				"Check - output string (remote action finished)");
+		Assert.assertTrue(res.getStdout().trim().contains("lion-"),
+				"Check - output string (contains package name installed)");
+		res = clienttasks.execute_remote("rpm -q lion");
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rpm -q lion)");
+	}
 }
