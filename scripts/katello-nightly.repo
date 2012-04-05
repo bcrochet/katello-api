@@ -1,0 +1,6 @@
+[axiom-pulp]
+name=Pulp from axiom for: $releasever ($basearch)
+baseurl=http://axiom.lab.eng.rdu.redhat.com/pulp/releases/v1/testing/$releasever/$basearch/
+enabled=1
+gpgcheck=0
+skip_if_unavailable=1
