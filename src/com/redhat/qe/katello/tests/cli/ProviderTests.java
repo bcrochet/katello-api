@@ -170,7 +170,8 @@ public class ProviderTests extends KatelloCliTestScript{
 	public void test_deleteProvider_noRepos(){
 		SSHCommandResult res;
 		String uid = KatelloTestScript.getUniqueID();
-		String provName = "noRepos-"+uid, provName_1 = "prov1-"+uid;
+		String provName = "noRepos-"+uid;
+		String provName_1 = "prov1-"+uid;
 		String prodName = "prod-"+uid;
 		
 		// Create provider, product
@@ -196,7 +197,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Create another provider with the same product name
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName_1));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		KatelloProduct prod1 = new KatelloProduct(clienttasks, prodName, this.org_name, provName, null, null, null, null, null);
+		KatelloProduct prod1 = new KatelloProduct(clienttasks, prodName, this.org_name, provName_1, null, null, null, null, null);
 		res = prod1.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		// Check `product status` - should be shown with provName_1 info there
