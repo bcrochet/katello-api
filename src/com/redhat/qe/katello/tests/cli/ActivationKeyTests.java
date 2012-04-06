@@ -10,7 +10,10 @@ import com.redhat.qe.katello.base.cli.KatelloActivationKey;
 import com.redhat.qe.katello.base.cli.KatelloChangeset;
 import com.redhat.qe.katello.base.cli.KatelloEnvironment;
 import com.redhat.qe.katello.base.cli.KatelloOrg;
+import com.redhat.qe.katello.base.cli.KatelloProduct;
+import com.redhat.qe.katello.base.cli.KatelloProvider;
 import com.redhat.qe.katello.base.cli.KatelloTemplate;
+import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
 public class ActivationKeyTests extends KatelloCliTestScript{
@@ -43,9 +46,9 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		
 		if(exitCode.intValue()==0){ //
-			Assert.assertTrue(res.getStdout().contains(output),"Check - returned output string");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned output string");
 		}else{ // Failure to be checked
-			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	}
 	
@@ -59,7 +62,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template_name);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(res.getStderr().trim().contains(
+		Assert.assertTrue(getOutput(res).trim().contains(
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template_name)), 
 				"Check - returned error string (activation_key create --template)");
 	}
@@ -79,7 +82,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(res.getStderr().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloActivationKey.ERR_TEMPLATE_NOTFOUND,template)), 
 				"Check - returned error string (activation_key create --template)");
 	}
@@ -106,7 +109,7 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, null);
 		res = ak.create(); // force update IDs 
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloActivationKey.OUT_CREATE,ak_name)), 
 				"Check - returned output string (activation_key create)");
 		
@@ -142,11 +145,32 @@ public class ActivationKeyTests extends KatelloCliTestScript{
 		KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, ak_name, null, template);
 		res = ak.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create --template)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloActivationKey.OUT_CREATE,ak_name)), 
 				"Check - returned output string (activation_key create --template)");
 		
 		ak.asserts_create();
 	}
+	
+    @Test(description="add subscription to ak", enabled=true)
+    public void test_update_addSubscription1(){
+            String uid = KatelloTestScript.getUniqueID();
+            String akName="ak-subscription-zoo3-"+uid;
+            String providerName = "Zoo3-"+uid;
+            String productName = "Zoo3 "+uid;
+            SSHCommandResult res;
 
+            KatelloActivationKey ak = new KatelloActivationKey(clienttasks, this.organization, this.env, akName, "Activation key with Zoo3 subscription", null);
+            res = ak.create();
+            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (activation_key create)");
+            KatelloProvider prov = new KatelloProvider(clienttasks, providerName, this.organization, null, null);
+            prov.create();
+            KatelloProduct prod = new KatelloProduct(clienttasks, productName, this.organization, providerName, null, null, null, null, null);
+            res = prod.create();
+            Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (product create)");
+            KatelloOrg org = new KatelloOrg(clienttasks, this.organization, null);
+            res = org.subscriptions();
+            String poolId = KatelloCliTasks.grepCLIOutput("Id", getOutput(res).trim());
+	
+    }
 }

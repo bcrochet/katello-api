@@ -37,7 +37,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd("provider list --org "+tmpOrg+" -v");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_REDHAT = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Type:\\s+Red\\sHat.*Url:\\s+https://cdn.redhat.com.*";
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PROVIDER_REDHAT), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PROVIDER_REDHAT), 
 				"Provider \""+PROV_REDHAT+"\" should be found in the providers list");
 
 		// assertions - `provider status` 
@@ -45,7 +45,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd("provider status --org "+tmpOrg+" --name \""+PROV_REDHAT+"\"");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_REDHAT_STATUS = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Last\\sSync:\\s+never.*Sync\\sState:\\s+Not\\ssynced.*";
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REDHAT_STATUS), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REDHAT_STATUS), 
 				"Provider \""+PROV_REDHAT+"\" should have sync status: never");
 		
 		// assertions - `provider info`
@@ -53,7 +53,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		String orgId = KatelloCliTasks.grepCLIOutput("Id", clienttasks.run_cliCmd("org info --name "+org_name).getStdout());
 		res = clienttasks.run_cliCmd("provider info --org "+org_name+" --name \"Red Hat\"");
 		String REGEXP_REDHAT_INFO = ".*Id:\\s+\\d+.*Name:\\s+"+PROV_REDHAT+".*Type:\\s+Red Hat.*Url:\\s+https://cdn.redhat.com.*Org Id:\\s+"+orgId+".*Description:.*";
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REDHAT_INFO), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REDHAT_INFO), 
 				"Provider \""+PROV_REDHAT+"\" info should be displayed together with org_id");
 	}
 	
@@ -72,9 +72,9 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue() == exitCode.intValue(), "Check - return code");
 		
 		if(exitCode.intValue()==0){ //
-			Assert.assertTrue(res.getStdout().contains(output),"Check - returned output string");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned output string");
 		}else{ // Failure to be checked
-			Assert.assertTrue(res.getStderr().contains(output),"Check - returned error string");
+			Assert.assertTrue(getOutput(res).contains(output),"Check - returned error string");
 		}
 	}
 	
@@ -87,15 +87,15 @@ public class ProviderTests extends KatelloCliTestScript{
 		
 		res = clienttasks.run_cliCmd("provider delete --org "+orgName+" --name \"Red Hat\"");
 		Assert.assertTrue(res.getExitCode().intValue()==147, "Check - return code");
-		//Assert.assertEquals(res.getStderr().trim(), "Error while deleting provider [ Red Hat ]: Red Hat provider can not be deleted,","Check - returned error string");
+		//Assert.assertEquals(getOutput(res).trim(), "Error while deleting provider [ Red Hat ]: Red Hat provider can not be deleted,","Check - returned error string");
 		// see BZ#: https://bugzilla.redhat.com/show_bug.cgi?id=754934
-		Assert.assertEquals(res.getStderr().trim(), "User admin is not allowed to access api/providers/destroy","Check - returned error string");
+		Assert.assertEquals(getOutput(res).trim(), "User admin is not allowed to access api/providers/destroy","Check - returned error string");
 
 		// get the provider info - should be there
 		res = clienttasks.run_cliCmd("provider info --org "+orgName+" --name \"Red Hat\"");
 		
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(".*Name:\\s+Red Hat.*"),"Check - returned output string");		
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(".*Name:\\s+Red Hat.*"),"Check - returned output string");		
 	}
 	
 	@Test(description="Delete provider Custom - missing parameters", groups={"cli-providers"}, enabled = false)
@@ -108,28 +108,28 @@ public class ProviderTests extends KatelloCliTestScript{
 		String cmd ="provider delete";
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("Option --org is required; please see --help"),"Check - returned error string - 1");
-		Assert.assertTrue(res.getStderr().contains("Option --name is required; please see --help"),"Check - returned error string - 2");
+		Assert.assertTrue(getOutput(res).contains("Option --org is required; please see --help"),"Check - returned error string - 1");
+		Assert.assertTrue(getOutput(res).contains("Option --name is required; please see --help"),"Check - returned error string - 2");
 		
 		cmd ="provider delete --org "+this.org_name;
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("Option --name is required; please see --help"),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains("Option --name is required; please see --help"),"Check - returned error string");
 		
 		cmd ="provider delete --name "+provName;
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("Option --org is required; please see --help"),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains("Option --org is required; please see --help"),"Check - returned error string");
 		
 		cmd ="provider delete --org";
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("katello: error: --org option requires an argument"),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains("katello: error: --org option requires an argument"),"Check - returned error string");
 		
 		cmd ="provider delete --org "+this.org_name+" --name";
 		res = clienttasks.run_cliCmd(cmd);
 		Assert.assertTrue(res.getExitCode().intValue() == 2, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("katello: error: --name option requires an argument"),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains("katello: error: --name option requires an argument"),"Check - returned error string");
 	}
 	
 	@Test(description="Delete provider Custom - different org", groups = {"cli-providers"},enabled=true)
@@ -144,7 +144,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd("provider delete --org "+org1+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertTrue(res.getStderr().contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
+		Assert.assertTrue(getOutput(res).contains("Could not find provider [ "+provName+" ] within organization [ "+org1+" ]"),"Check - returned error string");
 	}
 	
 	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
@@ -157,13 +157,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		res = clienttasks.run_cliCmd("provider delete --org "+this.org_name+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().equals("Deleted provider [ "+provName+" ]"), "Check - returned output string");
+		Assert.assertTrue(getOutput(res).equals("Deleted provider [ "+provName+" ]"), "Check - returned output string");
 		
 		this.assert_providerRemoved(provName, this.org_name);
 		// try to recreate the provider with the same name: should be possible
 		res = clienttasks.run_cliCmd("provider create --org "+this.org_name+" --name "+provName);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), "Successfully created provider [ "+provName+" ]");
+		Assert.assertEquals(getOutput(res).trim(), "Successfully created provider [ "+provName+" ]");
 	}
 	
 	@Test(description="Delete provider Custom- no products associated", groups = {"cli-providers"},enabled=true)
@@ -183,7 +183,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Delete provider
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.DELETE, this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProvider.OUT_DELETE, provName)), "Check - returned output string");
+		Assert.assertTrue(getOutput(res).equals(String.format(IKatelloProvider.OUT_DELETE, provName)), "Check - returned output string");
 		
 		// Check provider is removed
 		this.assert_providerRemoved(provName, this.org_name);
@@ -191,7 +191,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Check associated product is gone
 		res = prod.status();
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertTrue(res.getStderr().trim().equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloProduct.ERR_COULD_NOT_FIND_PRODUCT, prodName,org_name)), "Check - `product status` output string");
 		
 		// Create another provider with the same product name
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.CREATE_NODESCRIPTION_NOURL,this.org_name,provName_1));
@@ -204,7 +204,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		res = prod.status();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String match_info = String.format(REGEXP_PRODUCT,prodName,provName_1).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the result of product info for: [%s]",provName_1,prodName));		
 	}
 	
@@ -227,13 +227,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+None.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list with: no description, no url",provName));
 		// Info
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		match_info = String.format(REGEXP_PROVIDER_LIST,provName).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description, no url",provName));
 	}
 	
@@ -252,13 +252,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+%s.*";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list",provName));
 		// Info
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO,provDesc).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info",provName));
 	}
 	
@@ -276,13 +276,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+Custom.*Url:\\s+%s.*Description:\\s+None";
 		String match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the list with: no description",provName));
 		// Info
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		match_info = String.format(REGEXP_PROVIDER_LIST,provName,KATELLO_SMALL_REPO).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info with: no description",provName));
 	}
 	
@@ -298,7 +298,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Sync
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().equals(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+		Assert.assertTrue(getOutput(res).equals(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 	}
 
 	@Test(description="Synchronize provider - single product", groups = {"cli-providers"},enabled=true)
@@ -324,7 +324,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Sync
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+		Assert.assertTrue(getOutput(res).contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 		
 		assert_repoSynced(this.org_name, prodName, repoName);
 	}
@@ -359,7 +359,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		// Sync
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.SYNCHRONIZE, this.org_name,provName));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
+		Assert.assertTrue(getOutput(res).contains(String.format(IKatelloProvider.OUT_SYNCHRONIZE, provName)), "Check - returned output string");
 		
 		assert_repoSynced(this.org_name, prodName1, repoName1);
 		assert_repoSynced(this.org_name, prodName2, repoName2);
@@ -372,7 +372,7 @@ public class ProviderTests extends KatelloCliTestScript{
 		SSHCommandResult res;
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.UPDATE_NAME, this.org_name,PROV_REDHAT, "REDHAT"));
 		Assert.assertTrue(res.getExitCode().intValue()==144, "Check - return code (provider update)");
-		Assert.assertTrue(res.getStderr().trim().contains(IKatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
+		Assert.assertTrue(getOutput(res).contains(IKatelloProvider.ERR_REDHAT_UPDATENAME), "Check - returned error string (provider update)");
 	}
 	
 	@Test(description="Try to updateRed Hat provider - name", groups = {"cli-providers"}, dependsOnMethods = {"test_freshOrgDefaultRedHatProvider"}, enabled=true)
@@ -383,13 +383,13 @@ public class ProviderTests extends KatelloCliTestScript{
 		
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.UPDATE_URL, this.org_name,PROV_REDHAT, update_url));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider update)");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format(IKatelloProvider.OUT_UPDATE,PROV_REDHAT)), "Check - returned error string (provider update)");
+		Assert.assertTrue(getOutput(res).contains(String.format(IKatelloProvider.OUT_UPDATE,PROV_REDHAT)), "Check - returned error string (provider update)");
 		// Info
 		res = clienttasks.run_cliCmd(String.format(IKatelloProvider.INFO,this.org_name,PROV_REDHAT));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 		String REGEXP_PROVIDER_LIST = ".*Id:\\s+\\d+.*Name:\\s+%s.*Type:\\s+.*Url:\\s+%s.*";
 		match_info = String.format(REGEXP_PROVIDER_LIST,PROV_REDHAT,update_url).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Provider [%s] should be found in the info",PROV_REDHAT));
 	}
 	

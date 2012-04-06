@@ -21,7 +21,7 @@ public class UserTests extends KatelloCliTestScript{
 		KatelloUser usr = new KatelloUser(clienttasks, username, usermail, userpass, false);
 		res = usr.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
 		
@@ -41,7 +41,7 @@ public class UserTests extends KatelloCliTestScript{
 		KatelloUser usr = new KatelloUser(clienttasks, username, usermail, userpass, true);
 		res = usr.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code ("+KatelloUser.CMD_CREATE+")");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				String.format(KatelloUser.OUT_CREATE,username)), 
 				"Check - returned output string ("+KatelloUser.CMD_CREATE+")");
 		

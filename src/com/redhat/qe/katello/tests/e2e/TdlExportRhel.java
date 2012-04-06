@@ -63,7 +63,7 @@ public class TdlExportRhel extends KatelloCliTestScript{
 			KatelloProvider prov = new KatelloProvider(clienttasks, KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 			SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-			Assert.assertTrue(res.getStdout().trim().contains("Manifest imported"),"Message - (provider import_manifest)");
+			Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
 		}else{
 			this.org = orgs.get(0);
 			log.info("There is an org having manifest. Using: ["+this.org+"]");
@@ -72,7 +72,7 @@ public class TdlExportRhel extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(clienttasks, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, this.org, KatelloProduct.RHEL_SERVER, null, null, null);
 		SSHCommandResult res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
-		Assert.assertTrue(res.getStdout().trim().contains("enabled."),"Message - (repo enable)");
+		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 	}
 	
 	@Test(description="Sync RHEL repo - if it's not", enabled=true)
@@ -141,7 +141,7 @@ public class TdlExportRhel extends KatelloCliTestScript{
 		this.templateName = this.template_prod+".tdl";
 		res = tpl.export(this.env_prod, "/tmp/"+this.templateName, KatelloTemplate.FORMAT_TDL);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template export - for env)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				"Template was exported successfully to file /tmp/"+this.templateName), 
 				"Check - return message (template export)");
 	}

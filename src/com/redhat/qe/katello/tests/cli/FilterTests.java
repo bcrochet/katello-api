@@ -36,7 +36,7 @@ public class FilterTests extends KatelloCliTestScript{
 		KatelloFilter filter = new KatelloFilter(clienttasks, filterName, this.org, null, null);
 		SSHCommandResult res = filter.create();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (filter create)");
-		Assert.assertTrue(res.getStdout().trim().equals(String.format(KatelloFilter.OUT_CREATE, filterName)), 
+		Assert.assertTrue(getOutput(res).equals(String.format(KatelloFilter.OUT_CREATE, filterName)), 
 				"Check - output string (filter create)");
 	}
 }

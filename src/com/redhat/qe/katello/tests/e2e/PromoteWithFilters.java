@@ -120,6 +120,6 @@ public class PromoteWithFilters extends KatelloCliTestScript{
 		cmd_packListDev = String.format(cmd_packListDev, this.org, this.env, this.product, this.repo, PACKAGES_TO_BLACKLIST_GREP);
 		SSHCommandResult res = clienttasks.execute_remote(cmd_packListDev);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (package list - Dev)");
-		Assert.assertTrue(res.getStdout().trim().equals("1"), "Check only one package should exist from grep: "+PACKAGES_TO_BLACKLIST_GREP);
+		Assert.assertTrue(getOutput(res).equals("1"), "Check only one package should exist from grep: "+PACKAGES_TO_BLACKLIST_GREP);
 	}
 }

@@ -94,7 +94,7 @@ public class KatelloUser {
 
 		String match_info = String.format(REGEXP_LIST,
 				this.username,this.email).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the list",this.username));
 		
 		// asserts: user info
@@ -105,7 +105,7 @@ public class KatelloUser {
 			REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
 		match_info = String.format(REGEXP_INFO,
 				this.username, this.email).replaceAll("\"", "");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}
 	

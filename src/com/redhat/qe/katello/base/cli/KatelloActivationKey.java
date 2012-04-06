@@ -102,7 +102,7 @@ public class KatelloActivationKey {
 			match_info = String.format(REGEXP_AK_LIST,
 					this.name,this.environment_id,"None").replaceAll("\"", "");
 		}
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should be found in the list",this.name));
 		
 		// asserts: activation_key info
@@ -115,7 +115,7 @@ public class KatelloActivationKey {
 			match_info = String.format(REGEXP_AK_INFO,
 					this.name,this.environment_id,"None").replaceAll("\"", "");				
 		}
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Activation key [%s] should contain correct info",this.name));			
 	}
 	

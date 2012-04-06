@@ -54,7 +54,7 @@ public class SystemsReport extends KatelloCliTestScript{
 			KatelloProvider prov = new KatelloProvider(clienttasks, KatelloProvider.PROVIDER_REDHAT, this.org, null, null);
 			SSHCommandResult res = prov.import_manifest("/tmp"+File.separator+"export.zip", new Boolean(true));
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (provider import_manifest)");
-			Assert.assertTrue(res.getStdout().trim().contains("Manifest imported"),"Message - (provider import_manifest)");
+			Assert.assertTrue(getOutput(res).contains("Manifest imported"),"Message - (provider import_manifest)");
 		}else{
 			this.org = orgs.get(0);
 			log.info("There is an org having manifest. Using: ["+this.org+"]");
@@ -67,7 +67,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		KatelloRepo repo = new KatelloRepo(clienttasks, KatelloRepo.RH_REPO_RHEL6_SERVER_RPMS_64BIT, this.org, KatelloProduct.RHEL_SERVER, null, null, null);
 		SSHCommandResult res = repo.enable();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (repo enable)");
-		Assert.assertTrue(res.getStdout().trim().contains("enabled."),"Message - (repo enable)");
+		Assert.assertTrue(getOutput(res).contains("enabled."),"Message - (repo enable)");
 		
 		KatelloEnvironment env = new KatelloEnvironment(clienttasks, this.env_dev, null, this.org, KatelloEnvironment.LIBRARY);
 		env.create();
@@ -76,7 +76,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.promote();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(res.getStdout().trim().endsWith("promoted"),"Message - (changeset promote)");
+		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");
 		
 		env = new KatelloEnvironment(clienttasks, this.env_test, null, this.org, this.env_dev);
 		env.create();
@@ -85,7 +85,7 @@ public class SystemsReport extends KatelloCliTestScript{
 		cs.update_addProduct(KatelloProduct.RHEL_SERVER);
 		res = cs.promote();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (changeset promote)");
-		Assert.assertTrue(res.getStdout().trim().endsWith("promoted"),"Message - (changeset promote)");		
+		Assert.assertTrue(getOutput(res).endsWith("promoted"),"Message - (changeset promote)");		
 	}
 	
 	@Test(description="Add 2 system to env: Dev and 1 systems to: Test", dependsOnMethods={"test_promoteToEnvs"}, enabled=true)
@@ -98,31 +98,31 @@ public class SystemsReport extends KatelloCliTestScript{
 		rhsm_clean();
 		SSHCommandResult res = rhsm_register(org, this.env_dev, "3-"+sys, true);
 //		Assert.assertTrue(res.getExitCode().intValue()==1, "Check - return code (system register)");
-		String subscriptionStatus = KatelloCliTasks.grepCLIOutput("Status", res.getStdout().trim()); 
+		String subscriptionStatus = KatelloCliTasks.grepCLIOutput("Status", getOutput(res).trim()); 
 		Assert.assertTrue(subscriptionStatus.trim().equals("Not Subscribed"),"Check - system should not be subscribed (3rd registration)");		
 	}
 	
 	@Test(description="Check red systems >= 1", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
 	public void test_redSystemsCount(){
 		SSHCommandResult res = clienttasks.run_cliCmd("system report --org \""+this.org+"\" --format csv | grep \",red,\" | wc -l");
-		int redCnt = Integer.parseInt(res.getStdout().trim());
+		int redCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((redCnt>=1), "Check - red systems cound >=1");
 	}
 	
 	@Test(description="Check green systems >= 2", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
 	public void test_greenSystemsCount(){
 		SSHCommandResult res = clienttasks.run_cliCmd("system report --org \""+this.org+"\" --format csv | grep \",green,\" | wc -l");
-		int redCnt = Integer.parseInt(res.getStdout().trim());
+		int redCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((redCnt>=2), "Check - green systems cound >=2");
 	}
 	
 	@Test(description="Check report headers - compliance", dependsOnMethods={"test_addSystemsToEnvs"}, enabled=true)
 	public void test_reportHeaders_compliance(){
 		SSHCommandResult res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliance |\" | wc -l");
-		int hdrCnt = Integer.parseInt(res.getStdout().trim());
+		int hdrCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliance");
 		res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliant_until |\\|compliant until\" | wc -l");
-		hdrCnt = Integer.parseInt(res.getStdout().trim());
+		hdrCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliant_until");
 	}
 }

@@ -71,7 +71,7 @@ implements KatelloConstants {
 		log.info("Assertions: provider has been removed");
 		res = clienttasks.run_cliCmd("provider info --org \""+orgName+"\" --name \""+providerName+"\"");
 		Assert.assertTrue(res.getExitCode().intValue()==65, "Check - return code");
-		Assert.assertEquals(res.getStderr().trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
+		Assert.assertEquals(getOutput(res).trim(), "Could not find provider [ "+providerName+" ] within organization [ "+orgName+" ]", "Check - `provider info` return string");
 	}
 	
 	protected void assert_repoSynced(String orgName, String productName, String repoName){
@@ -83,22 +83,22 @@ implements KatelloConstants {
 		
 		// pacakge_count != 0
 		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Package Count:\\s+0.*";
-		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain packages count: 0");
 		// last_sync != never
 		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Last Sync:\\s+never.*";
-		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain last_sync == never");
 		// progress != Not synced
 		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Progress:\\s+Not synced.*";
-		Assert.assertFalse(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+		Assert.assertFalse(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should not contain progress == not synced");
 		
 		// package_count >0; url, progress, last_sync
 		String cnt = KatelloCliTasks.grepCLIOutput("Package Count", res.getStdout());
 		Assert.assertTrue(new Integer(cnt).intValue()>0, "Repo should contain packages count: >0");
 		REGEXP_REPO_INFO = ".*Name:\\s+"+repoName+".*Progress:\\s+Finished.*";
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_REPO_INFO), 
 				"Repo should contain progress == finished");
 	}
 	
@@ -116,19 +116,19 @@ implements KatelloConstants {
 //		res = prod.
 //		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_PROVIDER,orgName,providerName));
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+//		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 //				"List should contain info about product (requested by: provider)");
 //
 //		res = clienttasks.run_cliCmd(String.format(IKatelloProduct.LIST_BY_ENV,orgName,envName));
 //		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-//		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+//		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 //				"List should contain info about product (requested by: environment)");
 //		
 //		if(!synced){
 //			res = clienttasks.run_cliCmd(String.format(IKatelloProduct.STATUS, orgName,productName));
 //			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 //			String REGEXP_PRODUCT_STATUS = ".*Name:\\s+"+productName+".*Provider Name:\\s+"+providerName+".*Last Sync:\\s+never.*Sync State:\\s+Not synced.*";
-//			Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
+//			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
 //					"List should contain status of product (not synced)");
 //		}else{
 //			// TODO - needs an implementation - when product is synchronized.
@@ -144,7 +144,7 @@ implements KatelloConstants {
 		while(now<maxWaitSec){
 			SSHCommandResult res = clienttasks.run_cliCmd(String.format(IKatelloRepo.STATUS, orgName,prodName,repoName));
 			now = Calendar.getInstance().getTimeInMillis() / 1000;
-			if(res.getStdout().replaceAll("\n", "").matches(REGEXP_STATUS_FINISHED))
+			if(getOutput(res).replaceAll("\n", "").matches(REGEXP_STATUS_FINISHED))
 				break;
 			try{Thread.sleep(60000);}catch (Exception e){}
 		}
@@ -165,12 +165,12 @@ implements KatelloConstants {
 		String servername = System.getProperty("katello.server.hostname", "localhost");
 		log.info("Scanning ["+servername+"] for organizations with imported manifest");
 		SSHCommandResult res = clienttasks.run_cliCmd("org list -v | grep \"^Name\" | cut -d: -f2");
-		String[] lines = res.getStdout().split("\n");
+		String[] lines = getOutput(res).split("\n");
 		for(String org: lines){
 			org = org.trim();
 			res = clienttasks.run_cliCmd("product list --provider=\""+KatelloProvider.PROVIDER_REDHAT+
 					"\" --org \""+org+"\" -v | grep \"^Id:\\s\\+69\" | wc -l");
-			if(res.getStdout().trim().equals("1")){
+			if(getOutput(res).equals("1")){
 				orgs.add(org);
 			}
 		}
@@ -181,7 +181,7 @@ implements KatelloConstants {
 		log.info(String.format("Check if the org [%s] has an environment [%s]",org,environment));
 		SSHCommandResult res = clienttasks.run_cliCmd("environment list"+
 				"\" --org \""+org+"\" -v | grep \"^Name:\\s\\+"+environment+"\" | wc -l");
-		return res.getStdout().trim().equals("1");
+		return getOutput(res).equals("1");
 	}
 	
 	protected SSHCommandResult rhsm_clean(){
@@ -198,5 +198,9 @@ implements KatelloConstants {
 		if(autosubscribe)
 			cmd += " --autosubscribe";
 		return clienttasks.execute_remote(cmd);
+	}
+	
+	protected String getOutput(SSHCommandResult res){
+		return res.getStdout()+"\n"+getOutput(res).trim();
 	}
 }

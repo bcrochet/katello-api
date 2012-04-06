@@ -122,7 +122,7 @@ public class TdlExportFedora extends KatelloCliTestScript{
 		this.templateName = this.template_prod+".tdl";
 		res = tpl.export(this.env_prod, "/tmp/"+this.templateName, KatelloTemplate.FORMAT_TDL);
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (template export - for env)");
-		Assert.assertTrue(res.getStdout().trim().contains(
+		Assert.assertTrue(getOutput(res).contains(
 				"Template was exported successfully to file /tmp/"+this.templateName), 
 				"Check - return message (template export)");
 	}

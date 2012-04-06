@@ -127,9 +127,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		String poolID = KatelloCliTasks.grepCLIOutput("Id",org.subscriptions().getStdout());
 		res = clienttasks.execute_remote(String.format("subscription-manager subscribe --pool=%s",poolID));
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rhsm subscribe)");
-		Assert.assertTrue(res.getStdout().trim().startsWith("Successfully"), 
+		Assert.assertTrue(getOutput(res).startsWith("Successfully"), 
 				"Check - return message starts with word \"Successfully\" (rhsm subscribe)");
-		Assert.assertTrue(res.getStdout().trim().contains(poolID), 
+		Assert.assertTrue(getOutput(res).contains(poolID), 
 				"Check - return message contains word \"Successfully\" (rhsm subscribe)");
 	}
 	
@@ -142,7 +142,7 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		res = clienttasks.execute_remote("cat /etc/yum.repos.d/redhat.repo");// out redhat.repo
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (out redhat.repo)");
 		String REPO_STRUCT = String.format(".*name = %s.*enabled = 1.*gpgcheck = 1.*",this.repo);
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(REPO_STRUCT), "Check - redhat.repo content");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REPO_STRUCT), "Check - redhat.repo content");
 		res = clienttasks.execute_remote("yum -y install wolf --disablerepo \\* --enablerepo *"+this.repo+"*");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (yum install wolf)");
 		res = clienttasks.execute_remote("rpm -qi "+GPG_PUBKEY_RPM);
@@ -157,9 +157,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		KatelloSystem system = new KatelloSystem(clienttasks, this.system, this.org, null);
 		res = system.packages_install("lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (remote install lion)");
-		Assert.assertTrue(res.getStdout().trim().contains(KatelloSystem.OUT_REMOTE_ACTION_DONE),
+		Assert.assertTrue(getOutput(res).contains(KatelloSystem.OUT_REMOTE_ACTION_DONE),
 				"Check - output string (remote action finished)");
-		Assert.assertTrue(res.getStdout().trim().contains("lion-"),
+		Assert.assertTrue(getOutput(res).contains("lion-"),
 				"Check - output string (contains package name installed)");
 		res = clienttasks.execute_remote("rpm -q lion");
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (rpm -q lion)");

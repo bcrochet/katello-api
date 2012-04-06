@@ -17,7 +17,7 @@ public class OrgTests extends KatelloCliTestScript{
 	public void test_listOrgs_ACME_Corp(){
 		SSHCommandResult res = clienttasks.run_cliCmd("org list");
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(res.getStdout().contains(ACME_ORG), "Check - contains: ["+ACME_ORG+"]");
+		Assert.assertTrue(getOutput(res).contains(ACME_ORG), "Check - contains: ["+ACME_ORG+"]");
 	}
 	
 	@Test(groups = {"cli-org"}, 
@@ -50,7 +50,7 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res = clienttasks.run_cliCmd(cmd_list);
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
 		
-		String[] lines = res.getStdout().trim().split("\n");
+		String[] lines = getOutput(res).split("\n");
 		String name, descr, match_list;
 		for(int i=0;i<this.orgs.size();i++){
 			name = this.orgs.elementAt(i)[0];
@@ -81,7 +81,7 @@ public class OrgTests extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd(String.format("org update --name %s --description \"%s\"",
 				org_name, org_descr));
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertEquals(res.getStdout().trim(), String.format("Successfully updated org [ %s ]",org_name));
+		Assert.assertEquals(getOutput(res).trim(), String.format("Successfully updated org [ %s ]",org_name));
 		
 		// TODO - Enter special characters - check it works. 您好
 		// BZ: https://bugzilla.redhat.com/show_bug.cgi?id=741274
@@ -96,11 +96,11 @@ public class OrgTests extends KatelloCliTestScript{
 		SSHCommandResult res = clienttasks.run_cliCmd(String.format(
 				"org delete --name %s",orgName));
 		Assert.assertEquals(res.getExitCode().intValue(), 0, "Check - return code");
-		Assert.assertTrue(res.getStdout().trim().contains(String.format("Successfully deleted org [ %s ]",orgName)),"Check - return string");
+		Assert.assertTrue(getOutput(res).contains(String.format("Successfully deleted org [ %s ]",orgName)),"Check - return string");
 		
 		res = clienttasks.run_cliCmd(String.format("org info --name %s",orgName));
 		Assert.assertEquals(res.getExitCode(), new Integer(148),"Check - return code [148]");
-		Assert.assertEquals(res.getStderr().trim(), 
+		Assert.assertEquals(getOutput(res).trim(), 
 				String.format("Couldn't find organization '%s'",orgName));
 	}
 	
@@ -119,7 +119,7 @@ public class OrgTests extends KatelloCliTestScript{
 		log.finest(String.format("Org (info) match regex: [%s]",match_info));
 		// we could replace the \n there - make regex work there.
 		// Not interested in new lines at all :)
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("Org [%s] should be found in the result info",orgName));		
 	}
 }

@@ -99,7 +99,7 @@ public class PromoteErrata extends KatelloCliTestScript{
 		KatelloErrata ert = new KatelloErrata(clienttasks, ERRATA_ZOO_SEA, this.org, this.product, this.repo, this.env);
 		res = ert.info();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (errata info --environment Dev)");
-		Assert.assertTrue(res.getStdout().replaceAll("\n", "").contains(ERRATA_ZOO_SEA), "Check - errata info output");
+		Assert.assertTrue(getOutput(res).replaceAll("\n", "").contains(ERRATA_ZOO_SEA), "Check - errata info output");
 	}
 	
 }
