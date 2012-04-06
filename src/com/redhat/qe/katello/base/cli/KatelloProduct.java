@@ -2,6 +2,8 @@ package com.redhat.qe.katello.base.cli;
 
 import java.util.logging.Logger;
 import org.testng.Assert;
+
+import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -171,13 +173,13 @@ public class KatelloProduct {
 		log.info("Assertions: product exists");
 		res = list();
 		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST),
 				"List should contain info about product (requested by: provider)");
 
 		if(envName!=null){
 			res = list(envName);
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
-			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
+			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_LIST), 
 					"List should contain info about product (requested by: environment)");
 		}
 		
@@ -185,7 +187,7 @@ public class KatelloProduct {
 			res = status();
 			Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code");
 			String REGEXP_PRODUCT_STATUS = ".*Name:\\s+"+this.name+".*Provider Name:\\s+"+this.provider+".*Last Sync:\\s+never.*Sync State:\\s+Not synced.*";
-			Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
+			Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(REGEXP_PRODUCT_STATUS), 
 					"List should contain status of product (not synced)");
 		}else{
 			// TODO - needs an implementation - when product is synchronized.

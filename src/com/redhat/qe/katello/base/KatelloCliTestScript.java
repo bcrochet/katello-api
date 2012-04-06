@@ -201,6 +201,11 @@ implements KatelloConstants {
 	}
 	
 	protected String getOutput(SSHCommandResult res){
-		return res.getStdout()+"\n"+getOutput(res).trim();
+		return sgetOutput(res);
 	}
+	
+	public static String sgetOutput(SSHCommandResult res){
+		return (res.getStdout()+"\n"+res.getStderr()).trim();
+	}
+	
 }

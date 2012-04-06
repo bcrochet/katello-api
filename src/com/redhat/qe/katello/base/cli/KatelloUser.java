@@ -1,6 +1,7 @@
 package com.redhat.qe.katello.base.cli;
 
 import com.redhat.qe.auto.testng.Assert;
+import com.redhat.qe.katello.base.KatelloCliTestScript;
 import com.redhat.qe.katello.tasks.KatelloCliTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
@@ -94,7 +95,7 @@ public class KatelloUser {
 
 		String match_info = String.format(REGEXP_LIST,
 				this.username,this.email).replaceAll("\"", "");
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should be found in the list",this.username));
 		
 		// asserts: user info
@@ -105,7 +106,7 @@ public class KatelloUser {
 			REGEXP_INFO = ".*Id:\\s+\\d+.*Username:\\s+%s.*Email:\\s+%s.*Disabled:\\s+True.*";
 		match_info = String.format(REGEXP_INFO,
 				this.username, this.email).replaceAll("\"", "");
-		Assert.assertTrue(getOutput(res).replaceAll("\n", "").matches(match_info), 
+		Assert.assertTrue(KatelloCliTestScript.sgetOutput(res).replaceAll("\n", "").matches(match_info), 
 				String.format("User [%s] should contain correct info",this.username));			
 	}
 	
