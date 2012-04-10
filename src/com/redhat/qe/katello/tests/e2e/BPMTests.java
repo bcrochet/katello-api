@@ -70,6 +70,8 @@ static{
 		changeset_name = "changesetBPM_"+uid;
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
+		log.info("Clean RHSM registration");
+		clienttasks.execute_remote("subscription-manager unregister");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")
@@ -169,7 +171,7 @@ static{
 	@Test(description="List available subscriptions", dependsOnMethods={"test_rhsm_register"})
 	public void test_rhsm_listAvailableSubscriptions(){
 		// ProductName
-		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep ProductName:");
+		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep -E \"ProductName:|Product Name:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		Assert.assertTrue(exec_result.getStdout().contains(product_name), "Check - subscription.ProductName");
 		// Quantity
