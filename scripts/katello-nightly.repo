@@ -8,6 +8,6 @@ skip_if_unavailable=1
 [candlepin-epel6]
 name=Candlepin from fedorahosted: epel6
 baseurl=http://repos.fedorapeople.org/repos/candlepin/candlepin/epel-$releasever/$basearch/
-enabled=1
+enabled=0
 gpgcheck=0
 skip_if_unavailable=1
