@@ -128,6 +128,8 @@ public class RhsmOnlyPermissions extends KatelloCliTestScript{
 		KatelloSystem sys = new KatelloSystem(clienttasks, this.system, this.org, null);
 		SSHCommandResult res = sys.subscriptions_available();
 		String pool = KatelloCliTasks.grepCLIOutput("PoolId", getOutput(res).trim(),1);
+		if(pool==null)
+			pool = KatelloCliTasks.grepCLIOutput("Pool Id", getOutput(res).trim(),1); // new version of RHSM
 		
 		String cmd = "subscription-manager subscribe --pool "+pool;
 		res = clienttasks.execute_remote(cmd);

@@ -180,7 +180,7 @@ static{
 		Assert.assertTrue(exec_result.getStdout().contains("unlimited"), "Check - subscription.Quantity");
 		
 		// Store poolid
-		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep PoolId:");
+		exec_result = clienttasks.execute_remote("subscription-manager list --available | grep -E \"PoolId:|Pool Id:\"");
 		Assert.assertEquals(exec_result.getExitCode().intValue(), 0, "Check - return code");
 		rhsm_pool_id = exec_result.getStdout().trim().split(":")[1].trim();
 		log.fine(String.format("Subscription is available for product: [%s] with poolid: [%s]",
