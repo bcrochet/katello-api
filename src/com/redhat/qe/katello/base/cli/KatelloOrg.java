@@ -13,6 +13,8 @@ public class KatelloOrg {
 	public static final String CMD_LIST = "org list";
 	public static final String CMD_SUBSCRIPTIONS = "org subscriptions";
 	public static final String CMD_UEBERCERT = "org uebercert";
+	public static final String CMD_DELETE = "org delete";
+	
 	
 	public static final String ERR_TEMPLATE_NOTFOUND = 
 			"Could not find template [ %s ]";	
@@ -68,6 +70,14 @@ public class KatelloOrg {
 
 	public SSHCommandResult uebercert(){
 		String cmd = CMD_UEBERCERT;
+		
+		if(this.name != null)
+			cmd += " --name \""+this.name+"\"";			
+		return cli.run_cliCmd(cmd);
+	}
+
+	public SSHCommandResult delete(){
+		String cmd = CMD_DELETE;
 		
 		if(this.name != null)
 			cmd += " --name \""+this.name+"\"";			
