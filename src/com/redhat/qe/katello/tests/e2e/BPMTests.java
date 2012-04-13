@@ -71,7 +71,7 @@ static{
 		consumer_name = uid+"-`hostname`";
 		rhsm_pool_id = null; // going to be set after listing avail. subscriptions.
 		log.info("Clean RHSM registration");
-		clienttasks.execute_remote("subscription-manager unregister");
+		clienttasks.execute_remote("subscription-manager unregister || true");
 	}
 	
 	@Test(description="Create a new Org and create a user who can manage providers, systems and environments.")

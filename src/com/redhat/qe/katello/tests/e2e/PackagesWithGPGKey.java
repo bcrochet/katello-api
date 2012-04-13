@@ -51,9 +51,9 @@ public class PackagesWithGPGKey extends KatelloCliTestScript{
 		this.gpg_key = "gpg_zoo"+uniqueID;
 		
 		log.info("E2E - Cleanup GPG stuff");
-		clienttasks.execute_remote("yum -y erase wolf lion");
-		clienttasks.execute_remote("subscription-manager unregister");
-		clienttasks.execute_remote("rpm -e "+GPG_PUBKEY_RPM);
+		clienttasks.execute_remote("yum -y erase wolf lion || true");
+		clienttasks.execute_remote("subscription-manager unregister || true");
+		clienttasks.execute_remote("rpm -e "+GPG_PUBKEY_RPM+" || true");
 		
 		log.info("E2E - Create org");
 		KatelloOrg org = new KatelloOrg(this.clienttasks, this.org, null);
