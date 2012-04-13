@@ -3,6 +3,8 @@ package com.redhat.qe.katello.tests.e2e;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import com.redhat.qe.auto.testng.Assert;
@@ -124,5 +126,12 @@ public class SystemsReport extends KatelloCliTestScript{
 		res = clienttasks.run_cliCmd("system report --org "+this.org+" | grep \"| compliant_until |\\|compliant until\" | wc -l");
 		hdrCnt = Integer.parseInt(getOutput(res).trim());
 		Assert.assertTrue((hdrCnt==1), "Check - header compliant_until");
+	}
+	
+	@AfterTest(description="Cleanup the org - allow others to reuse the manifest", alwaysRun=true)
+	public void tearDown(){
+		KatelloOrg org = new KatelloOrg(clienttasks, this.org, null);
+		SSHCommandResult res = org.delete();
+		Assert.assertTrue(res.getExitCode().intValue()==0, "Check - return code (org delete)");
 	}
 }
