@@ -74,7 +74,7 @@ public class ConsumersTest extends KatelloTestScript {
 		Assert.assertEquals("/consumers/"+consumer_id, consumer.getHref(),"Check returned: href");
 		Assert.assertEquals(consumer_name, consumer.getName(),"Check returned: name");
 		Assert.assertEquals(consumer_name, consumer.getFacts().get("network.hostname"),"Check returned: facts.network.hostname");
-		Assert.assertNotNull(consumer.getIdCert().get("id"), "Check returned: idCert.id");
+		Assert.assertNotNull(consumer.getIdCert().getId(), "Check returned: idCert.id");
 	}
 	
 	@Test( groups = {"testConsumers"}, description = "Update consumer details" , dependsOnMethods = {"test_createConsumer"})

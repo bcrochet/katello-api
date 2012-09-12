@@ -22,7 +22,7 @@ public class DemoKatelloApi extends KatelloTestScript {
             servertasks.createEnvironment(org.getCpKey(), environmentName, "Env Description - " + environmentName, KatelloEnvironment.LIBRARY);
             consumer = servertasks.createConsumer(org.getCpKey(), hostname, uuid);
             KatelloSystem _return = servertasks.updatePackages(consumer);
-            log.info("Return string is: " + _return);
+            log.info("Return cert is: " + _return.getIdCert().getCert());
         } catch (KatelloApiException e) {
             e.printStackTrace();
         }
