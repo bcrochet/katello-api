@@ -25,6 +25,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.jboss.resteasy.client.ClientExecutor;
+import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 
 import com.google.inject.AbstractModule;
@@ -32,6 +33,13 @@ import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.redhat.qe.auto.testng.TestScript;
+import com.redhat.qe.katello.resource.ConsumerResource;
+import com.redhat.qe.katello.resource.OrganizationResource;
+import com.redhat.qe.katello.resource.PoolResource;
+import com.redhat.qe.katello.resource.ProviderResource;
+import com.redhat.qe.katello.resource.RepositoryResource;
+import com.redhat.qe.katello.resource.SystemResource;
+import com.redhat.qe.katello.resource.UserResource;
 import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.katello.tasks.impl.KatelloApiTasks;
 
@@ -46,6 +54,58 @@ public class KatelloApiModule extends AbstractModule {
         Names.bindProperties(binder(), System.getProperties());
     }
     
+    @Provides @Named("katello.url")
+    String provideKatelloUrl(
+            @Named("katello.server.protocol") String protocol,
+            @Named("katello.server.hostname") String hostname,
+            @Named("katello.server.port") int port,
+            @Named("katello.product") String product
+        ) {
+        return String.format("%s://%s:%d/%s/api", protocol, hostname, port, product);
+    }
+    
+    @Provides
+    OrganizationResource provideOrganizationResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(OrganizationResource.class, url, clientExecutor);
+    }
+    
+    @Provides
+    RepositoryResource provideRepositoryResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(RepositoryResource.class, url, clientExecutor);
+    }
+
+    @Provides
+    ConsumerResource provideConsumerResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(ConsumerResource.class, url, clientExecutor);
+    }
+
+    @Provides
+    UserResource provideUserResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(UserResource.class, url, clientExecutor);
+    }
+
+    @Provides
+    PoolResource providePoolResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(PoolResource.class, url, clientExecutor);
+    }
+
+    @Provides
+    SystemResource provideSystemResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(SystemResource.class, url, clientExecutor);
+    }
+
+    @Provides
+    ProviderResource provideProviderResource(
+            ClientExecutor clientExecutor, @Named("katello.url") String url) {
+        return ProxyFactory.create(ProviderResource.class, url, clientExecutor);
+    }
+
     @Provides
     SchemeRegistry provideSchemeRegistry() {
         SchemeRegistry schemeRegistry = new SchemeRegistry();
@@ -83,7 +143,7 @@ public class KatelloApiModule extends AbstractModule {
     }
 
     @Provides
-    ClientExecutor provideClientExecutor(AuthCache authCache, SchemeRegistry schemeRegistry, @Named("katello.admin.user") String username, @Named("katello.admin.password") String password,
+    ClientExecutor provideClientExecutor(AuthCache authCache, SchemeRegistry schemeRegistry, @Named("katello.api.user") String username, @Named("katello.api.password") String password,
             @Named("katello.server.hostname") String hostname, @Named("katello.server.port") int port) {
         HttpParams params = new BasicHttpParams();
 

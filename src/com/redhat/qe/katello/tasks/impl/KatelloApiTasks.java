@@ -13,7 +13,6 @@ import javax.activation.FileDataSource;
 
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
@@ -46,14 +45,13 @@ import com.redhat.qe.katello.tasks.KatelloTasks;
  */
 public class KatelloApiTasks implements KatelloTasks {
 	protected static Logger log = Logger.getLogger(KatelloApiTasks.class.getName());
-	private ClientExecutor executor;
-	private OrganizationResource orgResource;
-	private ProviderResource providerResource;
-	private RepositoryResource repositoryResource;
-	private ConsumerResource consumerResource;
-	private UserResource userResource;
-	private PoolResource poolResource;
-	private SystemResource systemResource;
+	final private OrganizationResource orgResource;
+	final private ProviderResource providerResource;
+	final private RepositoryResource repositoryResource;
+	final private ConsumerResource consumerResource;
+	final private UserResource userResource;
+	final private PoolResource poolResource;
+	final private SystemResource systemResource;
 	
 	static {
         // this initialization only needs to be done once per VM
@@ -61,20 +59,21 @@ public class KatelloApiTasks implements KatelloTasks {
 	}
 	
 	@Inject
-	public KatelloApiTasks(ClientExecutor clientExecutor) {
-        executor = clientExecutor;
-        String protocol = System.getProperty("katello.server.protocol", "https");
-        String hostname = System.getProperty("katello.server.hostname", "localhost");
-        int port = Integer.valueOf(System.getProperty("katello.server.port", "443"));
-        String product = System.getProperty("katello.product", "katello");        
-        String url = String.format("%s://%s:%d/%s/api", protocol, hostname, port, product);
-        orgResource = ProxyFactory.create(OrganizationResource.class, url, executor);
-        providerResource = ProxyFactory.create(ProviderResource.class, url, executor);
-        repositoryResource = ProxyFactory.create(RepositoryResource.class, url, executor);
-        consumerResource = ProxyFactory.create(ConsumerResource.class, url, executor);
-        userResource = ProxyFactory.create(UserResource.class, url, executor);
-        poolResource = ProxyFactory.create(PoolResource.class, url, executor);
-        systemResource = ProxyFactory.create(SystemResource.class, url, executor);
+	public KatelloApiTasks(ClientExecutor executor, 
+	        OrganizationResource orgResource,
+	        ProviderResource providerResource,
+	        RepositoryResource repositoryResource,
+	        ConsumerResource consumerResource,
+	        UserResource userResource,
+	        PoolResource poolResource,
+	        SystemResource systemResource) {
+        this.orgResource = orgResource;
+        this.providerResource = providerResource;
+        this.repositoryResource = repositoryResource;
+        this.consumerResource = consumerResource;
+        this.userResource = userResource;
+        this.poolResource = poolResource;
+        this.systemResource = systemResource;
 	}
 //	private ExecCommands localCommandRunner = null;
 // # ************************************************************************* #

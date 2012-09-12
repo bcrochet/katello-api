@@ -2,11 +2,13 @@ package com.redhat.qe.katello.base;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.testng.annotations.Guice;
 
 import com.google.inject.Inject;
+import com.redhat.qe.katello.base.obj.KatelloOrg;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.guice.KatelloApiModule;
 import com.redhat.qe.katello.tasks.KatelloTasks;
