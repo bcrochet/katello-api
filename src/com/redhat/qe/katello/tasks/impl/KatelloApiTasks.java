@@ -17,7 +17,7 @@ import org.jboss.resteasy.client.ProxyFactory;
 import org.jboss.resteasy.plugins.providers.RegisterBuiltin;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 
-import com.redhat.qe.katello.base.KatelloApi;
+import com.google.inject.Inject;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.obj.KatelloEntitlement;
 import com.redhat.qe.katello.base.obj.KatelloEnvironment;
@@ -60,8 +60,9 @@ public class KatelloApiTasks implements KatelloTasks {
         RegisterBuiltin.register(ResteasyProviderFactory.getInstance());	            
 	}
 	
-	public KatelloApiTasks() {
-        executor = KatelloApi.createExecutor();
+	@Inject
+	public KatelloApiTasks(ClientExecutor clientExecutor) {
+        executor = clientExecutor;
         String protocol = System.getProperty("katello.server.protocol", "https");
         String hostname = System.getProperty("katello.server.hostname", "localhost");
         int port = Integer.valueOf(System.getProperty("katello.server.port", "443"));

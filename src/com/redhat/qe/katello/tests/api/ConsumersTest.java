@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import com.google.inject.Inject;
 import com.redhat.qe.Assert;
 import com.redhat.qe.katello.base.KatelloApiException;
 import com.redhat.qe.katello.base.KatelloTestScript;
@@ -19,7 +20,7 @@ import com.redhat.qe.katello.common.KatelloUtils;
 
 @Test(groups={"cfse-api"})
 public class ConsumersTest extends KatelloTestScript {
-    protected static Logger log = Logger.getLogger(ConsumersTest.class.getName());
+    @Inject protected static Logger log;
 
 	private String consumer_id = null;
 	private String consumer_name = null;
