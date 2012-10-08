@@ -53,6 +53,7 @@ allprojects {
 
 configurations {
     testng
+    deployerJars
     compile.exclude module: 'scannotation'
 }
 
@@ -133,6 +134,7 @@ dependencies {
 //    }
     groovy 'org.codehaus.groovy:groovy:1.8.6'
     testng 'org.testng:testng:6.7'
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
 }
 
 task printClasspath << {
@@ -213,3 +215,12 @@ task writeNewPom << {
     }.writeTo("$buildDir/libs/pom.xml")
 }
     
+uploadArchives {
+    repositories.mavenDeployer {
+        name = 'sshDeployer'
+        configuration = configurations.deployerJars
+        repository(url: 'scp://clojars.org') {
+            authentication(userName: "clojars")
+        }
+    }
+}
