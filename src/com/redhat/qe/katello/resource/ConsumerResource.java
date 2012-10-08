@@ -66,6 +66,11 @@ public interface ConsumerResource {
     @POST
     @Path("/{id}/entitlements")
     @Produces(MediaType.APPLICATION_JSON)
+    public ClientResponse<List<KatelloEntitlement>> subscribeWithProductIds(@PathParam("id") String consumerId, @QueryParam("product") String[] productIds);
+    
+    @POST
+    @Path("/{id}/entitlements")
+    @Produces(MediaType.APPLICATION_JSON)
     public ClientResponse<String> subscribe(@PathParam("id") String consumerId);
     
     @PUT

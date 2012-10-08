@@ -1,5 +1,9 @@
 package com.redhat.qe.katello.base.obj;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class KatelloPool {
     private String id;
     private KatelloOwner owner;
@@ -26,18 +30,22 @@ public class KatelloPool {
 //        this.owner = new KatelloOwner((String)jown.get("id"), (String)jown.get("key"), (String)jown.get("displayName"), (String)jown.get("href"));
 //    }
     
+    @JsonProperty("id")
     public String getId() {
         return id;
     }
 
+    @JsonProperty("id")
     public void setId(String id) {
         this.id = id;
     }
     
+    @JsonProperty("owner")
     public KatelloOwner getOwner() {
         return owner;
     }
     
+    @JsonProperty("owner")
     public void setOwner(KatelloOwner owner) {
         this.owner = owner;
     }

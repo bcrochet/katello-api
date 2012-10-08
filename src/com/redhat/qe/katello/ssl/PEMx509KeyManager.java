@@ -26,6 +26,10 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.net.ssl.SSLEngine;
@@ -49,18 +53,25 @@ import net.oauth.signature.pem.PKCS1EncodedKeySpec;
 public class PEMx509KeyManager extends X509ExtendedKeyManager {
     protected Logger log = Logger.getLogger(PEMx509KeyManager.class.getName());
 
-    private static String [] aliases = {"alias"};
+    private Set<String> aliases = new HashSet<String>();
+//    private static String [] aliases = {"alias"};
 
-    private PrivateKey privateKey;
+    private Map<String,PrivateKey> privateKeys = new HashMap<String,PrivateKey>();
+
     // we're assuming only a single certificate in the pem (so not a chain at all,
     // just the certificate for the subject).
-    private X509Certificate [] certificateChain = new X509Certificate[1];
+    private Map<String,X509Certificate[]> certificateChains = new HashMap<String,X509Certificate[]>();
     
     public void addPEM(String certificate, String privateKey)
         throws GeneralSecurityException, IOException {
+        X509Certificate[] certificateChain = new X509Certificate[1];
         certificateChain[0] = getX509CertificateFromPem(certificate);
-        this.privateKey = getPrivateKeyFromPem(privateKey);
+        PrivateKey thePrivateKey = getPrivateKeyFromPem(privateKey);
 
+        String alias = certificateChain[0].getSubjectDN().getName();
+        aliases.add(alias);
+        privateKeys.put(alias, thePrivateKey);
+        certificateChains.put(alias, certificateChain);
         log.finer("cert info! " + certificateChain[0].getSubjectDN().getName());
     }
 
@@ -110,37 +121,50 @@ public class PEMx509KeyManager extends X509ExtendedKeyManager {
         return cert;
     }
 
-    @Override
-    public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
-        if ( privateKey == null ) {
+    private String getClientAlias() {
+        String pem = KatelloPemThreadLocal.get();
+        if (pem == null) {
             return null;
         }
-        return aliases[0];
+        String alias = null;
+        X509Certificate[] certificateChain = new X509Certificate[1];
+        try {
+            certificateChain[0] = getX509CertificateFromPem(pem);
+            alias = certificateChain[0].getSubjectDN().getName();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        log.info("client alias: " + alias);
+        return alias;
+    }
+    
+    @Override
+    public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
+        return getClientAlias();
     }
 
     @Override
     public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
         return null;
-        //return aliases[0];
     }
 
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
         log.fine("returning x509 certificate");
-        return certificateChain;
+        return certificateChains.get(alias);
     }
 
     @Override
     public String[] getClientAliases(String keyType, Principal[] issuers) {
-        if ( privateKey == null ) {
-            return null;
-        }
-        return aliases;
+        return aliases.toArray(new String[aliases.size()]);
     }
 
     @Override
     public PrivateKey getPrivateKey(String alias) {
-        return privateKey;
+        return privateKeys.get(alias);
     }
 
     @Override
@@ -152,15 +176,12 @@ public class PEMx509KeyManager extends X509ExtendedKeyManager {
     public String chooseEngineClientAlias(String[] keyType,
         Principal[] issuers, SSLEngine engine) {
         try {
+            engine.getSession().invalidate();
             engine.beginHandshake();
         } catch (SSLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        if ( privateKey == null ) {
-            return null;
-        }
-        return aliases[0];
+        return getClientAlias();
     }
 
     @Override

@@ -442,6 +442,15 @@ public class KatelloApiTasks implements KatelloTasks {
 	    return _return.getEntity();
 	}
 	
+	@Override
+	public List<KatelloEntitlement> subscribeConsumerWithProduct(String consumerId, String[] productIds) throws KatelloApiException {
+	    ClientResponse<List<KatelloEntitlement>> _return = null;
+	    _return = consumerResource.subscribeWithProductIds(consumerId, productIds);
+	    if ( _return.getStatus() > 299 ) throw new KatelloApiException(_return);
+	    log.info(String.format("Subscribing consumer: [%s]", consumerId));
+	    return _return.getEntity();
+	}
+	
 	/* (non-Javadoc)
      * @see com.redhat.qe.katello.tasks.IKatelloTasks#subscribeConsumer(java.lang.String, java.lang.String)
      */
@@ -790,7 +799,7 @@ public class KatelloApiTasks implements KatelloTasks {
         facts.put("net.interface.lo.ipaddr", "127.0.0.1");
         facts.put("network.hostname", hostname);
         facts.put("cpu.hypervisor_vendor", "KVM");
-        facts.put("system.entitlements_valid", Boolean.TRUE);
+//        facts.put("system.entitlements_valid", Boolean.TRUE);
         facts.put("dmi.memory.type", "RAM");
         facts.put("dmi.bios.address", "0xe8000");
         facts.put("dmi.bios.runtime_size", "96 KB");
@@ -807,7 +816,7 @@ public class KatelloApiTasks implements KatelloTasks {
         facts.put("dmi.chassis.manufacturer", "RED HAT");
         facts.put("dmi.bios.bios_revision", "1.0");
         facts.put("dmi.chassis.version", "Not Specified");
-        facts.put("distribution.version", "6.1");
+        facts.put("distribution.version", "6.3");
         facts.put("uname.version", "#1 SMP Tue Apr 5 19:58:31 EDT 2011");
         facts.put("net.interface.lo.hwaddr", "00:00:00:00:00:00");
         facts.put("dmi.bios.vendor", "QEMU");

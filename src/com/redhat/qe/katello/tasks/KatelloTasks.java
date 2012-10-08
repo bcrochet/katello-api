@@ -85,7 +85,10 @@ public interface KatelloTasks {
             throws KatelloApiException;
 
     public String subscribeConsumer(String consumerId) throws KatelloApiException;
-    
+
+    public List<KatelloEntitlement> subscribeConsumerWithProduct(String consumerId,
+            String[] productIds) throws KatelloApiException;
+
     public List<KatelloEntitlement> subscribeConsumerWithPool(String consumerId,
             String poolId) throws KatelloApiException;
 
