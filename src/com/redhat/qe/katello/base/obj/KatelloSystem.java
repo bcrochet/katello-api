@@ -62,6 +62,8 @@ public class KatelloSystem extends _KatelloObject{
 	private KatelloIdCert idCert;
 	private KatelloEnvironment environment;
 	
+	public KatelloSystem() {} // For RestEasy
+	
 	public KatelloSystem(String pName, String pOrg, String pEnv){
 		this.name = pName;
 		this.org = pOrg;

@@ -4,7 +4,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'com.redhat.qe'
-ext.API_VERSION = '2.0.3'
+ext.API_VERSION = '2.0.4'
 
 task release(dependsOn: 'jar') << {
 }

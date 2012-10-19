@@ -27,6 +27,7 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -35,6 +36,7 @@ import org.jboss.resteasy.client.ClientRequestFactory;
 import org.jboss.resteasy.client.core.ClientInterceptorRepository;
 import org.jboss.resteasy.spi.interception.ClientExecutionInterceptor;
 
+import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -178,6 +180,8 @@ public abstract class ClientFactoryModule extends PrivateModule {
     @Provides
     HttpResponseInterceptor[] provideHttpResponseInterceptors() {
         return new HttpResponseInterceptor[] {
+                // Work around for authentication. Katello doesn't return the WWW-Authenticate header
+                // See https://bugzilla.redhat.com/show_bug.cgi?id=804661
                 new HttpResponseInterceptor() {            
                     @Override
                     public void process(HttpResponse response, HttpContext context)
@@ -187,6 +191,8 @@ public abstract class ClientFactoryModule extends PrivateModule {
                         }
                     }            
                 },
+                // Fix for Katello munging the content-type header on some Candlepin requests
+                // See https://bugzilla.redhat.com/show_bug.cgi?id=866359
                 new HttpResponseInterceptor() {
                     @Override
                     public void process(HttpResponse response, HttpContext context)
@@ -204,8 +210,13 @@ public abstract class ClientFactoryModule extends PrivateModule {
         };
     }
     
+    static class TimeoutHolder {
+        @Inject(optional=true) @Named("katello.client.timeout") int value = 120000;
+    }
+    
     @Provides
-    HttpClient provideHttpClient(ClientConnectionManager clientConnectionManager, HttpParams params, HttpResponseInterceptor[] responseInterceptors) {
+    HttpClient provideHttpClient(ClientConnectionManager clientConnectionManager, HttpParams params, HttpResponseInterceptor[] responseInterceptors, TimeoutHolder timeout) {
+        HttpConnectionParams.setConnectionTimeout(params, timeout.value);
         DefaultHttpClient httpClient = new DefaultHttpClient(clientConnectionManager, params);
         for (int i = 0; i < responseInterceptors.length; ++i) {
             httpClient.addResponseInterceptor(responseInterceptors[i]);

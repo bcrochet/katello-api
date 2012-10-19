@@ -173,6 +173,14 @@ public class KatelloApiTasks implements KatelloTasks {
         return _return.getEntity();
     }
 
+    @Override
+    public List<KatelloSystem> listConsumers() throws KatelloApiException {
+        ClientResponse<List<KatelloSystem>> _return = null;
+        _return = systemResource.list();
+        if (_return.getStatus() > 299) throw new KatelloApiException(_return);
+        return _return.getEntity();
+    }
+
     /* (non-Javadoc)
      * @see com.redhat.qe.katello.tasks.IKatelloTasks#getProductsByOrg(java.lang.String)
      */
@@ -475,6 +483,23 @@ public class KatelloApiTasks implements KatelloTasks {
 	    _return = systemResource.subscribe(consumerId, pool);
 	    if (_return.getStatus() > 299) throw new KatelloApiException(_return);
 	    log.info(String.format("Subscribing consumer: [%s] to the pool: [%s]", consumerId, poolId));
+	    return _return.getEntity();
+	}
+	
+	@Override
+	public KatelloSystem registerSystemWithActivationKey(String activationKey,
+	        String orgName, String hostname, String uuid, String serviceLevel) throws KatelloApiException {
+	    ClientResponse<KatelloSystem> _return = null;
+	    Map<String,Object> activationInfo = new HashMap<String,Object>();
+	    activationInfo.put("activation_keys", activationKey);
+	    activationInfo.put("facts", createFacts(hostname, uuid, orgName));
+	    activationInfo.put("installedProducts", createPackages());
+	    activationInfo.put("name", hostname);
+	    activationInfo.put("type", "system");
+	    activationInfo.put("serviceLevel", serviceLevel);
+	    _return = orgResource.registerWithActivationKey(orgName, activationInfo);
+	    if (_return.getStatus() > 299) throw new KatelloApiException(_return);
+	    log.info(String.format("Subscribing with activation key: [%s]", activationKey));
 	    return _return.getEntity();
 	}
 	
@@ -889,5 +914,6 @@ public class KatelloApiTasks implements KatelloTasks {
         allFacts.put("type", "system");
         return allFacts;
     }
+
 
 }

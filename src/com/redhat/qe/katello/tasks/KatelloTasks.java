@@ -41,6 +41,8 @@ public interface KatelloTasks {
     public KatelloSystem getConsumer(String consumer_id)
             throws KatelloApiException;
 
+    public List<KatelloSystem> listConsumers() throws KatelloApiException;
+    
     public List<KatelloProduct> getProductsByOrg(String org_name)
             throws KatelloApiException;
 
@@ -95,6 +97,9 @@ public interface KatelloTasks {
     public KatelloSystem subscribeConsumerViaSystem(String consumerId,
             String poolId) throws KatelloApiException;
 
+    public KatelloSystem registerSystemWithActivationKey( 
+            String activationKey, String orgName, String hostname, String uuid, String serviceLevel) throws KatelloApiException;
+    
     public KatelloProvider getProvider(String org_name, String byName)
             throws KatelloApiException;
 
