@@ -3,17 +3,30 @@ package com.redhat.qe.katello.base;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Logger;
+
 import org.testng.Assert;
+import org.testng.annotations.Guice;
+
+import com.google.inject.Inject;
 import com.redhat.qe.katello.base.obj.KatelloProvider;
 import com.redhat.qe.katello.base.obj.KatelloRepo;
 import com.redhat.qe.katello.common.KatelloConstants;
 import com.redhat.qe.katello.common.KatelloUtils;
+import com.redhat.qe.katello.guice.KatelloCliModule;
+import com.redhat.qe.katello.tasks.KatelloTasks;
 import com.redhat.qe.tools.SSHCommandResult;
 
+@Guice(modules = { KatelloCliModule.class })
 public class KatelloCliTestScript 
 extends com.redhat.qe.auto.testng.TestScript 
 implements KatelloConstants {
-
+    protected KatelloTasks katelloTasks;
+    
+    @Inject
+    KatelloCliTestScript(KatelloTasks katelloTasks) {
+        this.katelloTasks = katelloTasks;
+    }
+    
 	protected static Logger log = Logger.getLogger(KatelloCliTestScript.class.getName());
 
 	private int platform_id = -1; // made a class property - in case in the tests there would be a need to check platform.
